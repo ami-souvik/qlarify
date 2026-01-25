@@ -1,28 +1,37 @@
 
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { randomUUID } from 'crypto';
+
+// Initialize the DynamoDB Client
+// The SDK will automatically pick up credentials from process.env if set
+// (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION)
+const client = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(client);
 
 export async function POST(req: Request) {
   try {
     const { rating, comment } = await req.json();
-    
-    // We'll save to a CSV file in the project root or /tmp depending on environment
-    // For local dev, project root is fine.
-    const feedbackFile = path.join(process.cwd(), 'feedback.csv');
+
     const timestamp = new Date().toISOString();
-    
-    // Simple CSV escaping
-    const cleanComment = (comment || '').replace(/"/g, '""');
-    const csvLine = `"${timestamp}",${rating},"${cleanComment}"\n`;
+    const feedbackId = randomUUID();
 
-    const fileExists = fs.existsSync(feedbackFile);
-    
-    if (!fileExists) {
-        fs.writeFileSync(feedbackFile, 'timestamp,rating,comment\n');
-    }
+    // Table Schema:
+    // PK: "FEEDBACK" (Static partition key to group all feedback)
+    // SK: <Timestamp>#<UUID> (Sort key to order by time)
+    const command = new PutCommand({
+      TableName: "UserFeedback",
+      Item: {
+        PK: "FEEDBACK",
+        SK: `${timestamp}#${feedbackId}`,
+        rating: Number(rating),
+        comment: comment,
+        createdAt: timestamp,
+      },
+    });
 
-    fs.appendFileSync(feedbackFile, csvLine);
+    await docClient.send(command);
 
     return NextResponse.json({ status: "success" });
   } catch (error) {
