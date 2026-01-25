@@ -31,13 +31,15 @@ const EditNodeModal = ({
     onClose,
     onSave,
     initialLabel,
-    initialRole
+    initialRole,
+    mode
 }: {
     isOpen: boolean;
     onClose: () => void;
     onSave: (label: string, role: string) => void;
     initialLabel: string;
     initialRole: string;
+    mode: 'edit' | 'add';
 }) => {
     const [label, setLabel] = useState(initialLabel);
     const [role, setRole] = useState(initialRole);
@@ -55,7 +57,7 @@ const EditNodeModal = ({
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
             <div className="bg-white rounded-xl shadow-2xl w-80 p-5 border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-semibold text-slate-900">Edit Node</h3>
+                    <h3 className="font-semibold text-slate-900">{mode === 'edit' ? 'Edit Node' : 'Add Child Node'}</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
                         <X size={18} />
                     </button>
@@ -69,6 +71,7 @@ const EditNodeModal = ({
                             onChange={(e) => setLabel(e.target.value)}
                             className="w-full text-sm p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                             autoFocus
+                            placeholder={mode === 'add' ? "New Service..." : ""}
                         />
                     </div>
 
@@ -90,7 +93,7 @@ const EditNodeModal = ({
                             Cancel
                         </button>
                         <button onClick={() => onSave(label, role)} className="flex-1 py-2 text-sm text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium flex justify-center items-center gap-2">
-                            <Check size={14} /> Save
+                            <Check size={14} /> {mode === 'edit' ? 'Save' : 'Add'}
                         </button>
                     </div>
                 </div>
@@ -104,10 +107,16 @@ export default function DiagramRenderer({ data, onInit }: { data: DiagramData | 
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     // Edit Modal State
-    const [editModal, setEditModal] = useState({ isOpen: false, nodeId: '', label: '', role: '' });
+    const [editModal, setEditModal] = useState<{ isOpen: boolean, nodeId: string, label: string, role: string, mode: 'edit' | 'add' }>({
+        isOpen: false, nodeId: '', label: '', role: '', mode: 'edit'
+    });
 
     const handleEditNode = useCallback((id: string, label: string, role: string) => {
-        setEditModal({ isOpen: true, nodeId: id, label, role });
+        setEditModal({ isOpen: true, nodeId: id, label, role, mode: 'edit' });
+    }, []);
+
+    const handleAddNode = useCallback((parentId: string) => {
+        setEditModal({ isOpen: true, nodeId: parentId, label: 'New Node', role: 'service', mode: 'add' });
     }, []);
 
     const handleDeleteNode = useCallback((id: string) => {
@@ -116,19 +125,72 @@ export default function DiagramRenderer({ data, onInit }: { data: DiagramData | 
     }, [setNodes, setEdges]);
 
     const handleSaveNode = (newLabel: string, newRole: string) => {
-        setNodes((nds) => nds.map((n) => {
-            if (n.id === editModal.nodeId) {
-                return {
-                    ...n,
-                    data: {
-                        ...n.data,
-                        label: newLabel,
-                        role: newRole
-                    }
-                };
-            }
-            return n;
-        }));
+        if (editModal.mode === 'edit') {
+            setNodes((nds) => nds.map((n) => {
+                if (n.id === editModal.nodeId) {
+                    return {
+                        ...n,
+                        data: {
+                            ...n.data,
+                            label: newLabel,
+                            role: newRole
+                        }
+                    };
+                }
+                return n;
+            }));
+        } else {
+            // Add Mode
+            const newId = `node-${Date.now()}`;
+            const newNode: Node = {
+                id: newId,
+                type: 'custom',
+                data: {
+                    label: newLabel,
+                    role: newRole,
+                    onEdit: handleEditNode,
+                    onDelete: handleDeleteNode,
+                    onAdd: handleAddNode
+                },
+                position: { x: 0, y: 0 }
+            };
+
+            const newEdge: Edge = {
+                id: `edge-${editModal.nodeId}-${newId}`,
+                source: editModal.nodeId,
+                target: newId,
+                type: 'smoothstep',
+                markerEnd: { type: MarkerType.ArrowClosed },
+                animated: true,
+                style: { stroke: '#64748b', strokeWidth: 2 },
+                labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 },
+            };
+
+            // Apply layout to new nodes
+            // We use a timeout to let state update first or we can compute layout immediately on previous state + new node
+            // Computing immediately is safer.
+            setNodes((prevNodes) => {
+                // We need edges too to compute layout.
+                // This is tricky inside a setState callback if we don't have access to current edges.
+                // We will just add the node and let a separate effect or the user arrange it?
+                // Or we can assume 'edges' from the outer scope is relatively fresh or use a ref.
+                // Let's just add it for now at 0,0 and see if we can trigger layout.
+                return [...prevNodes, newNode];
+            });
+
+            setEdges((prevEdges) => {
+                const updatedEdges = [...prevEdges, newEdge];
+                // HACK: Trigger layout update after a brief delay to allow nodes to settle
+                setTimeout(() => {
+                    setNodes(nds => {
+                        const { nodes: lNodes, edges: lEdges } = getLayoutedElements(nds, updatedEdges, 'LR');
+                        return lNodes;
+                    });
+                    setEdges(eds => updatedEdges);
+                }, 50);
+                return updatedEdges;
+            });
+        }
         setEditModal(prev => ({ ...prev, isOpen: false }));
     };
 
@@ -142,7 +204,8 @@ export default function DiagramRenderer({ data, onInit }: { data: DiagramData | 
                 label: n.label,
                 role: n.role,
                 onEdit: handleEditNode,
-                onDelete: handleDeleteNode
+                onDelete: handleDeleteNode,
+                onAdd: handleAddNode
             },
             position: { x: 0, y: 0 }
         }));
@@ -192,6 +255,7 @@ export default function DiagramRenderer({ data, onInit }: { data: DiagramData | 
                 onSave={handleSaveNode}
                 initialLabel={editModal.label}
                 initialRole={editModal.role}
+                mode={editModal.mode}
             />
         </div>
     );

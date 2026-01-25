@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { Database, Server, User, Globe, Laptop, Box, Trash2, Edit2 } from 'lucide-react';
+import { Database, Server, User, Globe, Laptop, Box, Trash2, Edit2, Plus } from 'lucide-react';
 
 const icons: Record<string, any> = {
     database: Database,
@@ -13,7 +13,7 @@ const icons: Record<string, any> = {
     api: Server
 };
 
-export default memo(({ id, data }: { id: string, data: { label: string, role: string, onEdit?: (id: string, label: string, role: string) => void, onDelete?: (id: string) => void } }) => {
+export default memo(({ id, data }: { id: string, data: { label: string, role: string, onEdit?: (id: string, label: string, role: string) => void, onDelete?: (id: string) => void, onAdd?: (id: string) => void } }) => {
     const Icon = icons[data.role] || Server;
     const [hovered, setHovered] = useState(false);
 
@@ -38,6 +38,13 @@ export default memo(({ id, data }: { id: string, data: { label: string, role: st
         >
             {/* Toolbar */}
             <div className={`absolute -top-10 right-0 bg-white shadow-lg rounded-lg p-1.5 flex gap-1 border border-slate-100 transition-opacity duration-200 ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <button
+                    onClick={(e) => { e.stopPropagation(); data.onAdd?.(id); }}
+                    className="p-1.5 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded"
+                    title="Add Node"
+                >
+                    <Plus size={14} />
+                </button>
                 <button
                     onClick={(e) => { e.stopPropagation(); data.onEdit?.(id, data.label, data.role); }}
                     className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 rounded"
