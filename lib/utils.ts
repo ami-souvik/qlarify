@@ -12,10 +12,17 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 export const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => {
   const isHorizontal = direction === 'LR';
-  dagreGraph.setGraph({ rankdir: direction });
+  dagreGraph.setGraph({ 
+    rankdir: direction,
+    ranksep: 120, // increased vertical/horizontal spacing between layers
+    nodesep: 100, // increased spacing between sibling nodes
+    edgesep: 50,  // increased spacing between edges
+    marginx: 50,
+    marginy: 50
+  });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: 180, height: 80 }); // approximate size
+    dagreGraph.setNode(node.id, { width: 220, height: 100 }); // slightly larger to ensure ample spacing
   });
 
   edges.forEach((edge) => {
