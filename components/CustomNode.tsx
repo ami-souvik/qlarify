@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { Database, Server, User, Globe, Laptop, Box } from 'lucide-react';
+import { Database, Server, User, Globe, Laptop, Box, Trash2, Edit2 } from 'lucide-react';
 
 const icons: Record<string, any> = {
     database: Database,
@@ -13,8 +13,9 @@ const icons: Record<string, any> = {
     api: Server
 };
 
-export default memo(({ data }: { data: { label: string, role: string } }) => {
+export default memo(({ id, data }: { id: string, data: { label: string, role: string, onEdit?: (id: string, label: string, role: string) => void, onDelete?: (id: string) => void } }) => {
     const Icon = icons[data.role] || Server;
+    const [hovered, setHovered] = useState(false);
 
     // Color themes based on role
     const getColors = (role: string) => {
@@ -30,7 +31,29 @@ export default memo(({ data }: { data: { label: string, role: string } }) => {
     const colors = getColors(data.role);
 
     return (
-        <div className={`px-4 py-3 shadow-md rounded-lg border-2 min-w-[150px] flex items-center gap-3 transition-transform hover:scale-105 ${colors}`}>
+        <div
+            className={`relative group px-4 py-3 shadow-md rounded-lg border-2 min-w-[150px] flex items-center gap-3 transition-transform hover:scale-105 ${colors}`}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            {/* Toolbar */}
+            <div className={`absolute -top-10 right-0 bg-white shadow-lg rounded-lg p-1.5 flex gap-1 border border-slate-100 transition-opacity duration-200 ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <button
+                    onClick={(e) => { e.stopPropagation(); data.onEdit?.(id, data.label, data.role); }}
+                    className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 rounded"
+                    title="Edit"
+                >
+                    <Edit2 size={14} />
+                </button>
+                <button
+                    onClick={(e) => { e.stopPropagation(); data.onDelete?.(id); }}
+                    className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded"
+                    title="Delete"
+                >
+                    <Trash2 size={14} />
+                </button>
+            </div>
+
             <Handle type="target" position={Position.Left} className="!bg-slate-400 !w-3 !h-3" />
             <div className="p-2 bg-white/50 rounded-full">
                 <Icon size={16} />
