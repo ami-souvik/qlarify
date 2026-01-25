@@ -6,6 +6,7 @@ import { Loader2, Share2, Download, Asterisk, ArrowRight, Layout, Zap, Share, St
 import DiagramRenderer from '@/components/DiagramRenderer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toPng } from 'html-to-image';
+import { getRectOfNodes, getTransformForBounds } from 'reactflow';
 
 const SAMPLE_INPUT = `User visits the landing page.
 Frontend loads assets from CDN.
@@ -26,6 +27,7 @@ export default function Home() {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [pendingAction, setPendingAction] = useState<'download' | 'share' | null>(null);
+  const [rfInstance, setRfInstance] = useState<any>(null); // State for ReactFlow instance
 
   const diagramRef = useRef<HTMLDivElement>(null);
 
@@ -65,20 +67,51 @@ export default function Home() {
       return;
     }
 
-    if (action === 'download' && diagramRef.current) {
-      // Find the inner element to capture (react-flow takes a moment to render)
-      // We capture the whole container for simplicity
-      try {
-        const dataUrl = await toPng(diagramRef.current, { cacheBust: true, backgroundColor: '#f8fafc' });
-        const link = document.createElement('a');
-        link.download = 'qlarify-diagram.png';
-        link.href = dataUrl;
-        link.click();
-      } catch (err) {
-        console.error('Download failed', err);
+    if (action === 'download' && rfInstance) {
+      // Logic to download full flow
+      const nodes = rfInstance.getNodes();
+
+      // Calculate bounds
+      const nodesBounds = getRectOfNodes(nodes);
+      // Add some padding
+      const imageWidth = nodesBounds.width + 100;
+      const imageHeight = nodesBounds.height + 100;
+
+      const transform = getTransformForBounds(
+        nodesBounds,
+        imageWidth,
+        imageHeight,
+        0.5,
+        2
+      );
+
+      // Find the viewport element (React Flow specific class)
+      // Note: We need to target the viewport or the renderer container, but apply styles to "force" the view
+      const viewportEl = document.querySelector('.react-flow__viewport') as HTMLElement;
+
+      if (viewportEl) {
+        try {
+          const dataUrl = await toPng(viewportEl, {
+            backgroundColor: '#f8fafc',
+            width: imageWidth,
+            height: imageHeight,
+            style: {
+              width: `${imageWidth}px`,
+              height: `${imageHeight}px`,
+              transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+            },
+          });
+
+          const link = document.createElement('a');
+          link.download = 'qlarify-diagram.png';
+          link.href = dataUrl;
+          link.click();
+        } catch (err) {
+          console.error('Download failed', err);
+        }
       }
     }
-
+    // ...
     if (action === 'share') {
       const url = `${window.location.origin}?description=${encodeURIComponent(input)}`;
       navigator.clipboard.writeText(url);
@@ -279,7 +312,7 @@ export default function Home() {
 
               <div className="flex-1 flex overflow-hidden bg-slate-50" ref={diagramRef}>
                 {data ? (
-                  <DiagramRenderer data={data} />
+                  <DiagramRenderer data={data} onInit={setRfInstance} />
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
                     <div className="w-24 h-24 bg-slate-100 rounded-full mb-6 flex items-center justify-center animate-pulse">

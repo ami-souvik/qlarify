@@ -24,7 +24,7 @@ interface DiagramData {
     layoutHints?: { direction: string };
 }
 
-export default function DiagramRenderer({ data }: { data: DiagramData | null }) {
+export default function DiagramRenderer({ data, onInit }: { data: DiagramData | null, onInit?: (instance: any) => void }) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -60,9 +60,6 @@ export default function DiagramRenderer({ data }: { data: DiagramData | null }) 
         setEdges(layoutedEdges);
     }, [data, setNodes, setEdges]);
 
-    // If no data, show empty state or placeholder? 
-    // Actually, we'll just render empty flow.
-
     return (
         <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
             <ReactFlow
@@ -71,6 +68,7 @@ export default function DiagramRenderer({ data }: { data: DiagramData | null }) 
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 nodeTypes={nodeTypes}
+                onInit={onInit}
                 fitView
                 attributionPosition="bottom-right"
             >
