@@ -1,31 +1,24 @@
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import ReactFlow, {
     Controls,
     Background,
-    useNodesState,
-    useEdgesState,
     Node,
     Edge,
-    MarkerType
+    OnNodesChange,
+    OnEdgesChange
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CustomNode from './CustomNode';
-import { getLayoutedElements } from '@/lib/utils';
 import { X, Check } from 'lucide-react';
+import { DiagramProvider } from '@/lib/diagram-context';
 
 const nodeTypes = {
     custom: CustomNode,
 };
 
-interface DiagramData {
-    nodes: { id: string, label: string, role: string }[];
-    edges: { from: string, to: string, label?: string }[];
-    layoutHints?: { direction: string };
-}
-
-// Simple internal modal component to avoid complex UI library dependencies
+// Simple internal modal component
 const EditNodeModal = ({
     isOpen,
     onClose,
@@ -44,14 +37,11 @@ const EditNodeModal = ({
     const [label, setLabel] = useState(initialLabel);
     const [role, setRole] = useState(initialRole);
 
-    useEffect(() => {
+    // Update local state when initial values change (modal opens)
+    if (isOpen && label !== initialLabel && initialLabel !== '' && label === '') {
         setLabel(initialLabel);
         setRole(initialRole);
-    }, [initialLabel, initialRole, isOpen]);
-
-    if (!isOpen) return null;
-
-    const roles = ['user', 'client', 'server', 'database', 'external', 'queue', 'api'];
+    }
 
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
@@ -71,7 +61,7 @@ const EditNodeModal = ({
                             onChange={(e) => setLabel(e.target.value)}
                             className="w-full text-sm p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                             autoFocus
-                            placeholder={mode === 'add' ? "New Service..." : ""}
+                            placeholder={mode === 'add' ? "New Service..." : "Node Label"}
                         />
                     </div>
 
@@ -82,7 +72,7 @@ const EditNodeModal = ({
                             onChange={(e) => setRole(e.target.value)}
                             className="w-full text-sm p-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                         >
-                            {roles.map(r => (
+                            {['user', 'client', 'service', 'database', 'external', 'queue', 'api'].map(r => (
                                 <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                             ))}
                         </select>
@@ -102,161 +92,86 @@ const EditNodeModal = ({
     );
 };
 
-export default function DiagramRenderer({ data, onInit }: { data: DiagramData | null, onInit?: (instance: any) => void }) {
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+interface DiagramRendererProps {
+    nodes: Node[];
+    edges: Edge[];
+    onNodesChange: OnNodesChange;
+    onEdgesChange: OnEdgesChange;
+    onNodeUpdate: (id: string, data: { label?: string, role?: string, locked?: boolean, [key: string]: any }) => void;
+    onNodeAdd: (parentId: string, label: string, role: string) => void;
+    onNodeDelete: (id: string) => void;
+    onInit?: (instance: any) => void;
+    theme?: 'light' | 'dark' | 'neutral';
+}
+
+export default function DiagramRenderer({
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onNodeUpdate,
+    onNodeAdd,
+    onNodeDelete,
+    onInit,
+    theme = 'light'
+}: DiagramRendererProps) {
 
     // Edit Modal State
     const [editModal, setEditModal] = useState<{ isOpen: boolean, nodeId: string, label: string, role: string, mode: 'edit' | 'add' }>({
         isOpen: false, nodeId: '', label: '', role: '', mode: 'edit'
     });
 
-    const handleEditNode = useCallback((id: string, label: string, role: string) => {
+    const handleRequestEdit = useCallback((id: string, label: string, role: string) => {
         setEditModal({ isOpen: true, nodeId: id, label, role, mode: 'edit' });
     }, []);
 
-    const handleAddNode = useCallback((parentId: string) => {
+    const handleAddNodeRequest = useCallback((parentId: string) => {
         setEditModal({ isOpen: true, nodeId: parentId, label: 'New Node', role: 'service', mode: 'add' });
     }, []);
 
-    const handleDeleteNode = useCallback((id: string) => {
-        setNodes((nds) => nds.filter((n) => n.id !== id));
-        setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
-    }, [setNodes, setEdges]);
-
-    const handleSaveNode = (newLabel: string, newRole: string) => {
+    const handleModalSave = (newLabel: string, newRole: string) => {
         if (editModal.mode === 'edit') {
-            setNodes((nds) => nds.map((n) => {
-                if (n.id === editModal.nodeId) {
-                    return {
-                        ...n,
-                        data: {
-                            ...n.data,
-                            label: newLabel,
-                            role: newRole
-                        }
-                    };
-                }
-                return n;
-            }));
+            onNodeUpdate(editModal.nodeId, { label: newLabel, role: newRole });
         } else {
-            // Add Mode
-            const newId = `node-${Date.now()}`;
-            const newNode: Node = {
-                id: newId,
-                type: 'custom',
-                data: {
-                    label: newLabel,
-                    role: newRole,
-                    onEdit: handleEditNode,
-                    onDelete: handleDeleteNode,
-                    onAdd: handleAddNode
-                },
-                position: { x: 0, y: 0 }
-            };
-
-            const newEdge: Edge = {
-                id: `edge-${editModal.nodeId}-${newId}`,
-                source: editModal.nodeId,
-                target: newId,
-                type: 'smoothstep',
-                markerEnd: { type: MarkerType.ArrowClosed },
-                animated: true,
-                style: { stroke: '#64748b', strokeWidth: 2 },
-                labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 },
-            };
-
-            // Apply layout to new nodes
-            // We use a timeout to let state update first or we can compute layout immediately on previous state + new node
-            // Computing immediately is safer.
-            setNodes((prevNodes) => {
-                // We need edges too to compute layout.
-                // This is tricky inside a setState callback if we don't have access to current edges.
-                // We will just add the node and let a separate effect or the user arrange it?
-                // Or we can assume 'edges' from the outer scope is relatively fresh or use a ref.
-                // Let's just add it for now at 0,0 and see if we can trigger layout.
-                return [...prevNodes, newNode];
-            });
-
-            setEdges((prevEdges) => {
-                const updatedEdges = [...prevEdges, newEdge];
-                // HACK: Trigger layout update after a brief delay to allow nodes to settle
-                setTimeout(() => {
-                    setNodes(nds => {
-                        const { nodes: lNodes, edges: lEdges } = getLayoutedElements(nds, updatedEdges, 'LR');
-                        return lNodes;
-                    });
-                    setEdges(eds => updatedEdges);
-                }, 50);
-                return updatedEdges;
-            });
+            onNodeAdd(editModal.nodeId, newLabel, newRole);
         }
         setEditModal(prev => ({ ...prev, isOpen: false }));
     };
 
-    useEffect(() => {
-        if (!data) return;
-
-        const initialNodes: Node[] = data.nodes.map(n => ({
-            id: n.id,
-            type: 'custom',
-            data: {
-                label: n.label,
-                role: n.role,
-                onEdit: handleEditNode,
-                onDelete: handleDeleteNode,
-                onAdd: handleAddNode
-            },
-            position: { x: 0, y: 0 }
-        }));
-
-        const initialEdges: Edge[] = data.edges.map(e => ({
-            id: `${e.from}-${e.to}`,
-            source: e.from,
-            target: e.to,
-            label: e.label,
-            type: 'smoothstep',
-            markerEnd: { type: MarkerType.ArrowClosed },
-            animated: true,
-            style: { stroke: '#64748b', strokeWidth: 2 },
-            labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 },
-        }));
-
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-            initialNodes,
-            initialEdges,
-            data.layoutHints?.direction || 'LR'
-        );
-
-        setNodes(layoutedNodes);
-        setEdges(layoutedEdges);
-    }, [data, setNodes, setEdges, handleEditNode, handleDeleteNode]);
-
     return (
-        <div className="relative w-full h-full min-h-[500px] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                nodeTypes={nodeTypes}
-                onInit={onInit}
-                fitView
-                attributionPosition="bottom-right"
-            >
-                <Controls showInteractive={false} />
-                <Background color="#cbd5e1" gap={16} />
-            </ReactFlow>
+        <DiagramProvider
+            onNodeUpdate={onNodeUpdate}
+            onDeleteNode={onNodeDelete}
+            onAddNode={handleAddNodeRequest}
+            onRequestEdit={handleRequestEdit}
+            theme={theme}
+        >
+            <div className="relative w-full h-full min-h-[500px] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    nodeTypes={nodeTypes}
+                    onInit={onInit}
+                    fitView
+                    attributionPosition="bottom-right"
+                >
+                    <Controls showInteractive={false} />
+                    <Background color="#cbd5e1" gap={16} />
+                </ReactFlow>
 
-            {/* Render Edit Modal inside the container so it's positioned relative to the flow area */}
-            <EditNodeModal
-                isOpen={editModal.isOpen}
-                onClose={() => setEditModal(prev => ({ ...prev, isOpen: false }))}
-                onSave={handleSaveNode}
-                initialLabel={editModal.label}
-                initialRole={editModal.role}
-                mode={editModal.mode}
-            />
-        </div>
+                {editModal.isOpen && (
+                    <EditNodeModal
+                        isOpen={editModal.isOpen}
+                        onClose={() => setEditModal(prev => ({ ...prev, isOpen: false }))}
+                        onSave={handleModalSave}
+                        initialLabel={editModal.label}
+                        initialRole={editModal.role}
+                        mode={editModal.mode}
+                    />
+                )}
+            </div>
+        </DiagramProvider>
     );
 }
