@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Loader2, Share2, Download, Asterisk, ArrowRight, Layout, Zap, Share, Star, X } from 'lucide-react';
+import { Loader2, Share2, Download, Asterisk, ArrowRight, Layout, Zap, Share, Star, X, Check, Copy } from 'lucide-react';
 import DiagramRenderer from '@/components/DiagramRenderer';
 import VisualControls from '@/components/VisualControls';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,6 +39,10 @@ export default function Home() {
   const [comment, setComment] = useState('');
   const [pendingAction, setPendingAction] = useState<'download' | 'share' | null>(null);
   const [rfInstance, setRfInstance] = useState<any>(null); // State for ReactFlow instance
+  // Share Modal State
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const diagramRef = useRef<HTMLDivElement>(null);
 
@@ -162,8 +166,9 @@ export default function Home() {
 
       // Map edges
       // Map edges with correct CustomEdge config
-      const combinedEdges = newEdgesRaw.map((e: any) => ({
-        id: `${e.from}-${e.to}`,
+      const combinedEdges = newEdgesRaw.map((e: any, idx: number) => ({
+        // Use index to ensure unique ID if multiple edges exist between same nodes
+        id: `${e.from}-${e.to}-${idx}`,
         source: e.from,
         target: e.to,
         label: e.label,
@@ -352,6 +357,12 @@ export default function Home() {
   // We rely on creation points (handleConnect, handleGenerate) to attach it initially. 
   // This effect mainly handles *Style* updates.
 
+  // Persist to Local Storage for View Page
+  // useEffect(() => {
+  //   const data = { nodes, edges };
+  //   localStorage.setItem('qlarify-diagram-latest', JSON.stringify(data));
+  // }, [nodes, edges]);
+
   const handleNodeAdd = (parentId: string, label: string, role: string) => {
     const parentNode = nodes.find(n => n.id === parentId);
     const parentPos = parentNode ? parentNode.position : { x: 0, y: 0 };
@@ -396,8 +407,8 @@ export default function Home() {
     setEdges((prevEdges) => [...prevEdges, newEdge]);
   };
 
-  const executeAction = async (action: 'download' | 'share' | 'download-svg') => {
-    if (!feedbackSubmitted) {
+  const executeAction = async (action: 'download' | 'share' | 'download-svg', submitted: boolean) => {
+    if (!feedbackSubmitted && !submitted) {
       // Cast action to strict type for state
       setPendingAction(action as any);
       setShowFeedbackModal(true);
@@ -450,44 +461,40 @@ export default function Home() {
 
     if (action === 'share') {
       // Stateful Share
-      const flowState = {
+      const res = await axios.post('/api/share', {
         nodes,
         edges
-      };
-      const stringified = JSON.stringify(flowState);
-      const compressed = LZString.compressToEncodedURIComponent(stringified);
-
-      const url = `${window.location.origin}?state=${compressed}&description=${encodeURIComponent(input)}`;
-      navigator.clipboard.writeText(url);
-      alert('Link with diagram state copied to clipboard!');
+      });
+      const url = `${window.location.origin}/view/${res.data.diagramId}`;
+      setShareUrl(url);
+      setShowShareModal(true);
+      // navigator.clipboard.writeText(url);
+      // alert('Link with diagram state copied to clipboard!');
     }
   };
 
   const submitFeedback = async () => {
-    if (rating === 0) return; // Require rating at least
+    // Optimistically proceed to unblock the user immediately
+    const actionToExecute = pendingAction; // Capture current pending action
+    setFeedbackSubmitted(true);
+    setShowFeedbackModal(false);
+    setPendingAction(null); // Clear pending action state
 
+    console.log('Action to execute', actionToExecute);
+    // Execute the action immediately without waiting for feedback API
+    if (actionToExecute) {
+      executeAction(actionToExecute, true);
+    }
+
+    // Send feedback in background
     try {
       await axios.post('/api/feedback', {
         rating,
         comment
       });
-      setFeedbackSubmitted(true);
-      setShowFeedbackModal(false);
-
-      // Execute pending
-      if (pendingAction) {
-        executeAction(pendingAction);
-        setPendingAction(null);
-      }
     } catch (err) {
       console.error('Feedback failed', err);
-      alert('Something went wrong submitting feedback, but thanks anyway!');
-      setFeedbackSubmitted(true); // Let them proceed regardless of error to be nice
-      setShowFeedbackModal(false);
-      if (pendingAction) {
-        executeAction(pendingAction);
-        setPendingAction(null);
-      }
+      // Suppress alert to not annoy user after they already got their result
     }
   };
 
@@ -547,6 +554,93 @@ export default function Home() {
               >
                 Submit & Continue
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Share Modal */}
+      <AnimatePresence>
+        {showShareModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 relative"
+            >
+              <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Share2 size={24} fill="currentColor" className="opacity-80" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Share Diagram</h3>
+                <p className="text-slate-500 text-sm mt-1">Anyone with the link can view this diagram.</p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Share Link Section */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">Public Link</label>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={shareUrl}
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(shareUrl);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                    >
+                      {copied ? <Check size={16} /> : <div className="flex items-center gap-2"><div className='w-4 h-4'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg></div> Copy</div>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Embed Code Section */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">Embed Code</label>
+                  <div className="relative group">
+                    <textarea
+                      readOnly
+                      value={`<iframe src="${shareUrl}" width="100%" height="600px" style="border:0; border-radius: 8px; overflow:hidden;" allow="fullscreen"></iframe>`}
+                      className="w-full h-24 bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-300 font-mono outline-none resize-none"
+                    />
+                    <button
+                      onClick={() => {
+                        const code = `<iframe src="${shareUrl}" width="100%" height="600px" style="border:0; border-radius: 8px; overflow:hidden;" allow="fullscreen"></iframe>`;
+                        navigator.clipboard.writeText(code);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="absolute top-2 right-2 bg-slate-800 text-white p-1.5 rounded-md hover:bg-slate-700 transition-colors opacity-0 group-hover:opacity-100"
+                      title="Copy Embed Code"
+                    >
+                      <div className='w-4 h-4'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg></div>
+                    </button>
+                  </div>
+                  <div className="mt-4 border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-slate-50">
+                    <div className="bg-slate-100 px-3 py-2 border-b border-slate-200 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                      <span className="text-[10px] text-slate-400 font-medium ml-2 uppercase tracking-wide">Preview</span>
+                    </div>
+                    <div className="aspect-video w-full bg-white flex items-center justify-center relative overflow-hidden">
+                      {/* Fake UI for preview */}
+                      {/* We can't actually iframe ourselves easily without recursive loading danger if not careful, but safely: */}
+                      <iframe src={shareUrl} className="w-full h-full border-0 pointer-events-none opacity-50 origin-top-left w-[200%] h-[200%]" tabIndex={-1} aria-hidden="true" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}

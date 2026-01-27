@@ -14,8 +14,7 @@ export default function CustomEdge({
     label = '',
     style = {},
     markerEnd,
-    data,
-    ...props
+    data
 }: EdgeProps) {
     // We can access context if we wrap edges in provider, but edges are usually outside node provider scope in some setups.
     // However, CustomEdge is rendered by ReactFlow which is inside DiagramProvider.
@@ -90,23 +89,25 @@ export default function CustomEdge({
                             {label}
                         </div>
                     )}
-                    {/* Show actions button on hover */}
-                    <div className={`flex gap-1 transition-all duration-200 ${isHovered ? 'opacity-100 max-w-[60px]' : 'opacity-0 max-w-0 overflow-hidden'}`}>
-                        <button
-                            className="bg-white text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 shadow-sm p-1.5 rounded-md transition-colors"
-                            onClick={onEditClick}
-                            title="Edit Label"
-                        >
-                            <Edit2 size={12} />
-                        </button>
-                        <button
-                            className="bg-white text-red-500 hover:bg-red-50 border border-slate-200 shadow-sm p-1.5 rounded-md transition-colors"
-                            onClick={onEdgeClick}
-                            title="Delete Connection"
-                        >
-                            <Trash2 size={12} />
-                        </button>
-                    </div>
+                    {/* Show actions button on hover ONLY if not read-only */}
+                    {!data?.readOnly && (
+                        <div className={`flex gap-1 transition-all duration-200 ${isHovered ? 'opacity-100 max-w-[60px]' : 'opacity-0 max-w-0 overflow-hidden'}`}>
+                            <button
+                                className="bg-white text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 shadow-sm p-1.5 rounded-md transition-colors"
+                                onClick={onEditClick}
+                                title="Edit Label"
+                            >
+                                <Edit2 size={12} />
+                            </button>
+                            <button
+                                className="bg-white text-red-500 hover:bg-red-50 border border-slate-200 shadow-sm p-1.5 rounded-md transition-colors"
+                                onClick={onEdgeClick}
+                                title="Delete Connection"
+                            >
+                                <Trash2 size={12} />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </EdgeLabelRenderer>
         </g>

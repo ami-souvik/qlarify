@@ -89,10 +89,10 @@ export default memo(({ id, data }: { id: string, data: { label: string, role: st
             </div>
 
             <Handle type="target" position={Position.Left} className="!bg-slate-400 !w-3 !h-3" />
-            <div className="p-2 bg-white/50 rounded-full">
+            <div className="bg-white/50 rounded-full">
                 <Icon size={16} />
             </div>
-            <div className="font-semibold text-sm">{data.label}</div>
+            <div className="font-semibold text-base">{data.label}</div>
             <Handle type="source" position={Position.Right} className="!bg-slate-400 !w-3 !h-3" />
         </div>
     );
