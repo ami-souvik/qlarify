@@ -26,7 +26,7 @@ export default function Home() {
   const [generated, setGenerated] = useState(false);
 
   // Activity History: { type, content, timestamp }
-  const [activityHistory, setActivityHistory] = useState<Array<{ type: 'user' | 'system' | 'action', content: string, timestamp: number }>>([]);
+  const [activityHistory, setActivityHistory] = useState<Array<{ type: 'user' | 'system' | 'add' | 'action' | 'delete', content: string, timestamp: number }>>([]);
 
   // ReactFlow State
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -261,6 +261,19 @@ export default function Home() {
   };
 
   const handleNodeDelete = (id: string) => {
+    setActivityHistory(prev => [
+      ...prev,
+      {
+        type: 'delete',
+        content: `Deleted node`,
+        timestamp: Date.now()
+      },
+      {
+        type: 'delete',
+        content: `Deleted edge connection`,
+        timestamp: Date.now()
+      }
+    ]);
     setNodes((nds) => nds.filter((n) => n.id !== id));
     setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
   };
@@ -287,7 +300,7 @@ export default function Home() {
     setActivityHistory(prev => [
       ...prev,
       {
-        type: 'action',
+        type: 'delete',
         content: `Deleted edge connection`,
         timestamp: Date.now()
       }
@@ -366,7 +379,19 @@ export default function Home() {
       style: { stroke: '#64748b', strokeWidth: 2 },
       labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 },
     };
-
+    setActivityHistory(prev => [
+      ...prev,
+      {
+        type: 'add',
+        content: `Added new node`,
+        timestamp: Date.now()
+      },
+      {
+        type: 'add',
+        content: `Added new edge`,
+        timestamp: Date.now()
+      }
+    ]);
     setNodes((prevNodes) => [...prevNodes, newNode]);
     setEdges((prevEdges) => [...prevEdges, newEdge]);
   };
@@ -590,26 +615,37 @@ export default function Home() {
 
               {/* Activity History */}
               {activityHistory.length > 0 && (
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 border-b border-slate-200 max-h-[300px]">
+                <div className="flex-3 overflow-y-auto p-4 space-y-3 bg-slate-50 border-b border-slate-200 max-h-[300px]">
                   <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">History</div>
                   {activityHistory.map((item, idx) => (
-                    <div key={idx} className={`text-sm p-3 rounded-lg border ${item.type === 'user' ? 'bg-white border-slate-200 text-slate-700' :
-                      item.type === 'action' ? 'bg-amber-50 border-amber-100 text-amber-700 italic' :
-                        'bg-indigo-50 border-indigo-100 text-indigo-700'
+                    <div key={idx} className={`text-sm rounded-lg border ${item.type === 'user' ? 'p-2 bg-white border-slate-200 text-slate-700' :
+                      item.type === 'action' ? 'px-1 bg-amber-50 border-amber-100 text-amber-700 italic' :
+                        item.type === 'add' ? 'px-1 bg-green-50 border-green-100 text-green-700 italic' :
+                          item.type === 'delete' ? 'px-1 bg-red-50 border-red-100 text-red-700 italic' :
+                            'p-2 bg-indigo-50 border-indigo-100 text-indigo-700'
                       }`}>
-                      <div className="flex justify-between opacity-50 text-[10px] mb-1">
-                        <span>{item.type === 'user' ? 'You' : item.type === 'action' ? 'Action' : 'System'}</span>
-                        <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
-                      </div>
-                      {item.content}
+                      {
+                        item.type === 'user' || item.type === 'system' ?
+                          <>
+                            <div className="flex justify-between opacity-50 text-[10px] mb-1">
+                              <span>{item.type === 'user' ? 'You' : item.type === 'system' ? 'System' : 'Action'}</span>
+                              <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                            </div>
+                            {item.content}
+                          </>
+                          : <div className="flex justify-between opacity-50 text-[10px]">
+                            <span className='text-xs'>{item.content}</span>
+                            <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                          </div>
+                      }
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="flex-1 p-4">
+              <div className="flex-1 p-2">
                 <textarea
-                  className="w-full h-full min-h-[150px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-base leading-relaxed p-0 placeholder:text-slate-300"
+                  className="w-full h-full min-h-[150px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-sm leading-relaxed p-0 placeholder:text-slate-300"
                   placeholder={generated ? "Describe updates (e.g., 'add a redis cache')..." : "e.g. User clicks login..."}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -631,22 +667,6 @@ export default function Home() {
             {/* Output Panel */}
             <div className="lg:col-span-8 bg-slate-100/50 relative flex flex-col">
               <div className="absolute top-4 right-4 z-10 flex gap-2 items-center">
-                {/* View Mode Toggle */}
-                {/* <div className="bg-white p-1 rounded-lg border border-slate-200 flex shadow-sm mr-2">
-                  <button
-                    onClick={() => setViewMode('client')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${viewMode === 'client' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    Client
-                  </button>
-                  <button
-                    onClick={() => setViewMode('dev')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${viewMode === 'dev' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    Dev
-                  </button>
-                </div> */}
-
                 <button
                   onClick={() => executeAction('download')}
                   className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
