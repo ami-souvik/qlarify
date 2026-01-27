@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import axios from 'axios';
 import { Loader2, Share2, Download, Asterisk, ArrowRight, Layout, Zap, Share, Star, X, Check, Copy } from 'lucide-react';
 import DiagramRenderer from '@/components/DiagramRenderer';
 import VisualControls from '@/components/VisualControls';
+import BlogPreviewSection from '@/components/BlogPreviewSection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toPng, toSvg } from 'html-to-image';
 import { getRectOfNodes, getTransformForBounds, useNodesState, useEdgesState, Node, Edge, MarkerType, addEdge, Connection } from 'reactflow';
@@ -656,7 +658,10 @@ export default function Home() {
             <span className="font-bold text-xl tracking-tight text-slate-900">Qlarify</span>
           </div>
           {/* Removed Links as requested */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/blog" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">
+              Blog
+            </Link>
           </div>
         </div>
       </nav>
@@ -709,7 +714,7 @@ export default function Home() {
 
               {/* Activity History */}
               {activityHistory.length > 0 && (
-                <div className="flex-3 overflow-y-auto p-4 space-y-3 bg-slate-50 border-b border-slate-200 max-h-[300px]">
+                <div className="flex-3 overflow-y-auto p-4 space-y-2 bg-slate-50 border-b border-slate-200 max-h-[300px]">
                   <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">History</div>
                   {activityHistory.map((item, idx) => (
                     <div key={idx} className={`text-sm rounded-lg border ${item.type === 'user' ? 'p-2 bg-white border-slate-200 text-slate-700' :
@@ -762,7 +767,7 @@ export default function Home() {
             <div className="lg:col-span-8 bg-slate-100/50 relative flex flex-col">
               <div className="absolute top-4 right-4 z-10 flex gap-2 items-center">
                 <button
-                  onClick={() => executeAction('download')}
+                  onClick={() => executeAction('download', false)}
                   className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
                   title="Download PNG"
                   disabled={!generated}
@@ -770,7 +775,7 @@ export default function Home() {
                   <Download size={20} />
                 </button>
                 <button
-                  onClick={() => executeAction('download-svg')}
+                  onClick={() => executeAction('download-svg', false)}
                   className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50 font-bold text-xs"
                   title="Download SVG"
                   disabled={!generated}
@@ -778,7 +783,7 @@ export default function Home() {
                   SVG
                 </button>
                 <button
-                  onClick={() => executeAction('share')}
+                  onClick={() => executeAction('share', false)}
                   className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
                   title="Share"
                   disabled={!generated}
@@ -850,6 +855,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Blog Preview Section */}
+      <BlogPreviewSection />
+
       {/* Footer */}
       <footer className="bg-slate-50 border-t border-slate-200 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
@@ -859,7 +867,10 @@ export default function Home() {
             </div>
             <span className="font-bold text-lg text-slate-900">Qlarify</span>
           </div>
-          <p className="text-slate-400 text-sm">© 2026 Qurtesy Labs. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/blog" className="text-slate-500 hover:text-indigo-600 text-sm font-medium transition-colors">Blog</Link>
+            <p className="text-slate-400 text-sm">© 2026 Qurtesy Labs. All rights reserved.</p>
+          </div>
         </div>
       </footer>
 
