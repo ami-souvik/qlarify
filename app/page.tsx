@@ -7,7 +7,7 @@ import DiagramRenderer from '@/components/DiagramRenderer';
 import VisualControls from '@/components/VisualControls';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toPng, toSvg } from 'html-to-image';
-import { getRectOfNodes, getTransformForBounds, useNodesState, useEdgesState, Node, Edge, MarkerType } from 'reactflow';
+import { getRectOfNodes, getTransformForBounds, useNodesState, useEdgesState, Node, Edge, MarkerType, addEdge, Connection } from 'reactflow';
 import { getLayoutedElements } from '@/lib/utils';
 import LZString from 'lz-string';
 
@@ -24,6 +24,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [generated, setGenerated] = useState(false);
+
+  // Activity History: { type, content, timestamp }
+  const [activityHistory, setActivityHistory] = useState<Array<{ type: 'user' | 'system' | 'action', content: string, timestamp: number }>>([]);
 
   // ReactFlow State
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -88,50 +91,132 @@ export default function Home() {
   }, [viewMode, setNodes]);
 
   const handleGenerate = async () => {
+    if (!input.trim()) return;
+
     setLoading(true);
     setError('');
 
     try {
+      // 1. Prepare Payload (Moved Prompt Logic to Backend)
+      const lockedNodes = nodes.filter(n => n.data.locked);
+
+      // 2. Call API
       const res = await axios.post('/api/generate', {
-        description: input
+        description: input, // Send raw input
+        history: activityHistory, // Send history context
+        lockedNodes: lockedNodes, // Send locked nodes context
+        currentNodes: nodes // Send ALL current nodes for context
       });
       const data = res.data;
 
-      // Transform API data to ReactFlow nodes/edges
-      const initialNodes: Node[] = data.nodes.map((n: any) => ({
+      // 3. Merge Logic
+      const newNodesRaw: any[] = data.nodes || [];
+      const newEdgesRaw: any[] = data.edges || [];
+
+      // Helper: Map API node to ReactFlow Node
+      const mapToNode = (n: any, pos = { x: 0, y: 0 }) => ({
         id: n.id,
         type: 'custom',
-        data: {
-          label: n.label,
-          role: n.role
-        },
-        position: { x: 0, y: 0 }
-      }));
+        data: { label: n.label, role: n.role },
+        position: pos
+      });
 
-      const initialEdges: Edge[] = data.edges.map((e: any) => ({
+      // Strategy: 
+      // - Keep ALL existing nodes (User said "do not replace"). 
+      // - Add NEW nodes from response only if ID doesn't exist.
+      // - Edges: Re-calculate all edges provided by LLM? Or merge?
+      //   User focus was on nodes. Let's merge edges: Add new ones, replace existing ones (edges are cheap).
+
+      let mergedNodes = [...nodes];
+      const existingIds = new Set(nodes.map(n => n.id));
+      const addedNodes: Node[] = [];
+
+      newNodesRaw.forEach(n => {
+        if (!existingIds.has(n.id)) {
+          // It's a new node
+          addedNodes.push(mapToNode(n));
+        }
+        // If exists, do nothing (preserve client state)
+      });
+
+      // Prepare for Layout
+      // We layout ALL nodes if it's the first run, otherwise we try to only layout new ones?
+      // "Iteration without Re-Prompting" implies stability.
+      // If we add nodes, we should probably run layout on the WHOLE graph but pin locked nodes?
+      // Or just `getLayoutedElements` again? 
+      // Current `getLayoutedElements` (dagre) resets positions.
+      // User requirement: "Locked nodes must not move... during partial or full regeneration"
+      // Our `mergedNodes` has existing positions.
+
+      // Let's rely on `getLayoutedElements` BUT we need to pass current positions for locked nodes?
+      // Dagre doesn't support "keep this here" natively without complex config.
+      // HYBRID APPROACH:
+      // 1. If generated=false (first run), run full layout.
+      // 2. If generated=true (iteration), we have a problem: Dagre will move everything.
+      //    Hack: We add new nodes at (0,0) or nearby? 
+      //    Better: We run layout, but for existing nodes, we override the result with their old position?
+      //    That might cause overlaps.
+      //    Let's try: Run layout on everything. IF a node was locked, ignore the result for it.
+
+      const combinedNodesForLayout = [...mergedNodes, ...addedNodes];
+
+      // Map edges
+      // Map edges with correct CustomEdge config
+      const combinedEdges = newEdgesRaw.map((e: any) => ({
         id: `${e.from}-${e.to}`,
         source: e.from,
         target: e.to,
         label: e.label,
-        type: 'smoothstep',
+        type: 'custom-edge', // Use CustomEdge
+        data: {
+          pathType: edgeStyle,
+          onDelete: handleDeleteEdge,
+          onLabelChange: handleEdgeLabelChange,
+          label: e.label // Ensure label is in data for CustomEdge to read
+        },
         markerEnd: { type: MarkerType.ArrowClosed },
         animated: true,
         style: { stroke: '#64748b', strokeWidth: 2 },
-        labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 },
       }));
 
-      const direction = data.layoutHints?.direction || 'LR';
-      setLayoutDirection(direction);
+      let finalNodes: Node[] = [];
+      let finalEdges: Edge[] = [];
 
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-        initialNodes,
-        initialEdges,
-        direction
-      );
+      if (!generated) {
+        // First run: Full Layout
+        const layouted = getLayoutedElements(combinedNodesForLayout, combinedEdges, layoutDirection);
+        finalNodes = layouted.nodes;
+        finalEdges = layouted.edges;
+      } else {
+        // Iteration: Smart Layout
+        // We run layout to see where Dagre WANTS to put them
+        const layoutedProposal = getLayoutedElements(combinedNodesForLayout, combinedEdges, layoutDirection);
 
-      setNodes(layoutedNodes);
-      setEdges(layoutedEdges);
+        finalNodes = layoutedProposal.nodes.map(proposedNode => {
+          const existing = nodes.find(n => n.id === proposedNode.id);
+          if (existing) {
+            // Existing node: Logic says "do not replace it". 
+            // We keep its position strict.
+            return existing;
+          }
+          // New node: Take proposed position
+          return proposedNode;
+        });
+        finalEdges = layoutedProposal.edges;
+      }
+
+      setNodes(finalNodes);
+      setEdges(finalEdges);
       setGenerated(true);
+
+      // Update Activity
+      setActivityHistory(prev => [
+        ...prev,
+        { type: 'user', content: input, timestamp: Date.now() },
+        { type: 'system', content: `Generated ${addedNodes.length} new nodes.`, timestamp: Date.now() + 1 }
+      ]);
+      setInput(''); // Clear Input
+
     } catch (err) {
       console.error(err);
       setError('Failed to generate diagram. Is the backend running?');
@@ -142,6 +227,21 @@ export default function Home() {
 
   // Node Handlers
   const handleNodeUpdate = (id: string, data: { label?: string; role?: string; locked?: boolean;[key: string]: any }) => {
+    // Check for locking action explicitly outside of the state setter to avoid side-effects/double-execution
+    if (data.locked !== undefined) {
+      const targetNode = nodes.find(n => n.id === id);
+      if (targetNode && targetNode.data.locked !== data.locked) {
+        setActivityHistory(prev => [
+          ...prev,
+          {
+            type: 'action',
+            content: `${data.locked ? 'Locked' : 'Unlocked'} node "${targetNode.data.label}"`,
+            timestamp: Date.now()
+          }
+        ]);
+      }
+    }
+
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === id) {
@@ -165,16 +265,79 @@ export default function Home() {
     setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
   };
 
+  const handleEdgeLabelChange = (id: string, newLabel: string) => {
+    setEdges((eds) => eds.map(e => {
+      if (e.id === id) {
+        return { ...e, label: newLabel, data: { ...e.data } }; // Update data.label
+      }
+      return e;
+    }));
+    setActivityHistory(prev => [
+      ...prev,
+      {
+        type: 'action',
+        content: `Updated edge label to "${newLabel}"`,
+        timestamp: Date.now()
+      }
+    ]);
+  };
+
+  const handleDeleteEdge = (id: string) => {
+    setEdges((eds) => eds.filter((e) => e.id !== id));
+    setActivityHistory(prev => [
+      ...prev,
+      {
+        type: 'action',
+        content: `Deleted edge connection`,
+        timestamp: Date.now()
+      }
+    ]);
+  };
+
+  const handleConnect = (params: Connection) => {
+    setEdges((eds) => addEdge({
+      ...params,
+      type: 'custom-edge', // Use our CustomEdge
+      data: {
+        pathType: edgeStyle, // Pass current style preference
+        onDelete: handleDeleteEdge, // Pass delete handler
+        onLabelChange: handleEdgeLabelChange // Pass label edit handler
+      },
+      markerEnd: { type: MarkerType.ArrowClosed },
+      animated: true,
+      style: { stroke: '#64748b', strokeWidth: 2 },
+    }, eds));
+
+    // Optional: Add to activity history
+    setActivityHistory(prev => [
+      ...prev,
+      {
+        type: 'action',
+        content: `Manually connected nodes`,
+        timestamp: Date.now()
+      }
+    ]);
+  };
+
   const [themes, setThemes] = useState<'light' | 'dark' | 'neutral'>('light');
-  const [edgeStyle, setEdgeStyle] = useState<'default' | 'straight' | 'step'>('default');
+  const [edgeStyle, setEdgeStyle] = useState<'default' | 'straight' | 'step'>('step');
 
   // Edge Style Effect
+  // Edge Style Effect - Updates all edges when style changes AND ensures they use CustomEdge
   useEffect(() => {
     setEdges((eds) => eds.map((e) => ({
       ...e,
-      type: edgeStyle === 'step' ? 'smoothstep' : edgeStyle,
+      type: 'custom-edge',
+      data: {
+        ...e.data,
+        pathType: edgeStyle,
+        onDelete: handleDeleteEdge, // Ensure handler is attached/updated
+        onLabelChange: handleEdgeLabelChange
+      },
     })));
-  }, [edgeStyle, setEdges]);
+  }, [edgeStyle, setEdges]); // Note: Ideally we want to attach this even if just Edges change, but that causes loop.
+  // We rely on creation points (handleConnect, handleGenerate) to attach it initially. 
+  // This effect mainly handles *Style* updates.
 
   const handleNodeAdd = (parentId: string, label: string, role: string) => {
     const parentNode = nodes.find(n => n.id === parentId);
@@ -392,7 +555,7 @@ export default function Home() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
-            v1.0 Public Beta
+            v1.1 Public Beta
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.1]">
             Turn text into <br />
@@ -424,10 +587,30 @@ export default function Home() {
                 </h3>
                 <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded">Plain Text</span>
               </div>
+
+              {/* Activity History */}
+              {activityHistory.length > 0 && (
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 border-b border-slate-200 max-h-[300px]">
+                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">History</div>
+                  {activityHistory.map((item, idx) => (
+                    <div key={idx} className={`text-sm p-3 rounded-lg border ${item.type === 'user' ? 'bg-white border-slate-200 text-slate-700' :
+                      item.type === 'action' ? 'bg-amber-50 border-amber-100 text-amber-700 italic' :
+                        'bg-indigo-50 border-indigo-100 text-indigo-700'
+                      }`}>
+                      <div className="flex justify-between opacity-50 text-[10px] mb-1">
+                        <span>{item.type === 'user' ? 'You' : item.type === 'action' ? 'Action' : 'System'}</span>
+                        <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      {item.content}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="flex-1 p-4">
                 <textarea
-                  className="w-full h-full min-h-[300px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-base leading-relaxed p-0 placeholder:text-slate-300"
-                  placeholder="e.g. User clicks login..."
+                  className="w-full h-full min-h-[150px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-base leading-relaxed p-0 placeholder:text-slate-300"
+                  placeholder={generated ? "Describe updates (e.g., 'add a redis cache')..." : "e.g. User clicks login..."}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   spellCheck={false}
@@ -449,7 +632,7 @@ export default function Home() {
             <div className="lg:col-span-8 bg-slate-100/50 relative flex flex-col">
               <div className="absolute top-4 right-4 z-10 flex gap-2 items-center">
                 {/* View Mode Toggle */}
-                <div className="bg-white p-1 rounded-lg border border-slate-200 flex shadow-sm mr-2">
+                {/* <div className="bg-white p-1 rounded-lg border border-slate-200 flex shadow-sm mr-2">
                   <button
                     onClick={() => setViewMode('client')}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${viewMode === 'client' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
@@ -462,7 +645,7 @@ export default function Home() {
                   >
                     Dev
                   </button>
-                </div>
+                </div> */}
 
                 <button
                   onClick={() => executeAction('download')}
@@ -501,7 +684,9 @@ export default function Home() {
                       onNodeUpdate={handleNodeUpdate}
                       onNodeAdd={handleNodeAdd}
                       onNodeDelete={handleNodeDelete}
+                      onEdgeUpdate={handleEdgeLabelChange}
                       onInit={setRfInstance}
+                      onConnect={handleConnect}
                       theme={themes}
                     />
                     <VisualControls

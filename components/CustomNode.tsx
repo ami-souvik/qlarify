@@ -52,7 +52,7 @@ export default memo(({ id, data }: { id: string, data: { label: string, role: st
             onMouseLeave={() => setHovered(false)}
         >
             {/* Toolbar */}
-            <div className={`absolute -top-12 right-0 bg-white shadow-lg rounded-lg p-1.5 flex gap-1 border border-slate-100 transition-opacity duration-200 ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'} z-50`}>
+            <div className={`absolute -top-12 right-0 bg-white shadow-lg rounded-lg p-1.5 flex gap-1 border border-slate-100 transition-opacity duration-200 ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'} z-50 after:absolute after:top-full after:left-0 after:w-full after:h-6`}>
                 <button
                     onClick={(e) => { e.stopPropagation(); onNodeUpdate(id, { locked: !data.locked }); }}
                     className={`p-1.5 rounded transition-colors ${data.locked ? 'text-red-500 bg-red-50' : 'text-slate-400 hover:text-slate-600'}`}
@@ -87,6 +87,13 @@ export default memo(({ id, data }: { id: string, data: { label: string, role: st
                     </>
                 )}
             </div>
+
+            <Handle type="target" position={Position.Left} className="!bg-slate-400 !w-3 !h-3" />
+            <div className="p-2 bg-white/50 rounded-full">
+                <Icon size={16} />
+            </div>
+            <div className="font-semibold text-sm">{data.label}</div>
+            <Handle type="source" position={Position.Right} className="!bg-slate-400 !w-3 !h-3" />
         </div>
     );
 });

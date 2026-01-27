@@ -7,15 +7,21 @@ import ReactFlow, {
     Node,
     Edge,
     OnNodesChange,
-    OnEdgesChange
+    OnEdgesChange,
+    OnConnect
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CustomNode from './CustomNode';
+import CustomEdge from './CustomEdge';
 import { X, Check } from 'lucide-react';
 import { DiagramProvider } from '@/lib/diagram-context';
 
 const nodeTypes = {
     custom: CustomNode,
+};
+
+const edgeTypes = {
+    'custom-edge': CustomEdge,
 };
 
 // Simple internal modal component
@@ -32,7 +38,7 @@ const EditNodeModal = ({
     onSave: (label: string, role: string) => void;
     initialLabel: string;
     initialRole: string;
-    mode: 'edit' | 'add';
+    mode: 'edit' | 'add' | 'edit-edge';
 }) => {
     const [label, setLabel] = useState(initialLabel);
     const [role, setRole] = useState(initialRole);
@@ -43,11 +49,14 @@ const EditNodeModal = ({
         setRole(initialRole);
     }
 
+    const title = mode === 'edit' ? 'Edit Node' : mode === 'add' ? 'Add Child Node' : 'Edit Edge Label';
+    const placeholder = mode === 'edit-edge' ? 'Edge Label' : (mode === 'add' ? "New Service..." : "Node Label");
+
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
             <div className="bg-white rounded-xl shadow-2xl w-80 p-5 border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-semibold text-slate-900">{mode === 'edit' ? 'Edit Node' : 'Add Child Node'}</h3>
+                    <h3 className="font-semibold text-slate-900">{title}</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
                         <X size={18} />
                     </button>
@@ -61,29 +70,31 @@ const EditNodeModal = ({
                             onChange={(e) => setLabel(e.target.value)}
                             className="w-full text-sm p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                             autoFocus
-                            placeholder={mode === 'add' ? "New Service..." : "Node Label"}
+                            placeholder={placeholder}
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Icon / Role</label>
-                        <select
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            className="w-full text-sm p-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                        >
-                            {['user', 'client', 'service', 'database', 'external', 'queue', 'api'].map(r => (
-                                <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-                            ))}
-                        </select>
-                    </div>
+                    {mode !== 'edit-edge' && (
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-1">Icon / Role</label>
+                            <select
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                className="w-full text-sm p-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                            >
+                                {['user', 'client', 'service', 'database', 'external', 'queue', 'api'].map(r => (
+                                    <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div className="flex gap-2 pt-2">
                         <button onClick={onClose} className="flex-1 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium">
                             Cancel
                         </button>
                         <button onClick={() => onSave(label, role)} className="flex-1 py-2 text-sm text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium flex justify-center items-center gap-2">
-                            <Check size={14} /> {mode === 'edit' ? 'Save' : 'Add'}
+                            <Check size={14} /> {mode === 'edit' || mode === 'edit-edge' ? 'Save' : 'Add'}
                         </button>
                     </div>
                 </div>
@@ -100,7 +111,9 @@ interface DiagramRendererProps {
     onNodeUpdate: (id: string, data: { label?: string, role?: string, locked?: boolean, [key: string]: any }) => void;
     onNodeAdd: (parentId: string, label: string, role: string) => void;
     onNodeDelete: (id: string) => void;
+    onEdgeUpdate: (id: string, label: string) => void;
     onInit?: (instance: any) => void;
+    onConnect: OnConnect;
     theme?: 'light' | 'dark' | 'neutral';
 }
 
@@ -112,17 +125,23 @@ export default function DiagramRenderer({
     onNodeUpdate,
     onNodeAdd,
     onNodeDelete,
+    onEdgeUpdate,
     onInit,
+    onConnect,
     theme = 'light'
 }: DiagramRendererProps) {
 
     // Edit Modal State
-    const [editModal, setEditModal] = useState<{ isOpen: boolean, nodeId: string, label: string, role: string, mode: 'edit' | 'add' }>({
+    const [editModal, setEditModal] = useState<{ isOpen: boolean, nodeId: string, label: string, role: string, mode: 'edit' | 'add' | 'edit-edge' }>({
         isOpen: false, nodeId: '', label: '', role: '', mode: 'edit'
     });
 
     const handleRequestEdit = useCallback((id: string, label: string, role: string) => {
         setEditModal({ isOpen: true, nodeId: id, label, role, mode: 'edit' });
+    }, []);
+
+    const handleRequestEdgeEdit = useCallback((id: string, label: string) => {
+        setEditModal({ isOpen: true, nodeId: id, label, role: 'default', mode: 'edit-edge' });
     }, []);
 
     const handleAddNodeRequest = useCallback((parentId: string) => {
@@ -132,8 +151,10 @@ export default function DiagramRenderer({
     const handleModalSave = (newLabel: string, newRole: string) => {
         if (editModal.mode === 'edit') {
             onNodeUpdate(editModal.nodeId, { label: newLabel, role: newRole });
-        } else {
+        } else if (editModal.mode === 'add') {
             onNodeAdd(editModal.nodeId, newLabel, newRole);
+        } else if (editModal.mode === 'edit-edge') {
+            onEdgeUpdate(editModal.nodeId, newLabel);
         }
         setEditModal(prev => ({ ...prev, isOpen: false }));
     };
@@ -144,6 +165,7 @@ export default function DiagramRenderer({
             onDeleteNode={onNodeDelete}
             onAddNode={handleAddNodeRequest}
             onRequestEdit={handleRequestEdit}
+            onRequestEdgeEdit={handleRequestEdgeEdit}
             theme={theme}
         >
             <div className="relative w-full h-full min-h-[500px] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
@@ -152,7 +174,9 @@ export default function DiagramRenderer({
                     edges={edges}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
+                    onConnect={onConnect}
                     nodeTypes={nodeTypes}
+                    edgeTypes={edgeTypes}
                     onInit={onInit}
                     fitView
                     attributionPosition="bottom-right"

@@ -16,6 +16,7 @@ interface DiagramContextType {
     onDeleteNode: (id: string) => void;
     onAddNode: (parentId: string) => void;
     onRequestEdit: (id: string, label: string, role: string) => void;
+    onRequestEdgeEdit: (id: string, label: string) => void;
     theme: 'light' | 'dark' | 'neutral';
 }
 
@@ -27,10 +28,11 @@ export function DiagramProvider({
     onDeleteNode,
     onAddNode,
     onRequestEdit,
+    onRequestEdgeEdit,
     theme = 'light'
 }: DiagramContextType & { children: ReactNode }) {
     return (
-        <DiagramContext.Provider value={{ onNodeUpdate, onDeleteNode, onAddNode, onRequestEdit, theme }}>
+        <DiagramContext.Provider value={{ onNodeUpdate, onDeleteNode, onAddNode, onRequestEdit, onRequestEdgeEdit, theme }}>
             {children}
         </DiagramContext.Provider>
     );

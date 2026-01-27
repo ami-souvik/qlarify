@@ -18,12 +18,12 @@ export async function POST(req: Request) {
     const feedbackId = randomUUID();
 
     // Table Schema:
-    // PK: "FEEDBACK" (Static partition key to group all feedback)
+    // PK: "FEEDBACK#QLARIFY" (Static partition key to group all feedback)
     // SK: <Timestamp>#<UUID> (Sort key to order by time)
     const command = new PutCommand({
       TableName: "UserFeedback",
       Item: {
-        PK: "FEEDBACK",
+        PK: "FEEDBACK#QLARIFY",
         SK: `${timestamp}#${feedbackId}`,
         rating: Number(rating),
         comment: comment,
