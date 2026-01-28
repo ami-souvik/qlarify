@@ -1,22 +1,34 @@
-
 import { NextResponse } from 'next/server';
-import { CognitoIdentityProviderClient, SignUpCommand, ConfirmSignUpCommand, ResendConfirmationCodeCommand, AdminUpdateUserAttributesCommand, AdminGetUserCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { CognitoIdentityProviderClient, SignUpCommand, ConfirmSignUpCommand, ResendConfirmationCodeCommand, AdminUpdateUserAttributesCommand, AdminGetUserCommand, ListUsersCommand } from "@aws-sdk/client-cognito-identity-provider";
+import crypto from 'crypto';
 
 const client = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION
 });
+
+function calculateSecretHash(username: string, clientId: string, clientSecret: string) {
+    return crypto.createHmac('sha256', clientSecret)
+        .update(username + clientId)
+        .digest('base64');
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { action, email, username, password, code, firstName, lastName } = body;
 
-    const cognitoUsername = username || email;
+    const cognitoUsername = username;
+    
+    // Calculate SecretHash if Client Secret is available
+    const secretHash = process.env.COGNITO_CLIENT_SECRET && process.env.COGNITO_CLIENT_ID
+        ? calculateSecretHash(cognitoUsername, process.env.COGNITO_CLIENT_ID, process.env.COGNITO_CLIENT_SECRET)
+        : undefined;
 
     if (action === 'signup') {
       try {
         const command = new SignUpCommand({
           ClientId: process.env.COGNITO_CLIENT_ID,
+          SecretHash: secretHash,
           Username: cognitoUsername,
           Password: password,
           UserAttributes: [
@@ -32,7 +44,6 @@ export async function POST(request: Request) {
       } catch (error: any) {
         if (error.name === 'UsernameExistsException') {
             const userPoolId = process.env.COGNITO_USER_POOL_ID;
-            console.log("Signup Debug - Existing User Detected. UserPoolId configured:", !!userPoolId);
             
             if (userPoolId) {
                  try {
@@ -42,10 +53,8 @@ export async function POST(request: Request) {
                          Username: cognitoUsername
                      });
                      const user = await client.send(getUserCmd);
-                     console.log("Signup Debug - Existing User Status:", user.UserStatus);
 
                      if (user.UserStatus === 'UNCONFIRMED') {
-                         console.log("Signup Debug - Updating unconfirmed user attributes...");
                          // Update attributes (Email, Name)
                          const updateCmd = new AdminUpdateUserAttributesCommand({
                              UserPoolId: userPoolId,
@@ -58,11 +67,11 @@ export async function POST(request: Request) {
                              ]
                          });
                          await client.send(updateCmd);
-                         console.log("Signup Debug - Attributes updated.");
                          
                          // Resend Code to the new email
                          const resendCommand = new ResendConfirmationCodeCommand({
                             ClientId: process.env.COGNITO_CLIENT_ID,
+                            SecretHash: secretHash,
                             Username: cognitoUsername
                         });
                         await client.send(resendCommand);
@@ -72,22 +81,21 @@ export async function POST(request: Request) {
                             step: 'verify' 
                         });
                      } else {
-                         console.log("Signup Debug - User is not UNCONFIRMED.");
                          return NextResponse.json({ error: "User already exists. Please log in." }, { status: 400 });
                      }
 
                  } catch (adminErr) {
-                     console.error("Signup Debug - Admin Action Failed:", adminErr);
                      // Fallback to basic resend if Admin actions fail
                  }
             } else {
-                console.warn("Signup Debug - Missing COGNITO_USER_POOL_ID in env. Cannot update attributes.");
+                // Cannot update attributes without UserPoolId
             }
 
             // Fallback: Check if we can resend code (implies unconfirmed)
             try {
                 const resendCommand = new ResendConfirmationCodeCommand({
                     ClientId: process.env.COGNITO_CLIENT_ID,
+                    SecretHash: secretHash,
                     Username: cognitoUsername
                 });
                 await client.send(resendCommand);
@@ -104,6 +112,7 @@ export async function POST(request: Request) {
     } else if (action === 'verify') {
       const command = new ConfirmSignUpCommand({
         ClientId: process.env.COGNITO_CLIENT_ID,
+        SecretHash: secretHash,
         Username: cognitoUsername,
         ConfirmationCode: code,
       });

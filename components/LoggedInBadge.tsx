@@ -19,7 +19,7 @@ export default function LoggedInBadge() {
                     {session.user?.name?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <span className="text-sm font-medium text-slate-700 pr-1 truncate max-w-[150px]">
-                    {session.user?.email}
+                    {session.user?.name}
                 </span>
             </Link>
 

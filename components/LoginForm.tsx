@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Asterisk, ArrowLeft, Mail, Lock, Github, Loader2 } from 'lucide-react';
+import { Asterisk, Mail, Lock, Loader2 } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 export default function LoginForm() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -19,7 +19,7 @@ export default function LoginForm() {
 
         try {
             const res = await signIn('credentials', {
-                username,
+                email,
                 password,
                 redirect: false,
             });
@@ -66,22 +66,22 @@ export default function LoginForm() {
                 <div className="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-slate-100">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-slate-700">
-                                Username
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                                Email address
                             </label>
                             <div className="mt-1 relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Mail size={18} className="text-slate-400" />
                                 </div>
                                 <input
-                                    id="username"
-                                    name="username"
-                                    type="text"
-                                    autoComplete="username"
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
                                     required
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="e.g. johndoe"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="name@company.com"
                                     className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
                                 />
                             </div>
@@ -151,13 +151,13 @@ export default function LoginForm() {
                             </div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-2 gap-3">
+                        <div className="mt-6">
                             <div>
-                                <a
-                                    href="#"
-                                    className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors"
+                                <button
+                                    type="button"
+                                    onClick={() => signIn('cognito', { callbackUrl: '/dashboard' }, { identity_provider: 'Google' })}
+                                    className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors items-center gap-2"
                                 >
-                                    <span className="sr-only">Sign in with Google</span>
                                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                                         <path
                                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -176,17 +176,8 @@ export default function LoginForm() {
                                             fill="#EA4335"
                                         />
                                     </svg>
-                                </a>
-                            </div>
-
-                            <div>
-                                <a
-                                    href="#"
-                                    className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors"
-                                >
-                                    <span className="sr-only">Sign in with GitHub</span>
-                                    <Github size={20} />
-                                </a>
+                                    <span>Sign in with Google</span>
+                                </button>
                             </div>
                         </div>
                     </div>
