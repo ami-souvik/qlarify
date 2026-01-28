@@ -662,6 +662,9 @@ export default function Home() {
             <Link href="/blog" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">
               Blog
             </Link>
+            <Link href="/login" className="text-slate-900 hover:text-indigo-600 font-medium transition-colors">
+              Log in
+            </Link>
           </div>
         </div>
       </nav>

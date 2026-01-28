@@ -23,6 +23,9 @@ export default function BlogIndex() {
                         <span className="font-bold text-xl tracking-tight text-slate-900">Qlarify</span>
                     </Link>
                     <div className="flex items-center gap-4">
+                        <Link href="/login" className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                            Log in
+                        </Link>
                         <Link href="/" className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
                             Back to Tool
                         </Link>
