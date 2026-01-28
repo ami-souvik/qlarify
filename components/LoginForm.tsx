@@ -27,14 +27,14 @@ export default function LoginForm() {
             if (res?.error) {
                 // In a real app, parse "NotAuthorizedException" vs "UserNotFoundException"
                 console.error("Login failed", res.error);
-                alert('Invalid username or password'); // Or use toast if available
+                toast('Invalid username or password'); // Or use toast if available
             } else {
                 router.push('/dashboard');
                 router.refresh();
             }
         } catch (error) {
             console.error("Login error", error);
-            alert('Something went wrong');
+            toast('Something went wrong');
         } finally {
             setIsLoading(false);
         }

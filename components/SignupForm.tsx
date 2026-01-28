@@ -1,11 +1,11 @@
 "use client";
 
 import Link from 'next/link';
-import { Asterisk, Mail, Lock, Loader2, CheckCircle, ArrowRight, User } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { Asterisk, Mail, Lock, Loader2, CheckCircle, ArrowRight, User } from 'lucide-react';
 
 export default function SignupForm() {
     const router = useRouter();
@@ -37,7 +37,6 @@ export default function SignupForm() {
             console.error("Signup error", error);
             const msg = error.response?.data?.error || "Failed to sign up";
             toast.error(msg);
-            alert(msg);
         } finally {
             setIsLoading(false);
         }
@@ -59,7 +58,6 @@ export default function SignupForm() {
             console.error("Verification error", error);
             const msg = error.response?.data?.error || "Failed to verify code";
             toast.error(msg);
-            alert(msg);
         } finally {
             setIsLoading(false);
         }

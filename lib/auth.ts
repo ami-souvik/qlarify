@@ -56,7 +56,7 @@ export const authOptions: NextAuthOptions = {
                             ChallengeResponses: {
                                 USERNAME: username,
                                 NEW_PASSWORD: password, // Setting the provided password as the permanent one
-                                SECRET_HASH: process.env.COGNITO_CLIENT_SECRET ? "" : undefined, // If secret is used, hash is needed. Assuming no secret for now or public client.
+                                SECRET_HASH: process.env.COGNITO_CLIENT_SECRET ?? "",
                             },
                             Session: (response.Session as string),
                         });

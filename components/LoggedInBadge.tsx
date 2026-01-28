@@ -14,7 +14,7 @@ export default function LoggedInBadge() {
     </>;
     return (
         <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200 hover:bg-slate-200 transition-colors">
+            <Link href="/dashboard" className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-full border border-slate-200 hover:bg-slate-200 transition-colors">
                 <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
                     {session.user?.name?.[0]?.toUpperCase() || 'U'}
                 </div>

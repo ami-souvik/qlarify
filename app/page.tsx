@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import { useSession, signOut } from "next-auth/react";
-import { Asterisk, ArrowRight, X, Layout, Maximize2, Minimize2, ZoomIn, ZoomOut, Download, Share2, Loader2, Eye, Code, ChevronRight, CheckCircle2, Copy, Check, Lock, Unlock, PlayCircle, History, Trash2, Calendar, User, LogOut, Zap, Share, Star } from 'lucide-react';
+import { useSession } from "next-auth/react";
+import { Asterisk, ArrowRight, X, Layout, Download, Share2, Loader2, Check, Zap, Share, Star } from 'lucide-react';
 import DiagramRenderer from '@/components/DiagramRenderer';
 import VisualControls from '@/components/VisualControls';
 import BlogPreviewSection from '@/components/BlogPreviewSection';
@@ -474,8 +474,6 @@ export default function Home() {
       const url = `${window.location.origin}/view/${res.data.diagramId}`;
       setShareUrl(url);
       setShowShareModal(true);
-      // navigator.clipboard.writeText(url);
-      // alert('Link with diagram state copied to clipboard!');
     }
   };
 
