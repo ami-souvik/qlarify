@@ -1,0 +1,20 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CognitoUserOperations",
+            "Effect": "Allow",
+            "Action": [
+                "cognito-idp:SignUp",
+                "cognito-idp:ConfirmSignUp",
+                "cognito-idp:ResendConfirmationCode",
+                "cognito-idp:InitiateAuth",
+                "cognito-idp:RespondToAuthChallenge",
+                "cognito-idp:GetUser",
+                "cognito-idp:AdminGetUser",
+                "cognito-idp:AdminUpdateUserAttributes"
+            ],
+            "Resource": "arn:aws:cognito-idp:YOUR_REGION:YOUR_ACCOUNT_ID:userpool/YOUR_USER_POOL_ID"
+        }
+    ]
+}

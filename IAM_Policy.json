@@ -1,0 +1,40 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AllowDiagramGetInsert",
+			"Effect": "Allow",
+			"Action": [
+				"dynamodb:PutItem",
+				"dynamodb:GetItem"
+			],
+			"Resource": "arn:aws:dynamodb:*:*:table/QlarifyDiagram"
+		},
+		{
+			"Sid": "AllowFeedbackInsert",
+			"Effect": "Allow",
+			"Action": [
+				"dynamodb:PutItem"
+			],
+			"Resource": [
+				"arn:aws:dynamodb:*:*:table/UserFeedback",
+				"arn:aws:dynamodb:*:*:table/UserRequest"
+			]
+		},
+		{
+            "Sid": "CognitoUserOperations",
+            "Effect": "Allow",
+            "Action": [
+                "cognito-idp:SignUp",
+                "cognito-idp:ConfirmSignUp",
+                "cognito-idp:ResendConfirmationCode",
+                "cognito-idp:InitiateAuth",
+                "cognito-idp:RespondToAuthChallenge",
+                "cognito-idp:GetUser",
+                "cognito-idp:AdminGetUser",
+                "cognito-idp:AdminUpdateUserAttributes"
+            ],
+            "Resource": "arn:aws:cognito-idp:ap-south-1:295920452208:userpool/ap-south-1_hAyAunYuT"
+        }
+	]
+}

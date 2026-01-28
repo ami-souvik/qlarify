@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import { Loader2, Share2, Download, Asterisk, ArrowRight, Layout, Zap, Share, Star, X, Check, Copy } from 'lucide-react';
+import { useSession, signOut } from "next-auth/react";
+import { Asterisk, ArrowRight, X, Layout, Maximize2, Minimize2, ZoomIn, ZoomOut, Download, Share2, Loader2, Eye, Code, ChevronRight, CheckCircle2, Copy, Check, Lock, Unlock, PlayCircle, History, Trash2, Calendar, User, LogOut, Zap, Share, Star } from 'lucide-react';
 import DiagramRenderer from '@/components/DiagramRenderer';
 import VisualControls from '@/components/VisualControls';
 import BlogPreviewSection from '@/components/BlogPreviewSection';
@@ -12,6 +13,8 @@ import { toPng, toSvg } from 'html-to-image';
 import { getRectOfNodes, getTransformForBounds, useNodesState, useEdgesState, Node, Edge, MarkerType, addEdge, Connection } from 'reactflow';
 import { getLayoutedElements } from '@/lib/utils';
 import LZString from 'lz-string';
+import LoggedInBadge from '@/components/LoggedInBadge';
+import QlarifyLogo from '@/components/QlarifyLogo';
 
 const SAMPLE_INPUT = `User visits the landing page.
 Frontend loads assets from CDN.
@@ -21,6 +24,7 @@ Database saves the contact info.
 System sends a welcome email via SMTP service.`;
 
 export default function Home() {
+  const { data: session } = useSession();
   const toolRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState(SAMPLE_INPUT);
   const [loading, setLoading] = useState(false);
@@ -651,20 +655,13 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-              <Asterisk size={28} fill="currentColor" />
-            </div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">Qlarify</span>
-          </div>
+          <QlarifyLogo />
           {/* Removed Links as requested */}
           <div className="hidden md:flex items-center gap-6">
             <Link href="/blog" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">
               Blog
             </Link>
-            <Link href="/login" className="text-slate-900 hover:text-indigo-600 font-medium transition-colors">
-              Log in
-            </Link>
+            <LoggedInBadge />
           </div>
         </div>
       </nav>
