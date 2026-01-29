@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useSession } from "next-auth/react";
 import { Asterisk, ArrowRight, X, Layout, Download, Share2, Loader2, Check, Zap, Share, Star } from 'lucide-react';
@@ -24,8 +25,15 @@ Database saves the contact info.
 System sends a welcome email via SMTP service.`;
 
 export default function Home() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const toolRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/app');
+    }
+  }, [status, router]);
   const [input, setInput] = useState(SAMPLE_INPUT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
