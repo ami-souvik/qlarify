@@ -76,7 +76,7 @@ export function ArchitectureCanvas() {
                         body: JSON.stringify({
                             intent: 'zoom',
                             level: node.data.role || 'service', // guess level?
-                            user_input: node.label, // "Auth Service"
+                            user_input: node.data.name, // "Auth Service"
                             context_node_id: childId, // "auth_service"
                             current_architecture_context: contextPayload
                         })

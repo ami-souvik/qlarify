@@ -29,8 +29,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [isViewOpen, setIsViewOpen] = useState(true);
 
     const FAVORITES = [
-        // { name: "Auth Flow V2", href: "/app/flowchart", icon: Layout },
-        // { name: "System Architecture", href: "/app/architecture", icon: Box },
+        { name: "Auth Flow V2", href: "/app/flowchart", icon: Layout },
+        { name: "System Architecture", href: "/app/architecture", icon: Box },
     ];
 
     const PAGES = [
