@@ -5,6 +5,6 @@ export async function GET() {
     name: "Qlarify MCP Server",
     description: "MCP server for Qlarify system architecture designer",
     version: "1.0.0",
-    tools_endpoint: "/api/mcp/tools"
+    tools_endpoint: "/mcp/tools"
   });
 }

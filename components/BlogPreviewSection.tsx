@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Asterisk, ArrowRight, User } from 'lucide-react';
 import axios from 'axios';
+import QlarifySvg from './QlarifySvg';
 
 interface BlogPost {
     slug: string;
@@ -57,7 +58,7 @@ export default function BlogPreviewSection() {
                                     </div>
                                 ) : (
                                     <div className="h-48 bg-indigo-50/50 flex items-center justify-center border-b border-indigo-50 group-hover:bg-indigo-50 transition-colors">
-                                        <Asterisk size={48} className="text-indigo-200" />
+                                        <QlarifySvg bgColor="indigo-600" className="w-16 h-16 p-0.5 opacity-20 rounded-lg text-white" />
                                     </div>
                                 )}
 

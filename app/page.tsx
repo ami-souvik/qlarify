@@ -16,6 +16,7 @@ import { getLayoutedElements } from '@/lib/utils';
 import LZString from 'lz-string';
 import LoggedInBadge from '@/components/LoggedInBadge';
 import QlarifyLogo from '@/components/QlarifyLogo';
+import QlarifySvg from '@/components/QlarifySvg';
 
 const SAMPLE_INPUT = `User visits the landing page.
 Frontend loads assets from CDN.
@@ -824,7 +825,7 @@ export default function Home() {
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
                     <div className="w-24 h-24 bg-slate-100 rounded-full mb-6 flex items-center justify-center animate-pulse">
-                      <Asterisk size={40} className="text-slate-300" />
+                      <QlarifySvg bgColor="indigo-600" className="w-8 h-8 p-0.5 rounded-lg text-white" />
                     </div>
                     <h3 className="text-lg font-medium text-slate-900 mb-2">Ready to Visualize</h3>
                     <p className="text-sm text-center max-w-xs">Describe your flow on the left and hit generate to see the magic happen.</p>
@@ -868,9 +869,7 @@ export default function Home() {
       <footer className="bg-slate-50 border-t border-slate-200 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
-            <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-              <Asterisk size={20} fill="currentColor" />
-            </div>
+            <QlarifySvg bgColor="indigo-600" className="w-8 h-8 p-0.5 rounded-lg text-white" />
             <span className="font-bold text-lg text-slate-900">Qlarify</span>
           </div>
           <div className="flex items-center gap-6">

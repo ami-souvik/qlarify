@@ -13,7 +13,7 @@ import { useParams } from 'next/navigation';
 import CustomNode from '@/components/CustomNode';
 import CustomEdge from '@/components/CustomEdge';
 import { DiagramProvider } from '@/lib/diagram-context';
-import { Asterisk } from 'lucide-react';
+import QlarifySvg from '@/components/QlarifySvg';
 
 export default function ViewDiagram() {
     const params = useParams();
@@ -135,7 +135,7 @@ export default function ViewDiagram() {
             <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-md border border-slate-200/50 px-2 py-1 rounded-xl shadow-sm">
                 <div className="flex items-center gap-2">
                     <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-                        <Asterisk size={20} fill="currentColor" />
+                        <QlarifySvg bgColor="indigo-600" className="w-16 h-16 p-0.5 opacity-20 rounded-lg text-white" />
                     </div>
                     <span className="font-bold text-lg tracking-tight text-slate-900">Qlarify</span>
                 </div>

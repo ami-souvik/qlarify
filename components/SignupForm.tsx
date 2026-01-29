@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { signIn } from 'next-auth/react';
-import { Asterisk, Mail, Lock, Loader2, CheckCircle, ArrowRight, User } from 'lucide-react';
+import { Mail, Lock, Loader2, CheckCircle, ArrowRight, User } from 'lucide-react';
+import QlarifySvg from './QlarifySvg';
 
 export default function SignupForm() {
     const router = useRouter();
@@ -70,9 +71,7 @@ export default function SignupForm() {
             {/* Header */}
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <Link href="/" className="flex items-center justify-center gap-2 mb-6 hover:opacity-80 transition-opacity">
-                    <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-                        <Asterisk size={28} fill="currentColor" />
-                    </div>
+                    <QlarifySvg bgColor="indigo-600" className="w-8 h-8 p-0.5 rounded-lg text-white" />
                     <span className="font-bold text-2xl tracking-tight text-slate-900">Qlarify</span>
                 </Link>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">

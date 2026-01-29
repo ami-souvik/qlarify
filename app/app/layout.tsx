@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -16,7 +16,8 @@ import {
     Settings,
     ChevronDown,
     ChevronRight,
-    FileText
+    FileText,
+    LogOut
 } from "lucide-react";
 import QlarifyLogo from "@/components/QlarifyLogo";
 import LoggedInBadge from "@/components/LoggedInBadge";
@@ -72,6 +73,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         <span className="text-sm font-medium text-slate-700 truncate">{session.user?.name}</span>
                         <ChevronRight size={14} className="text-slate-400 shrink-0" />
                     </div>
+                    <button
+                        onClick={() => signOut()}
+                        className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Sign out"
+                    >
+                        <LogOut size={20} />
+                    </button>
                 </div>
 
                 {/* Quick Actions */}

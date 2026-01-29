@@ -1,7 +1,6 @@
-import React from 'react';
 import Link from 'next/link';
-import { Asterisk } from 'lucide-react';
 import QlarifyLogo from '@/components/QlarifyLogo';
+import QlarifySvg from '@/components/QlarifySvg';
 
 export const metadata = {
     title: 'Privacy Policy | Qlarify',
@@ -87,9 +86,7 @@ export default function PrivacyPolicy() {
             <footer className="bg-slate-50 border-t border-slate-200 py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
-                        <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-                            <Asterisk size={20} fill="currentColor" />
-                        </div>
+                        <QlarifySvg bgColor="indigo-600" className="w-8 h-8 p-0.5 rounded-lg text-white" />
                         <span className="font-bold text-lg text-slate-900">Qlarify</span>
                     </div>
                     <p className="text-slate-400 text-sm">© 2026 Qurtesy Labs. All rights reserved.</p>
