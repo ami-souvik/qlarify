@@ -1,10 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function GET() {
   return NextResponse.json({
-    name: "Qlarify MCP Server",
-    description: "MCP server for Qlarify system architecture designer",
-    version: "1.0.0",
-    tools_endpoint: "/mcp/tools"
+    protocol: "mcp",
+    version: "1.0",
+    tools: [
+      {
+        name: "ping",
+        description: "Health check tool",
+        input_schema: {
+          type: "object",
+          properties: {}
+        }
+      }
+    ]
   });
 }
