@@ -740,7 +740,7 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="flex-1 p-2">
+              <div className="flex-1 p-3">
                 <textarea
                   className="w-full h-full min-h-[150px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-sm leading-relaxed p-0 placeholder:text-slate-300"
                   placeholder={generated ? "Describe updates (e.g., 'add a redis cache')..." : "e.g. User clicks login..."}
