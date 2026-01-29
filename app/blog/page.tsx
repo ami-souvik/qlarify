@@ -3,6 +3,7 @@ import { getBlogPosts } from '@/lib/blog';
 import { Asterisk, ArrowLeft, Calendar, User } from 'lucide-react';
 import { Metadata } from 'next';
 import QlarifyLogo from '@/components/QlarifyLogo';
+import LoggedInBadge from '@/components/LoggedInBadge';
 
 export const metadata: Metadata = {
     title: 'Blog - Qlarify',
@@ -16,20 +17,17 @@ export default function BlogIndex() {
         <div className="min-h-screen bg-[#FAFAFA] font-sans text-slate-900 selection:bg-indigo-100">
             {/* Navigation */}
             <nav className="sticky top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
                     <QlarifyLogo />
-                    <div className="flex items-center gap-4">
-                        <Link href="/login" className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
-                            Log in
-                        </Link>
-                        <Link href="/signup" className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
-                            Sign up
-                        </Link>
-                        <Link href="/" className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
-                            Back to Tool
-                        </Link>
-                    </div>
+                    <LoggedInBadge />
                 </div>
+            </nav>
+            <nav className='w-full py-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2 text-sm font-medium text-stone-500'>
+                <Link href="/" className="hover:text-stone-900 transition-colors">
+                    Home
+                </Link>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-900">Blog</span>
             </nav>
 
             {/* Hero */}

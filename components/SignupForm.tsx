@@ -239,7 +239,7 @@ export default function SignupForm() {
                                     <div>
                                         <button
                                             type="button"
-                                            onClick={() => signIn('cognito', { callbackUrl: '/dashboard' }, { identity_provider: 'Google' })}
+                                            onClick={() => signIn('cognito', { callbackUrl: '/app' }, { identity_provider: 'Google' })}
                                             className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors items-center gap-2"
                                         >
                                             <svg className="w-5 h-5" viewBox="0 0 24 24">

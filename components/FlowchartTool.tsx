@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import axios from 'axios';
 import { useSession } from "next-auth/react";
 import { Asterisk, ArrowRight, X, Layout, Download, Share2, Loader2, Check, Zap, Share, Star } from 'lucide-react';
 import DiagramRenderer from '@/components/DiagramRenderer';
 import VisualControls from '@/components/VisualControls';
-import BlogPreviewSection from '@/components/BlogPreviewSection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toPng, toSvg } from 'html-to-image';
 import { getRectOfNodes, getTransformForBounds, useNodesState, useEdgesState, Node, Edge, MarkerType, addEdge, Connection } from 'reactflow';
 import { getLayoutedElements } from '@/lib/utils';
 import LZString from 'lz-string';
-import LoggedInBadge from '@/components/LoggedInBadge';
-import QlarifyLogo from '@/components/QlarifyLogo';
 
 const SAMPLE_INPUT = `User visits the landing page.
 Frontend loads assets from CDN.
@@ -23,7 +19,7 @@ API validates the email address.
 Database saves the contact info.
 System sends a welcome email via SMTP service.`;
 
-export default function Home() {
+export default function FlowchartTool() {
   const { data: session } = useSession();
   const toolRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState(SAMPLE_INPUT);
@@ -503,7 +499,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 font-sans selection:bg-indigo-100 relative">
+    <div className="h-full bg-[#FAFAFA] text-slate-900 font-sans selection:bg-indigo-100 relative flex flex-col">
 
       {/* Feedback Modal */}
       <AnimatePresence>
@@ -649,229 +645,136 @@ export default function Home() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* Navigation */}
-      <nav className="fixed w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
-          <QlarifyLogo />
-          {/* Removed Links as requested */}
-          <div className="flex items-center gap-3 md:gap-6">
-            <Link href="/blog" className="text-sm md:text-base text-slate-600 hover:text-indigo-600 font-medium transition-colors">
-              Blog
-            </Link>
-            <LoggedInBadge />
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="min-h-screen pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center flex justify-center items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wide">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-            </span>
-            v1.1 Public Beta
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.1]">
-            Turn text into <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">system architectures.</span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Stop dragging rectangles. Just describe your system in plain English, and let our AI generate a clean, professional diagram instantly.
-          </p>
-
-          <div className="pt-4 flex justify-center gap-4">
-            <button onClick={() => toolRef.current?.scrollIntoView({ behavior: 'smooth' })} className="bg-indigo-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-xl hover:-translate-y-1 flex items-center gap-2">
-              Try it Free <ArrowRight size={20} />
-            </button>
-          </div>
-        </motion.div>
-      </section>
-
       {/* Main Tool Interface */}
-      <section ref={toolRef} className="min-h-screen px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-20" id="tool">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
+      <div className="bg-white h-full flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-12 h-full">
 
-            {/* Input Panel */}
-            <div className="lg:col-span-4 border-r border-slate-200 bg-slate-50/50 flex flex-col">
-              <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white">
-                <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                  <Layout size={18} className="text-indigo-600" />
-                  Input
-                </h3>
-                <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded">Plain Text</span>
-              </div>
+          {/* Input Panel */}
+          <div className="lg:col-span-4 border-r border-slate-200 bg-slate-50/50 flex flex-col h-full overflow-hidden">
+            <div className="px-4 py-2 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
+              <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                <Layout size={18} className="text-indigo-600" />
+                Input
+              </h3>
+              <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded">Plain Text</span>
+            </div>
 
-              {/* Activity History */}
-              {activityHistory.length > 0 && (
-                <div className="flex-3 overflow-y-auto p-4 space-y-2 bg-slate-50 border-b border-slate-200 max-h-[300px]">
-                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">History</div>
-                  {activityHistory.map((item, idx) => (
-                    <div key={idx} className={`text-sm rounded-lg border ${item.type === 'user' ? 'p-2 bg-white border-slate-200 text-slate-700' :
-                      item.type === 'action' ? 'px-1 bg-amber-50 border-amber-100 text-amber-700 italic' :
-                        item.type === 'add' ? 'px-1 bg-green-50 border-green-100 text-green-700 italic' :
-                          item.type === 'delete' ? 'px-1 bg-red-50 border-red-100 text-red-700 italic' :
-                            'p-2 bg-indigo-50 border-indigo-100 text-indigo-700'
-                      }`}>
-                      {
-                        item.type === 'user' || item.type === 'system' ?
-                          <>
-                            <div className="flex justify-between opacity-50 text-[10px] mb-1">
-                              <span>{item.type === 'user' ? 'You' : item.type === 'system' ? 'System' : 'Action'}</span>
-                              <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
-                            </div>
-                            {item.content}
-                          </>
-                          : <div className="flex justify-between opacity-50 text-[10px]">
-                            <span className='text-xs'>{item.content}</span>
+            {/* Activity History */}
+            {activityHistory.length > 0 && (
+              <div className="flex-3 overflow-y-auto p-4 space-y-2 bg-slate-50 border-b border-slate-200 max-h-[300px]">
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">History</div>
+                {activityHistory.map((item, idx) => (
+                  <div key={idx} className={`text-sm rounded-lg border ${item.type === 'user' ? 'p-2 bg-white border-slate-200 text-slate-700' :
+                    item.type === 'action' ? 'px-1 bg-amber-50 border-amber-100 text-amber-700 italic' :
+                      item.type === 'add' ? 'px-1 bg-green-50 border-green-100 text-green-700 italic' :
+                        item.type === 'delete' ? 'px-1 bg-red-50 border-red-100 text-red-700 italic' :
+                          'p-2 bg-indigo-50 border-indigo-100 text-indigo-700'
+                    }`}>
+                    {
+                      item.type === 'user' || item.type === 'system' ?
+                        <>
+                          <div className="flex justify-between opacity-50 text-[10px] mb-1">
+                            <span>{item.type === 'user' ? 'You' : item.type === 'system' ? 'System' : 'Action'}</span>
                             <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
                           </div>
-                      }
-                    </div>
-                  ))}
+                          {item.content}
+                        </>
+                        : <div className="flex justify-between opacity-50 text-[10px]">
+                          <span className='text-xs'>{item.content}</span>
+                          <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                    }
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex-1 p-3">
+              <textarea
+                className="w-full h-full min-h-[150px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-sm leading-relaxed p-0 placeholder:text-slate-300"
+                placeholder={generated ? "Describe updates (e.g., 'add a redis cache')..." : "e.g. User clicks login..."}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                spellCheck={false}
+              />
+            </div>
+            <div className="p-4 border-t border-slate-200 bg-white shrink-0">
+              <button
+                onClick={handleGenerate}
+                disabled={loading}
+                className="w-full flex justify-center items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-medium transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+              >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : <Asterisk size={20} />}
+                {loading ? 'Generating...' : 'Generate System Flow'}
+              </button>
+            </div>
+          </div>
+
+          {/* Output Panel */}
+          <div className="lg:col-span-8 bg-slate-100/50 relative flex flex-col h-full overflow-hidden">
+            <div className="absolute top-4 right-4 z-10 flex gap-2 items-center">
+              <button
+                onClick={() => executeAction('download', false)}
+                className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
+                title="Download PNG"
+                disabled={!generated}
+              >
+                <Download size={20} />
+              </button>
+              <button
+                onClick={() => executeAction('download-svg', false)}
+                className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50 font-bold text-xs"
+                title="Download SVG"
+                disabled={!generated}
+              >
+                SVG
+              </button>
+              <button
+                onClick={() => executeAction('share', false)}
+                className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
+                title="Share"
+                disabled={!generated}
+              >
+                <Share2 size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 flex overflow-hidden bg-slate-50" ref={diagramRef}>
+              {generated ? (
+                <>
+                  <DiagramRenderer
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onNodeUpdate={handleNodeUpdate}
+                    onNodeAdd={handleNodeAdd}
+                    onNodeDelete={handleNodeDelete}
+                    onEdgeUpdate={handleEdgeLabelChange}
+                    onInit={setRfInstance}
+                    onConnect={handleConnect}
+                    theme={themes}
+                  />
+                  <VisualControls
+                    theme={themes}
+                    edgeStyle={edgeStyle}
+                    onThemeChange={setThemes}
+                    onEdgeStyleChange={setEdgeStyle}
+                  />
+                </>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
+                  <div className="w-24 h-24 bg-slate-100 rounded-full mb-6 flex items-center justify-center animate-pulse">
+                    <Asterisk size={40} className="text-slate-300" />
+                  </div>
+                  <h3 className="text-lg font-medium text-slate-900 mb-2">Ready to Visualize</h3>
+                  <p className="text-sm text-center max-w-xs">Describe your flow on the left and hit generate to see the magic happen.</p>
                 </div>
               )}
-
-              <div className="flex-1 p-3">
-                <textarea
-                  className="w-full h-full min-h-[150px] resize-none bg-transparent border-0 focus:ring-0 text-slate-600 text-sm leading-relaxed p-0 placeholder:text-slate-300"
-                  placeholder={generated ? "Describe updates (e.g., 'add a redis cache')..." : "e.g. User clicks login..."}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  spellCheck={false}
-                />
-              </div>
-              <div className="p-4 border-t border-slate-200 bg-white">
-                <button
-                  onClick={handleGenerate}
-                  disabled={loading}
-                  className="w-full flex justify-center items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-medium transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
-                >
-                  {loading ? <Loader2 className="animate-spin" size={20} /> : <Asterisk size={20} />}
-                  {loading ? 'Generating...' : 'Generate System Flow'}
-                </button>
-              </div>
-            </div>
-
-            {/* Output Panel */}
-            <div className="lg:col-span-8 bg-slate-100/50 relative flex flex-col">
-              <div className="absolute top-4 right-4 z-10 flex gap-2 items-center">
-                <button
-                  onClick={() => executeAction('download', false)}
-                  className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
-                  title="Download PNG"
-                  disabled={!generated}
-                >
-                  <Download size={20} />
-                </button>
-                <button
-                  onClick={() => executeAction('download-svg', false)}
-                  className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50 font-bold text-xs"
-                  title="Download SVG"
-                  disabled={!generated}
-                >
-                  SVG
-                </button>
-                <button
-                  onClick={() => executeAction('share', false)}
-                  className="bg-white p-2 text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:text-indigo-600 hover:border-indigo-200 transition-all disabled:opacity-50"
-                  title="Share"
-                  disabled={!generated}
-                >
-                  <Share2 size={20} />
-                </button>
-              </div>
-
-              <div className="flex-1 flex overflow-hidden bg-slate-50" ref={diagramRef}>
-                {generated ? (
-                  <>
-                    <DiagramRenderer
-                      nodes={nodes}
-                      edges={edges}
-                      onNodesChange={onNodesChange}
-                      onEdgesChange={onEdgesChange}
-                      onNodeUpdate={handleNodeUpdate}
-                      onNodeAdd={handleNodeAdd}
-                      onNodeDelete={handleNodeDelete}
-                      onEdgeUpdate={handleEdgeLabelChange}
-                      onInit={setRfInstance}
-                      onConnect={handleConnect}
-                      theme={themes}
-                    />
-                    <VisualControls
-                      theme={themes}
-                      edgeStyle={edgeStyle}
-                      onThemeChange={setThemes}
-                      onEdgeStyleChange={setEdgeStyle}
-                    />
-                  </>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
-                    <div className="w-24 h-24 bg-slate-100 rounded-full mb-6 flex items-center justify-center animate-pulse">
-                      <Asterisk size={40} className="text-slate-300" />
-                    </div>
-                    <h3 className="text-lg font-medium text-slate-900 mb-2">Ready to Visualize</h3>
-                    <p className="text-sm text-center max-w-xs">Describe your flow on the left and hit generate to see the magic happen.</p>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Feature Grid */}
-      <section className="py-24 bg-white border-t border-slate-100" id="features">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900">Designed for Speed</h2>
-            <p className="mt-4 text-slate-500">Everything you need to communicate architecture, faster.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-12">
-            {[
-              { icon: Zap, title: 'Instant Generation', desc: 'No drag-and-drop. Just type and see results in milliseconds.' },
-              { icon: Layout, title: 'Clean Defaults', desc: 'Opinionated, beautiful styles that look professional out of the box.' },
-              { icon: Share, title: 'Easy Sharing', desc: 'Export to PNG/SVG or share a live URL with your team instantly.' },
-            ].map((feature, i) => (
-              <div key={i} className="flex flex-col items-center text-center group">
-                <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <feature.icon size={28} />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
-                <p className="text-slate-500 leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Blog Preview Section */}
-      <BlogPreviewSection />
-
-      {/* Footer */}
-      <footer className="bg-slate-50 border-t border-slate-200 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
-            <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-              <Asterisk size={20} fill="currentColor" />
-            </div>
-            <span className="font-bold text-lg text-slate-900">Qlarify</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="/blog" className="text-slate-500 hover:text-indigo-600 text-sm font-medium transition-colors">Blog</Link>
-            <p className="text-slate-400 text-sm">© 2026 Qurtesy Labs. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-
+      </div>
     </div>
   );
 }

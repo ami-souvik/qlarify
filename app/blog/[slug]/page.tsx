@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { getBlogPost, getBlogPosts } from '@/lib/blog';
-import { Asterisk, ArrowLeft, Calendar, User, Clock } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import LoggedInBadge from '@/components/LoggedInBadge';
+import QlarifyLogo from '@/components/QlarifyLogo';
 
 export async function generateStaticParams() {
     const posts = getBlogPosts();
@@ -39,18 +41,21 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <div className="min-h-screen bg-[#FAFAFA] font-sans text-slate-900 selection:bg-indigo-100">
             {/* Navigation */}
             <nav className="sticky top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <Link href="/blog" className="flex items-center gap-2 group text-slate-500 hover:text-indigo-600 transition-colors font-medium text-sm">
-                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                        Back to Blog
-                    </Link>
-                    <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-                            <Asterisk size={20} fill="currentColor" />
-                        </div>
-                        <span className="font-bold text-lg tracking-tight text-slate-900">Qlarify</span>
-                    </Link>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+                    <QlarifyLogo />
+                    <LoggedInBadge />
                 </div>
+            </nav>
+            <nav className='w-full py-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2 text-sm font-medium text-stone-500'>
+                <Link href="/" className="hover:text-stone-900 transition-colors">
+                    Home
+                </Link>
+                <span className="text-stone-300">/</span>
+                <Link href="/blog" className="hover:text-stone-900 transition-colors">
+                    Blog
+                </Link>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-900 line-clamp-1">{post.title}</span>
             </nav>
 
             {/* Article Header */}
