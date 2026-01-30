@@ -88,12 +88,12 @@ export default function AppDashboard() {
                         <Clock size={16} />
                         Recently Viewed
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="w-full overflow-x-auto flex gap-2">
                         {RECENT.map((item) => (
                             <Link
                                 key={item.id}
                                 href={item.href}
-                                className="group flex flex-col p-4 rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all bg-white"
+                                className="w-48 group flex flex-col p-4 rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all bg-white"
                             >
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className={`p-2 rounded-lg ${item.type === 'Flowchart' ? 'bg-indigo-50 text-indigo-600' : 'bg-purple-50 text-purple-600'}`}>

@@ -19,9 +19,12 @@ export async function GET() {
   return NextResponse.json(mcpManifest);
 }
 
-// 🔑 IMPORTANT: scanner WILL try POST
+// Scanner probes POST
 export async function POST() {
-  return NextResponse.json({
-    ok: true
-  });
+  return NextResponse.json({ ok: true });
+}
+
+// Cloudflare / OpenAI sometimes send HEAD
+export async function HEAD() {
+  return new NextResponse(null, { status: 200 });
 }
