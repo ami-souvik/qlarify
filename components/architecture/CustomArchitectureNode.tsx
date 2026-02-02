@@ -1,5 +1,4 @@
 import React, { memo, useState } from 'react';
-import { Handle, Position } from 'reactflow';
 import { Database, Server, User, Globe, Laptop, Box, Layers, Activity, Lock, Unlock, Zap, Maximize } from 'lucide-react';
 import { useArchitecture } from '@/context/ArchitectureContext';
 
@@ -67,9 +66,9 @@ export const CustomArchitectureNode = memo(({ id, data }: { id: string, data: { 
                 */}
             </div>
 
-            {/* Inputs */}
-            <Handle type="target" position={Position.Left} className="!bg-slate-400 !w-3 !h-3 !border-2 !border-white" />
-            <Handle type="target" position={Position.Top} className="!bg-slate-400 !w-3 !h-3 !border-2 !border-white" />
+            {/* Mock Handles */}
+            <div className="absolute -left-[7px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-400 rounded-full border-2 border-white" />
+            <div className="absolute left-1/2 -top-[7px] -translate-x-1/2 w-3 h-3 bg-slate-400 rounded-full border-2 border-white" />
 
             {/* Content */}
             <div className="p-2 bg-white/60 rounded-lg backdrop-blur-sm">
@@ -81,8 +80,8 @@ export const CustomArchitectureNode = memo(({ id, data }: { id: string, data: { 
             </div>
 
             {/* Outputs */}
-            <Handle type="source" position={Position.Right} className="!bg-slate-400 !w-3 !h-3 !border-2 !border-white" />
-            <Handle type="source" position={Position.Bottom} className="!bg-slate-400 !w-3 !h-3 !border-2 !border-white" />
+            <div className="absolute -right-[7px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-400 rounded-full border-2 border-white" />
+            <div className="absolute left-1/2 -bottom-[7px] -translate-x-1/2 w-3 h-3 bg-slate-400 rounded-full border-2 border-white" />
         </div>
     );
 });

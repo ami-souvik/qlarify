@@ -1,5 +1,4 @@
 import React, { memo, useState } from 'react';
-import { Handle, Position } from 'reactflow';
 import { Database, Server, User, Globe, Laptop, Box, Trash2, Edit2, Plus, Lock, Unlock } from 'lucide-react';
 import { useDiagram } from '@/lib/diagram-context';
 
@@ -88,12 +87,15 @@ export default memo(({ id, data }: { id: string, data: { label: string, role: st
                 )}
             </div>
 
-            <Handle type="target" position={Position.Left} className="!bg-slate-400 !w-3 !h-3" />
+            {/* Mock Handles for Visual Consistency */}
+            <div className="absolute -left-[7px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-400 rounded-full border-2 border-white" />
+
             <div className="bg-white/50 rounded-full">
                 <Icon size={16} />
             </div>
-            <div className="font-semibold text-base">{data.label}</div>
-            <Handle type="source" position={Position.Right} className="!bg-slate-400 !w-3 !h-3" />
+            <div className="font-semibold text-base whitespace-nowrap">{data.label}</div>
+
+            <div className="absolute -right-[7px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-400 rounded-full border-2 border-white" />
         </div>
     );
 });

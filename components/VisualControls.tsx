@@ -12,7 +12,7 @@ export default function VisualControls({ theme, edgeStyle, onThemeChange, onEdge
     return (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-white/90 backdrop-blur shadow-lg rounded-2xl border border-slate-200 p-2 flex gap-4 animate-in slide-in-from-bottom-5">
             {/* Theme Selector */}
-            <div className="flex items-center gap-2 border-r border-slate-200 pr-4">
+            <div className="flex items-center gap-2">
                 <Palette size={16} className="text-slate-400" />
                 <div className="flex gap-1">
                     <button
@@ -30,31 +30,6 @@ export default function VisualControls({ theme, edgeStyle, onThemeChange, onEdge
                         className={`w-6 h-6 rounded-full border-2 ${theme === 'dark' ? 'border-indigo-600' : 'border-transparent'} bg-slate-800 shadow-sm ring-1 ring-slate-200`}
                         title="Dark Theme"
                     />
-                </div>
-            </div>
-
-            {/* Edge Style Selector */}
-            <div className="flex items-center gap-2">
-                <GitCommit size={16} className="text-slate-400" />
-                <div className="flex bg-slate-100 rounded-lg p-0.5">
-                    <button
-                        onClick={() => onEdgeStyleChange('default')}
-                        className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${edgeStyle === 'default' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        Curved
-                    </button>
-                    <button
-                        onClick={() => onEdgeStyleChange('step')}
-                        className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${edgeStyle === 'step' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        Step
-                    </button>
-                    <button
-                        onClick={() => onEdgeStyleChange('straight')}
-                        className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${edgeStyle === 'straight' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        Straight
-                    </button>
                 </div>
             </div>
         </div>

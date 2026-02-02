@@ -14,6 +14,7 @@ import CustomNode from '@/components/CustomNode';
 import CustomEdge from '@/components/CustomEdge';
 import { DiagramProvider } from '@/lib/diagram-context';
 import QlarifySvg from '@/components/QlarifySvg';
+import QlarifyFlow from '@/components/canvas/QlarifyFlow';
 
 export default function ViewDiagram() {
     const params = useParams();
@@ -111,20 +112,12 @@ export default function ViewDiagram() {
                 onRequestEdgeEdit={noOp}
                 theme="light"
             >
-                <ReactFlow
-                    nodes={viewNodes}
-                    edges={viewEdges}
+                <QlarifyFlow
+                    nodes={nodes.map(n => ({ ...n, position: n.position, data: n.data, id: n.id, type: n.type }))}
+                    edges={edges as any[]}
                     nodeTypes={nodeTypes}
-                    edgeTypes={edgeTypes}
-                    fitView
-                    nodesDraggable={false}
-                    nodesConnectable={false}
-                    edgesFocusable={false}
-                    elementsSelectable={false} // Prevent selection implies no deletion/editing usually
-                >
-                    <Background color="#cbd5e1" gap={16} />
-                    <Controls showInteractive={false} />
-                </ReactFlow>
+                    className="bg-slate-50"
+                />
             </DiagramProvider>
             {/* Read-Only Badge */}
             <div className="absolute top-4 right-4 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-slate-200 shadow-sm text-xs font-semibold text-slate-500 z-10 pointer-events-none">
@@ -135,7 +128,7 @@ export default function ViewDiagram() {
             <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-md border border-slate-200/50 px-2 py-1 rounded-xl shadow-sm">
                 <div className="flex items-center gap-2">
                     <div className="bg-indigo-600 p-0.5 rounded-lg text-white">
-                        <QlarifySvg bgColor="indigo-600" className="w-16 h-16 p-0.5 opacity-20 rounded-lg text-white" />
+                        <QlarifySvg bgColor="indigo-600" className="w-6 h-6 p-0.5 rounded-lg text-white" />
                     </div>
                     <span className="font-bold text-lg tracking-tight text-slate-900">Qlarify</span>
                 </div>

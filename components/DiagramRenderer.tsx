@@ -1,20 +1,19 @@
 "use client";
 
 import { useState, useCallback } from 'react';
-import ReactFlow, {
-    Controls,
-    Background,
+import {
     Node,
     Edge,
     OnNodesChange,
     OnEdgesChange,
     OnConnect
 } from 'reactflow';
-import 'reactflow/dist/style.css';
+import QlarifyFlow from './canvas/QlarifyFlow';
 import CustomNode from './CustomNode';
 import CustomEdge from './CustomEdge';
-import { X, Check } from 'lucide-react';
+import { X, Check, Download, Image as ImageIcon, FileCode } from 'lucide-react';
 import { DiagramProvider } from '@/lib/diagram-context';
+import { toPng, toSvg } from 'html-to-image';
 
 const nodeTypes = {
     custom: CustomNode,
@@ -24,7 +23,6 @@ const edgeTypes = {
     'custom-edge': CustomEdge,
 };
 
-// Simple internal modal component
 const EditNodeModal = ({
     isOpen,
     onClose,
@@ -43,7 +41,6 @@ const EditNodeModal = ({
     const [label, setLabel] = useState(initialLabel);
     const [role, setRole] = useState(initialRole);
 
-    // Update local state when initial values change (modal opens)
     if (isOpen && label !== initialLabel && initialLabel !== '' && label === '') {
         setLabel(initialLabel);
         setRole(initialRole);
@@ -159,6 +156,24 @@ export default function DiagramRenderer({
         setEditModal(prev => ({ ...prev, isOpen: false }));
     };
 
+    const downloadImage = async (format: 'png' | 'svg') => {
+        const element = document.getElementById('qlarify-flow-content');
+        if (!element) return;
+
+        try {
+            const dataUrl = format === 'png'
+                ? await toPng(element, { backgroundColor: '#f8fafc' })
+                : await toSvg(element, { backgroundColor: '#f8fafc' });
+
+            const link = document.createElement('a');
+            link.download = `qlarify-diagram.${format}`;
+            link.href = dataUrl;
+            link.click();
+        } catch (err) {
+            console.error('Download failed', err);
+        }
+    };
+
     return (
         <DiagramProvider
             onNodeUpdate={onNodeUpdate}
@@ -169,21 +184,32 @@ export default function DiagramRenderer({
             theme={theme}
         >
             <div className="relative w-full h-full min-h-[500px] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onConnect={onConnect}
+                {/* Download Controls */}
+                <div className="absolute top-4 right-4 z-10 flex gap-2">
+                    <button
+                        onClick={() => downloadImage('png')}
+                        className="p-2 bg-white rounded-lg shadow-sm border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors"
+                        title="Download PNG"
+                    >
+                        <ImageIcon size={18} />
+                    </button>
+                    <button
+                        onClick={() => downloadImage('svg')}
+                        className="p-2 bg-white rounded-lg shadow-sm border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors"
+                        title="Download SVG"
+                    >
+                        <FileCode size={18} />
+                    </button>
+                </div>
+
+                {/* Replaced ReactFlow with QlarifyFlow */}
+                <QlarifyFlow
+                    nodes={nodes.map(n => ({ ...n, position: n.position, data: n.data, id: n.id, type: n.type }))}
+                    edges={edges as any[]}
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
-                    onInit={onInit}
-                    fitView
-                    attributionPosition="bottom-right"
-                >
-                    <Controls showInteractive={false} />
-                    <Background color="#cbd5e1" gap={16} />
-                </ReactFlow>
+                    className="bg-slate-50"
+                />
 
                 {editModal.isOpen && (
                     <EditNodeModal

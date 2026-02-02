@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, getSmoothStepPath, getStraightPath } from 'reactflow';
 import { Trash2, Edit2 } from 'lucide-react';
 import { useDiagram } from '@/lib/diagram-context';
 
@@ -15,54 +14,39 @@ export default function CustomEdge({
     style = {},
     markerEnd,
     data
-}: EdgeProps) {
-    // We can access context if we wrap edges in provider, but edges are usually outside node provider scope in some setups.
-    // However, CustomEdge is rendered by ReactFlow which is inside DiagramProvider.
-    // Let's use the standard "data" prop to pass callbacks if needed, or context if it works.
-    // For now, let's try using the context for delete action if we have one globally, 
-    // BUT we didn't export `onDeleteEdge` in DiagramContext. 
-    // We should probably rely on `data.onDelete` or just use the `useReactFlow` hook to delete edge.
-
-    // Better yet: User wants "hover actions".
+}: any) {
     const [isHovered, setIsHovered] = useState(false);
-
-    // Determine path based on data.pathType (matching the visual controls)
-    // Defaulting to smoothstep if not specified, similar to current app state "step"
     const pathType = data?.pathType || 'default';
+    const { onRequestEdgeEdit } = useDiagram();
 
-    let edgePath = '';
-    let labelX = 0;
-    let labelY = 0;
+    // Local Path Logic
+    const getPath = () => {
+        if (pathType === 'straight') {
+            return `M${sourceX},${sourceY} L${targetX},${targetY}`;
+        }
+        // Simple Bezier for default
+        const cx = (sourceX + targetX) / 2;
+        const cy = (sourceY + targetY) / 2;
+        // Adjust control points based on distance
+        return `M${sourceX},${sourceY} C${sourceX + 50},${sourceY} ${targetX - 50},${targetY} ${targetX},${targetY}`;
+    };
 
-    if (pathType === 'straight') {
-        [edgePath, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
-    } else if (pathType === 'step' || pathType === 'smoothstep') {
-        [edgePath, labelX, labelY] = getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
-    } else {
-        [edgePath, labelX, labelY] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
-    }
+    const edgePath = getPath();
+    const labelX = (sourceX + targetX) / 2;
+    const labelY = (sourceY + targetY) / 2;
 
     const onEdgeClick = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        if (data?.onDelete) {
-            data.onDelete(id);
-        }
+        if (data?.onDelete) data.onDelete(id);
     };
-
-    // Use context to access the global modal
-    const { onRequestEdgeEdit } = useDiagram();
 
     const onEditClick = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-
-        // Use the context modal if available, otherwise fallback to prompt
         if (onRequestEdgeEdit) {
             onRequestEdgeEdit(id, label || data?.label || "");
         } else if (data?.onLabelChange) {
-            const newLabel = window.prompt("Enter new label for this connection:", label || data.label || "");
-            if (newLabel !== null) {
-                data.onLabelChange(id, newLabel);
-            }
+            const newLabel = window.prompt("Enter new label:", label || data.label || "");
+            if (newLabel) data.onLabelChange(id, newLabel);
         }
     };
 
@@ -70,46 +54,42 @@ export default function CustomEdge({
         <g
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="react-flow__edge-group"
+            className="group"
+            style={{ pointerEvents: 'all', cursor: 'pointer' }}
         >
-            <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
-            <EdgeLabelRenderer>
-                <div
-                    style={{
-                        position: 'absolute',
-                        transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-                        pointerEvents: 'all',
-                        zIndex: 1000
-                    }}
-                    className="nodrag nopan flex items-center gap-1"
-                >
-                    {/* Always show label if it exists */}
+            <path
+                d={edgePath}
+                stroke="#94a3b8"
+                strokeWidth="2"
+                fill="none"
+                markerEnd={markerEnd}
+                style={style}
+                className="hover:stroke-indigo-400 hover:stroke-[3px] transition-all"
+            />
+
+            {/* Label & Actions via ForeignObject for HTML content in SVG */}
+            <foreignObject
+                x={labelX - 40}
+                y={labelY - 20}
+                width="80"
+                height="40"
+                className="overflow-visible"
+            >
+                <div className="flex flex-col items-center justify-center h-full w-full">
                     {label && (
-                        <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-slate-200 text-sm font-medium text-slate-600">
+                        <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-slate-200 text-xs font-medium text-slate-600 whitespace-nowrap">
                             {label}
                         </div>
                     )}
-                    {/* Show actions button on hover ONLY if not read-only */}
-                    {!data?.readOnly && (
-                        <div className={`flex gap-1 transition-all duration-200 ${isHovered ? 'opacity-100 max-w-[60px]' : 'opacity-0 max-w-0 overflow-hidden'}`}>
-                            <button
-                                className="bg-white text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 shadow-sm p-1.5 rounded-md transition-colors"
-                                onClick={onEditClick}
-                                title="Edit Label"
-                            >
-                                <Edit2 size={12} />
-                            </button>
-                            <button
-                                className="bg-white text-red-500 hover:bg-red-50 border border-slate-200 shadow-sm p-1.5 rounded-md transition-colors"
-                                onClick={onEdgeClick}
-                                title="Delete Connection"
-                            >
-                                <Trash2 size={12} />
-                            </button>
+
+                    {!data?.readOnly && isHovered && (
+                        <div className="flex gap-1 mt-1 bg-white p-1 rounded-md shadow border border-slate-100 absolute top-full">
+                            <button onClick={onEditClick} className="p-1 hover:text-indigo-600"><Edit2 size={10} /></button>
+                            <button onClick={onEdgeClick} className="p-1 hover:text-red-600"><Trash2 size={10} /></button>
                         </div>
                     )}
                 </div>
-            </EdgeLabelRenderer>
+            </foreignObject>
         </g>
     );
 }
