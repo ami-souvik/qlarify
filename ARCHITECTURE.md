@@ -1,56 +1,77 @@
-# Qlarify - MVP Architecture & Design
+# Qlarify - Collaborative System Architecture Design & Reasoning Platform
 
-## 1. High-Level Product Architecture
+## 1. Product Re-Definition
+*   **Mission**: A high-fidelity modeling platform where the diagram is a visual projection of a structured, verifiable system specification.
+*   **Target**: Principal Architects and Lead Engineers.
+*   **Value Prop**: Bridge the gap between "drawing a box" and "defining a service boundary" with AI-driven sanity checks and team-wide structural consistency.
 
-The system follows a simple client-server architecture designed for stateless, rapid diagram generation.
+## 2. New Domain Architecture
+### Modeling Domain (Core)
+*   **Graph Engine Service**: Validates structural invariants (e.g., circular dependencies, boundary violations).
+*   **Schema Registry**: Manages architectural primitives (Services, Databases, Gateways).
+### Temporal Domain
+*   **Timeline Service**: Manages immutable snapshots and branching.
+*   **Diff Engine**: Calculates structural delta between two system states.
+### Reasoning Domain (AI)
+*   **Context Orchestrator**: Hydrates LLM prompts with relevant graph sub-sections and historical decisions.
+*   **Advisory Service**: Generates non-binding "Structural Suggestions" based on patterns (Microservices, Event-Driven, etc.).
+### Collaboration Domain
+*   **Presence Service**: Tracking user cursors and active focus nodes.
+*   **Synchronization Service**: Handling concurrent edits to the graph using CRDTs.
 
-**Flow:**
-1.  **User Client (Browser)**: Inputs text, requests diagram.
-2.  **API Layer (FastAPI)**: Receives text, handles validation.
-3.  **Intelligence Layer (LLM)**: Parses text, extracts entities/relationships, determines layout type.
-4.  **Response**: API returns structured JSON (Nodes + Edges + Layout Metadata).
-5.  **Rendering**: Client uses the JSON to render visual elements (Nodes/Edges) using a library like React Flow or custom SVG.
+## 3. Canonical Architecture Model
+### Node Types
+*   `Entity`: System, Container, Component, Actor.
+*   `Boundary`: Logical grouping (Cloud Provider, VPC, Subnet, Domain).
+*   `Infrastructure`: Specific managed services (RDS, S3, Kafka).
+### Relationship Types
+*   `Synchronous`: REST, gRPC, GraphQL.
+*   `Asynchronous`: Pub/Sub, Event, Batch.
+*   `Composition`: Contains/Belongs-To.
+### Invariants
+*   Every `Component` must reside within exactly one `Container`.
+*   Circular dependencies between `Systems` trigger warnings.
+*   Cross-boundary communication must go through defined `Gateways`.
 
-## 2. Backend API Design
+## 4. LLM Orchestration Design
+*   **Session Model**: Stateless requests with a "Contextual Window" of the current graph view.
+*   **Context Builder**: Extracts active viewport nodes, related upstream/downstream dependencies, and current "Architecture Principles".
+*   **Suggestion Pipeline**: AI output is typed as `DraftProposal` (JSON). Rendered as a "Ghost Layer". Requires explicit promotion to canonical state.
+*   **Determinism**: Strict Schema parser rejects malformed AI outputs.
 
-**Endpoint:** `POST /api/v1/generate`
+## 5. Real-Time Collaboration Design
+*   **Sync Model**: **CRDT** for graph structure.
+*   **Conflict Resolution**: Last-Writer-Wins for aesthetics; Semantic merging for structure.
+*   **Event Broadcasting**: WebSockets for sub-100ms latency.
 
-**Request Body:**
-```json
-{
-  "description": "User clicks login. Frontend sends credentials to Auth Service. Auth Service verifies with Database.",
-  "style_preference": "default" // optional (default, technical, simplified)
-}
-```
+## 6. Versioning & Diff Engine
+*   **Snapshot Model**: Every "Commit" is a full immutable state.
+*   **Diff Types**: `Structural` (Nodes/Edges), `Metadata` (Tech/SLOs), `Visual` (Layout).
+*   **Evolution Tracking**: Milestone tagging.
 
-**Response Body:**
-```json
-{
-  "diagram_id": "uuid-v4",
-  "diagram_type": "sequence_flow", // or 'architecture', 'process'
-  "nodes": [
-    { "id": "n1", "label": "User", "role": "user", "icon": "user" },
-    { "id": "n2", "label": "Frontend", "role": "client", "icon": "layout" },
-    { "id": "n3", "label": "Auth Service", "role": "service", "icon": "server" },
-    { "id": "n4", "label": "Database", "role": "database", "icon": "database" }
-  ],
-  "edges": [
-    { "id": "e1", "source": "n1", "target": "n2", "label": "clicks login" },
-    { "id": "e2", "source": "n2", "target": "n3", "label": "sends credentials" },
-    { "id": "e3", "source": "n3", "target": "n4", "label": "verifies" }
-  ],
-  "layout_hints": {
-    "direction": "LR" // Left-to-Right or TD (Top-Down)
-  }
-}
-```
+## 7. Infrastructure Layer
+*   **Persistence**: DynamoDB (Ledger style: `PK: WORKSPACE#id`, `SK: EVENT#timestamp`).
+*   **API Gateway**: GraphQL/AppSync for efficient graph queries.
+*   **Real-time Layer**: WebSockets for live state sync.
 
-## 3. Diagram Rendering Approach (Frontend)
+## 8. Migration Strategy
 
-We will use **React Flow** for the MVP. It handles the heavy lifting of node dragging, zooming, and edge connecting, allowing us to focus on the *layout* and *styling*.
+### Components to Delete
+*   `app/api/diagram/route.ts`: Blob-based persistence is obsolete.
+*   `app/app/flowchart`: Product focus is strictly architecture.
+*   `components/canvas/QlarifyFlow.tsx`: Lightweight SVG renderer lacks enterprise features.
 
-*   **Auto-Layout**: We will use `dagre` or `elkjs` within the frontend to calculate node positions based on the `nodes` and `edges` received from the backend. The backend *can* provide hints, but the specific coordinates are best calculated on the client or via a layout library to fit the viewport.
-*   **Styling**: Custom Node Components for specific roles (Database, User, Server) using Tailwind CSS.
+### Reusable Infrastructure
+*   **Authentication**: NextAuth configuration.
+*   **Layout Shell**: Sidebar/Shell skeleton.
+*   **DynamoDB Client**: Connection logic and error handling.
 
-## 4. LLM Prompt Strategy
-(See `PROMPT_ENGINEERING.md`)
+### Refactor Phases
+1.  **Phase 1 (Data Model)**: Implement Structured Graph Schema in DynamoDB.
+2.  **Phase 2 (Graph Engine)**: Build modeling canvas with strict node types.
+3.  **Phase 4 (Reasoning)**: Introduce AI Ghost Layer.
+
+## 9. Risks & Architectural Pitfalls
+*   **Graph Complexity**: DOM performance at scale. (Mitigation: Virtualization).
+*   **AI Hallucinations**: Invalid connections. (Mitigation: Graph Engine validation).
+*   **Sync Drift**: Concurrent edit collisions. (Mitigation: Server-authoritative validation).

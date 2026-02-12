@@ -10,6 +10,7 @@ interface ArchitectureContextType {
     navigateBreadcrumb: (nodeId: string) => void;
     updateActiveDiagram: (nodes: VisualNode[], edges: VisualEdge[]) => void;
     addChildNode: (parentId: string, childNode: ArchitectureNode) => void;
+    resetProject: () => void;
     // Helper to find a node by ID in the tree
     findNode: (id: string) => ArchitectureNode | null;
 }
@@ -118,6 +119,14 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         });
     }, []);
 
+    const resetProject = useCallback(() => {
+        setState({
+            root: null,
+            activeNodeId: null,
+            breadcrumbs: []
+        });
+    }, []);
+
     return (
         <ArchitectureContext.Provider value={{
             state,
@@ -126,6 +135,7 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
             navigateBreadcrumb,
             updateActiveDiagram,
             addChildNode,
+            resetProject,
             findNode
         }}>
             {children}

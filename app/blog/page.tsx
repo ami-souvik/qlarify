@@ -1,10 +1,9 @@
 import Link from 'next/link';
 import { getBlogPosts } from '@/lib/blog';
-import { Asterisk, ArrowLeft, Calendar, User } from 'lucide-react';
+import { Asterisk, ArrowLeft, Calendar, User, Box } from 'lucide-react';
 import { Metadata } from 'next';
 import QlarifyLogo from '@/components/QlarifyLogo';
 import LoggedInBadge from '@/components/LoggedInBadge';
-import QlarifySvg from '@/components/QlarifySvg';
 
 export const metadata: Metadata = {
     title: 'Blog - Qlarify',
@@ -52,7 +51,9 @@ export default function BlogIndex() {
                                     {post.coverImage ? (
                                         <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                     ) : (
-                                        <QlarifySvg bgColor="indigo-600" className="w-20 h-20 p-0.5 rounded-2xl text-white opacity-20" />
+                                        <div className="w-20 h-20 bg-indigo-600/10 rounded-2xl flex items-center justify-center text-indigo-600/20">
+                                            <Box size={48} />
+                                        </div>
                                     )}
                                 </div>
 
@@ -95,7 +96,9 @@ export default function BlogIndex() {
             <footer className="border-t border-slate-200 bg-white mt-12">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all duration-300">
-                        <QlarifySvg bgColor="indigo-600" className="w-8 h-8 p-0.5 rounded-lg text-white" />
+                        <div className="bg-indigo-600 p-1 rounded-lg text-white">
+                            <Box size={16} />
+                        </div>
                         <span className="font-bold text-lg tracking-tight text-slate-900">Qlarify</span>
                     </div>
                     <p className="text-slate-500 text-sm">

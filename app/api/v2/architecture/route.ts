@@ -1,13 +1,23 @@
 import { NextResponse } from "next/server";
 import { ArchitectureNode, ArchitectureLevel } from "@/types/architecture";
 import OpenAI from "openai";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { randomUUID } from "crypto";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Initialize the DynamoDB Client
+const client = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(client);
+
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await req.json();
     const { intent, level, user_input, context_node_id, current_architecture_context } = body;
 
@@ -87,6 +97,40 @@ export async function POST(req: Request) {
 
     const content = completion.choices[0].message.content;
     const jsonResponse = JSON.parse(content || "{}");
+
+    // Save to DynamoDB if session exists and architecture was generated
+    if (session?.user?.email && jsonResponse.architecture_node) {
+        try {
+            const email = session.user.email;
+            const systemId = randomUUID();
+            const timestamp = new Date().toISOString();
+            
+            const item = {
+                PK: `USER#${email}`,
+                SK: `SYSTEM#${systemId}`,
+                id: systemId,
+                type: 'system',
+                title: jsonResponse.architecture_node.name || "System Architecture",
+                nodes: [jsonResponse.architecture_node],
+                intent: intent,
+                level: level,
+                userInput: user_input,
+                createdAt: timestamp,
+                updatedAt: timestamp
+            };
+
+            await docClient.send(new PutCommand({
+                TableName: "QlarifyCore",
+                Item: item
+            }));
+
+            // Add the saved ID to the response
+            jsonResponse.system_id = systemId;
+        } catch (dbError) {
+            console.error("Failed to save architecture to DynamoDB:", dbError);
+            // We don't fail the whole request if saving fails, but we log it
+        }
+    }
 
     return NextResponse.json(jsonResponse);
 
