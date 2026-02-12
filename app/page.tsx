@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
-import { ArrowRight, Box, Shield, Zap, Share2, Star, Github } from 'lucide-react';
+import { ArrowRight, Box, Shield, Zap, Share2, Star, Github, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoggedInBadge from '@/components/LoggedInBadge';
 import QlarifyLogo from '@/components/QlarifyLogo';
@@ -23,7 +23,7 @@ export default function Home() {
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-100 relative overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
           <QlarifyLogo />
           <div className="flex items-center gap-6">
             <Link href="#features" className="hidden md:block text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
@@ -49,7 +49,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="space-y-8"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wide">
@@ -123,6 +123,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Community Section */}
+      <section className="py-24 bg-indigo-600 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-200 via-transparent to-transparent"></div>
+        </div>
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md text-white mb-4">
+              <MessageSquare size={40} />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+              Join the Architecture Community
+            </h2>
+            <p className="text-indigo-100 text-xl max-w-2xl mx-auto leading-relaxed">
+              Connect with fellow architects, share your designs, and help shape the future of Qlarify.
+            </p>
+            <div className="pt-4">
+              <Link
+                href="https://discord.gg/852AQe22"
+                target="_blank"
+                className="inline-flex items-center gap-2 bg-white text-indigo-600 px-10 py-4 rounded-full text-lg font-bold hover:bg-slate-50 transition-all hover:shadow-2xl hover:-translate-y-1"
+              >
+                Join our Discord
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-slate-900 py-12 text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
@@ -134,6 +169,7 @@ export default function Home() {
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="#" className="hover:text-white transition-colors">Terms</Link>
             <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+            <Link href="https://discord.gg/your-invite-link" target="_blank" className="hover:text-white transition-colors">Discord</Link>
           </div>
           <div className="text-sm">
             © 2026 Qlarify AI. All rights reserved.

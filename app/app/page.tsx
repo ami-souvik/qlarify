@@ -8,6 +8,9 @@ import ArchitectureTool from "@/components/ArchitectureTool";
 import { useArchitecture } from "@/context/ArchitectureContext";
 
 import { useRouter } from "next/navigation";
+import QlarifyLogo from "@/components/QlarifyLogo";
+import Link from "next/link";
+import LoggedInBadge from "@/components/LoggedInBadge";
 
 export default function ArchitecturePage() {
     const router = useRouter();
@@ -34,6 +37,13 @@ export default function ArchitecturePage() {
 
     return (
         <div className="h-full w-full overflow-y-auto bg-white flex flex-col">
+            {/* Navigation */}
+            <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+                    <QlarifyLogo />
+                    <LoggedInBadge />
+                </div>
+            </nav>
             {/* Main Architecture Tool (becomes the bottom section when no project is loaded) */}
             <div className="flex-1 min-h-[600px]">
                 <ArchitectureTool />

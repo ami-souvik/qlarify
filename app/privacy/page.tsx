@@ -81,15 +81,21 @@ export default function PrivacyPolicy() {
             </main>
 
             {/* Footer */}
-            <footer className="bg-slate-50 border-t border-slate-200 py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
-                        <div className="bg-indigo-600 p-1 rounded-lg text-white">
-                            <Box size={16} />
-                        </div>
-                        <span className="font-bold text-lg text-slate-900">Qlarify</span>
+            <footer className="bg-slate-900 py-12 text-slate-400">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-2 text-white">
+                        <Box size={24} className="text-indigo-500" />
+                        <span className="font-bold text-xl tracking-tight">Qlarify</span>
                     </div>
-                    <p className="text-slate-400 text-sm">© 2026 Qurtesy Labs. All rights reserved.</p>
+                    <div className="flex gap-8 text-sm font-medium">
+                        <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                        <Link href="#" className="hover:text-white transition-colors">Terms</Link>
+                        <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+                        <Link href="https://discord.gg/852AQe22" target="_blank" className="hover:text-white transition-colors">Discord</Link>
+                    </div>
+                    <div className="text-sm">
+                        © 2026 Qlarify AI. All rights reserved.
+                    </div>
                 </div>
             </footer>
         </div>

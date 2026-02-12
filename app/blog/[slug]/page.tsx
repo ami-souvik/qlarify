@@ -132,7 +132,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 <div className="max-w-4xl mx-auto text-center text-white">
                     <h2 className="text-3xl font-bold mb-4">Ready to optimize your architecture?</h2>
                     <p className="text-indigo-200 mb-8 max-w-xl mx-auto">Build your first diagram with Qlarify in seconds using just natural language.</p>
-                    <Link href="/" className="inline-block bg-white text-indigo-900 font-bold px-8 py-3 rounded-full hover:bg-slate-100 transition-colors">
+                    <Link href="/login" className="inline-block bg-white text-indigo-900 font-bold px-8 py-3 rounded-full hover:bg-slate-100 transition-colors">
                         Try Qlarify Free
                     </Link>
                 </div>
