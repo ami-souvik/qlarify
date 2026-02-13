@@ -1,27 +1,20 @@
 "use client";
 
 import React, { useMemo, useEffect, useRef, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Box, Layers, User, Globe, Server, Database, Activity, Zap, Maximize2, Plus, Minus, Move } from 'lucide-react';
 import { useArchitecture } from '@/context/ArchitectureContext';
 import { ArchitectureNode } from '@/types/architecture';
 
-const COLORS: Record<string, { bg: string, border: string, text: string, shadow: string }> = {
-    product: { bg: '#eef2ff', border: '#6366f1', text: '#1e1b4b', shadow: 'rgba(99, 102, 241, 0.1)' },
-    domain: { bg: '#eff6ff', border: '#3b82f6', text: '#172554', shadow: 'rgba(59, 130, 246, 0.1)' },
-    user: { bg: '#f0fdfa', border: '#14b8a6', text: '#042f2e', shadow: 'rgba(20, 184, 166, 0.1)' },
-    external: { bg: '#f8fafc', border: '#94a3b8', text: '#334155', shadow: 'rgba(148, 163, 184, 0.1)' },
-    root: { bg: '#4f46e5', border: '#4338ca', text: '#ffffff', shadow: 'rgba(79, 70, 229, 0.3)' }
-};
-
-const ICON_MAP: Record<string, string> = {
-    product: '📦',
-    domain: '📑',
-    user: '👤',
-    external: '🌐',
-    service: '🖥️',
-    database: '🗄️',
-    api: '📈',
-    infra: '⚡'
+const icons: Record<string, any> = {
+    product: Box,
+    domain: Layers,
+    user: User,
+    external: Globe,
+    service: Server,
+    database: Database,
+    api: Activity,
+    infra: Zap
 };
 
 interface StrategicMindmapProps {
@@ -31,12 +24,21 @@ interface StrategicMindmapProps {
 export function StrategicMindmap({ onNodeClick }: StrategicMindmapProps) {
     const { state, findNode } = useArchitecture();
     const containerRef = useRef<HTMLDivElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+    // Pan & Zoom State
+    const [transform, setTransform] = useState({ x: 0, y: 0, scale: 0.8 });
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        if (containerRef.current) {
+            setDimensions({
+                width: containerRef.current.offsetWidth,
+                height: containerRef.current.offsetHeight
+            });
+        }
+    }, []);
 
     const activeNode = useMemo(() => {
         if (!state.activeNodeId) return null;
@@ -56,228 +58,61 @@ export function StrategicMindmap({ onNodeClick }: StrategicMindmapProps) {
         return { nodes: filteredNodes, edges: filteredEdges };
     }, [activeNode]);
 
-    const nodeWidth = 160;
-    const nodeHeight = 60;
-    const layoutScale = 1.5;
+    const nodeWidth = 180;
+    const nodeHeight = 70;
+    const layoutScale = 1.6;
 
-    const draw = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+    const getNodePos = useCallback((node: any) => {
+        const x = (node.position?.x || 0) * layoutScale;
+        const y = (node.position?.y || 0) * layoutScale;
+        return { x, y };
+    }, [layoutScale]);
 
-        // Clear and match high DPI
-        ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+    const fitView = useCallback(() => {
+        if (nodes.length === 0 || dimensions.width === 0) return;
 
-        // 0. Draw Background Grid
-        const gridSize = 40;
-        const dotSize = 1;
-        ctx.fillStyle = '#f1f5f9';
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        nodes.forEach(n => {
+            const { x, y } = getNodePos(n);
+            minX = Math.min(minX, x - nodeWidth / 2);
+            maxX = Math.max(maxX, x + nodeWidth / 2);
+            minY = Math.min(minY, y - nodeHeight / 2);
+            maxY = Math.max(maxY, y + nodeHeight / 2);
+        });
 
-        // Calculate grid start points based on transform
-        const startX = ((-transform.x / transform.scale) % gridSize) - gridSize;
-        const startY = ((-transform.y / transform.scale) % gridSize) - gridSize;
-        const endX = (dimensions.width / transform.scale) + gridSize;
-        const endY = (dimensions.height / transform.scale) + gridSize;
+        const padding = 150;
+        const contentWidth = maxX - minX + padding;
+        const contentHeight = maxY - minY + padding;
 
-        ctx.save();
-        ctx.translate(dimensions.width / 2 + transform.x, dimensions.height / 2 + transform.y);
-        ctx.scale(transform.scale, transform.scale);
+        const scaleX = dimensions.width / contentWidth;
+        const scaleY = dimensions.height / contentHeight;
+        const newScale = Math.min(scaleX, scaleY, 1.1);
 
-        // We actually want a fixed-position grid that feels like a floor
-        // So we undo the scale for the dot size but keep it for spacing
-        ctx.restore();
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
 
-        // Simpler approach: Screen-space grid that shifts
-        const offsetX = (transform.x % (gridSize * transform.scale));
-        const offsetY = (transform.y % (gridSize * transform.scale));
+        setTransform({
+            x: -centerX * newScale,
+            y: -centerY * newScale,
+            scale: newScale
+        });
+    }, [nodes, dimensions, getNodePos]);
 
-        ctx.beginPath();
-        for (let x = offsetX; x < dimensions.width; x += gridSize * transform.scale) {
-            for (let y = offsetY; y < dimensions.height; y += gridSize * transform.scale) {
-                ctx.rect(x, y, dotSize, dotSize);
-            }
+    useEffect(() => {
+        if (nodes.length > 0 && dimensions.width > 0) {
+            fitView();
         }
-        ctx.fill();
-
-        ctx.save();
-
-        // Translate to center + transform
-        ctx.translate(dimensions.width / 2 + transform.x, dimensions.height / 2 + transform.y);
-        ctx.scale(transform.scale, transform.scale);
-
-        // 1. Draw Edges
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.5;
-        ctx.globalAlpha = 0.5;
-
-        edges.forEach(edge => {
-            const startNode = nodes.find(n => n.id === edge.source);
-            const endNode = nodes.find(n => n.id === edge.target);
-            if (!startNode || !endNode) return;
-
-            const x1 = (startNode.position?.x || 0) * layoutScale;
-            const y1 = (startNode.position?.y || 0) * layoutScale;
-            const x2 = (endNode.position?.x || 0) * layoutScale;
-            const y2 = (endNode.position?.y || 0) * layoutScale;
-
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-
-            // Draw Edge Label
-            if (edge.label) {
-                const mx = (x1 + x2) / 2;
-                const my = (y1 + y2) / 2;
-
-                ctx.save();
-                ctx.globalAlpha = 1;
-                ctx.font = 'bold 8px Inter, sans-serif';
-                const labelText = String(edge.label).toUpperCase();
-                const metrics = ctx.measureText(labelText);
-                const padding = 4;
-
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                ctx.fillRect(mx - metrics.width / 2 - padding, my - 6 - padding / 2, metrics.width + padding * 2, 12 + padding);
-                ctx.strokeStyle = '#f1f5f9';
-                ctx.setLineDash([]);
-                ctx.strokeRect(mx - metrics.width / 2 - padding, my - 6 - padding / 2, metrics.width + padding * 2, 12 + padding);
-
-                ctx.fillStyle = '#94a3b8';
-                ctx.textAlign = 'center';
-                ctx.fillText(labelText, mx, my + 3);
-                ctx.restore();
-            }
-        });
-
-        // 2. Draw Nodes
-        ctx.setLineDash([]);
-        ctx.globalAlpha = 1;
-
-        nodes.forEach(node => {
-            const x = (node.position?.x || 0) * layoutScale;
-            const y = (node.position?.y || 0) * layoutScale;
-            const role = node.data?.role || 'domain';
-            const isRoot = role === 'product';
-            const style = isRoot ? COLORS.root : (COLORS[role] || COLORS.domain);
-
-            // Draw shadow
-            ctx.shadowColor = style.shadow;
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 4;
-
-            // Draw node background
-            ctx.fillStyle = style.bg;
-            ctx.strokeStyle = style.border;
-            ctx.lineWidth = 2;
-
-            ctx.beginPath();
-            const r = 16;
-            const w = nodeWidth;
-            const h = nodeHeight;
-            ctx.roundRect(x - w / 2, y - h / 2, w, h, r);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.shadowColor = 'transparent';
-
-            // Draw Icon area
-            const iconSize = 24;
-            ctx.fillStyle = isRoot ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.6)';
-            ctx.beginPath();
-            ctx.roundRect(x - w / 2 + 10, y - iconSize / 2, iconSize, iconSize, 8);
-            ctx.fill();
-
-            // Draw Icon (Emoji as placeholder for premium look)
-            ctx.font = '14px serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(ICON_MAP[role] || '🖥️', x - w / 2 + 10 + iconSize / 2, y + 5);
-
-            // Draw Text
-            ctx.fillStyle = style.text;
-            ctx.font = 'bold 12px Inter, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(node.data?.label || '', x - w / 2 + 45, y + 0);
-
-            if (node.data?.architecture_node_id && !isRoot) {
-                ctx.fillStyle = style.text;
-                ctx.font = 'bold 7px Inter, sans-serif';
-                ctx.globalAlpha = 0.6;
-                ctx.fillText('🔍 EXPLORE', x - w / 2 + 45, y + 12);
-                ctx.globalAlpha = 1;
-            } else if (isRoot) {
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 7px Inter, sans-serif';
-                ctx.globalAlpha = 0.8;
-                ctx.fillText('CORE SYSTEM', x - w / 2 + 45, y + 12);
-                ctx.globalAlpha = 1;
-            }
-        });
-
-        ctx.restore();
-    }, [nodes, edges, transform, dimensions]);
-
-    // Handle Resize
-    useEffect(() => {
-        const handleResize = () => {
-            if (containerRef.current && canvasRef.current) {
-                const { offsetWidth: w, offsetHeight: h } = containerRef.current;
-                const dpr = window.devicePixelRatio || 1;
-                canvasRef.current.width = w * dpr;
-                canvasRef.current.height = h * dpr;
-                canvasRef.current.style.width = `${w}px`;
-                canvasRef.current.style.height = `${h}px`;
-                const ctx = canvasRef.current.getContext('2d');
-                if (ctx) ctx.scale(dpr, dpr);
-                setDimensions({ width: w, height: h });
-            }
-        };
-
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    useEffect(() => {
-        draw();
-    }, [draw]);
+    }, [nodes, dimensions.width, fitView]);
 
     const handleWheel = (e: React.WheelEvent) => {
         e.preventDefault();
         const delta = e.deltaY * -0.001;
-        const newScale = Math.min(Math.max(transform.scale + delta, 0.2), 4);
+        const newScale = Math.min(Math.max(transform.scale + delta, 0.2), 3);
         setTransform(prev => ({ ...prev, scale: newScale }));
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (!rect) return;
-
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        // Check for node clicks
-        const worldX = (mouseX - dimensions.width / 2 - transform.x) / transform.scale;
-        const worldY = (mouseY - dimensions.height / 2 - transform.y) / transform.scale;
-
-        const clickedNode = [...nodes].reverse().find(node => {
-            const nx = (node.position?.x || 0) * layoutScale;
-            const ny = (node.position?.y || 0) * layoutScale;
-            return (
-                worldX >= nx - nodeWidth / 2 &&
-                worldX <= nx + nodeWidth / 2 &&
-                worldY >= ny - nodeHeight / 2 &&
-                worldY <= ny + nodeHeight / 2
-            );
-        });
-
-        if (clickedNode && clickedNode.data?.architecture_node_id && clickedNode.data?.role !== 'product') {
-            onNodeClick(clickedNode.data.architecture_node_id);
-            return;
-        }
-
+        if ((e.target as HTMLElement).closest('.mindmap-node')) return;
         setIsDragging(true);
         setLastMousePos({ x: e.clientX, y: e.clientY });
     };
@@ -292,84 +127,206 @@ export function StrategicMindmap({ onNodeClick }: StrategicMindmapProps) {
 
     const handleMouseUp = () => setIsDragging(false);
 
-    const fitView = useCallback(() => {
-        if (nodes.length === 0 || dimensions.width === 0) return;
-
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        nodes.forEach(n => {
-            const x = (n.position?.x || 0) * layoutScale;
-            const y = (n.position?.y || 0) * layoutScale;
-            minX = Math.min(minX, x - nodeWidth / 2);
-            maxX = Math.max(maxX, x + nodeWidth / 2);
-            minY = Math.min(minY, y - nodeHeight / 2);
-            maxY = Math.max(maxY, y + nodeHeight / 2);
-        });
-
-        const padding = 100;
-        const contentWidth = maxX - minX + padding;
-        const contentHeight = maxY - minY + padding;
-
-        const scaleX = dimensions.width / contentWidth;
-        const scaleY = dimensions.height / contentHeight;
-        const newScale = Math.min(scaleX, scaleY, 1.2);
-
-        const centerX = (minX + maxX) / 2;
-        const centerY = (minY + maxY) / 2;
-
-        setTransform({
-            x: -centerX * newScale,
-            y: -centerY * newScale,
-            scale: newScale
-        });
-    }, [nodes, dimensions, layoutScale]);
-
-    // Auto-fit on mount or when nodes change
-    useEffect(() => {
-        if (nodes.length > 0 && dimensions.width > 0) {
-            fitView();
-        }
-    }, [nodes, dimensions.width, fitView]);
+    if (!activeNode) return null;
 
     return (
-        <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-white select-none">
-            <canvas
-                ref={canvasRef}
-                onWheel={handleWheel}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-                className={`w-full h-full cursor-${isDragging ? 'grabbing' : 'grab'}`}
-            />
+        <div
+            ref={containerRef}
+            className={`w-full h-full relative overflow-hidden bg-slate-50/20 cursor-${isDragging ? 'grabbing' : 'grab'}`}
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+        >
+            {/* SVG Canvas */}
+            <svg
+                className="w-full h-full"
+                viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+            >
+                {/* Background Grid */}
+                <defs>
+                    <pattern id="grid" width={40 * transform.scale} height={40 * transform.scale} patternUnits="userSpaceOnUse">
+                        <circle
+                            cx={1 * transform.scale}
+                            cy={1 * transform.scale}
+                            r={1 * transform.scale}
+                            fill="#cbd5e1"
+                            opacity="0.3"
+                        />
+                    </pattern>
+                </defs>
+                <rect
+                    x="0" y="0"
+                    width="100%" height="100%"
+                    fill="url(#grid)"
+                    style={{
+                        transform: `translate(${transform.x % (40 * transform.scale)}px, ${transform.y % (40 * transform.scale)}px)`
+                    }}
+                />
+
+                {/* Main Transform Group */}
+                <g style={{
+                    transform: `translate(${dimensions.width / 2 + transform.x}px, ${dimensions.height / 2 + transform.y}px) scale(${transform.scale})`,
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                }}>
+                    {/* Edges Layer */}
+                    <AnimatePresence>
+                        {edges.map((edge) => {
+                            const startNode = nodes.find(n => n.id === edge.source);
+                            const endNode = nodes.find(n => n.id === edge.target);
+                            if (!startNode || !endNode) return null;
+
+                            const sPos = getNodePos(startNode);
+                            const ePos = getNodePos(endNode);
+
+                            return (
+                                <g key={`edge-${edge.id}`}>
+                                    <motion.path
+                                        initial={{ pathLength: 0, opacity: 0 }}
+                                        animate={{ pathLength: 1, opacity: 0.4 }}
+                                        d={`M ${sPos.x} ${sPos.y} L ${ePos.x} ${ePos.y}`}
+                                        stroke="#94a3b8"
+                                        strokeWidth="2"
+                                        strokeDasharray="5 5"
+                                        fill="none"
+                                    />
+                                    {edge.label && (
+                                        <foreignObject
+                                            x={(sPos.x + ePos.x) / 2 - 50}
+                                            y={(sPos.y + ePos.y) / 2 - 12}
+                                            width="100"
+                                            height="24"
+                                            className="pointer-events-none"
+                                        >
+                                            <div className="flex justify-center items-center h-full">
+                                                <span className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-slate-100 text-[8px] font-bold text-slate-500 uppercase tracking-tighter shadow-sm">
+                                                    {String(edge.label)}
+                                                </span>
+                                            </div>
+                                        </foreignObject>
+                                    )}
+                                </g>
+                            );
+                        })}
+                    </AnimatePresence>
+
+                    {/* Nodes Layer */}
+                    {nodes.map((node) => {
+                        const { x, y } = getNodePos(node);
+                        const isRoot = node.data?.role === 'product';
+                        const archNodeId = node.data?.architecture_node_id;
+
+                        return (
+                            <foreignObject
+                                key={node.id}
+                                x={x - nodeWidth / 2}
+                                y={y - nodeHeight / 2}
+                                width={nodeWidth}
+                                height={nodeHeight}
+                                className="mindmap-node"
+                            >
+                                <MindmapNodeJSX
+                                    name={node.data?.label || 'Node'}
+                                    type={node.data?.role || 'domain'}
+                                    isCenter={isRoot}
+                                    onClick={() => archNodeId && !isRoot && onNodeClick(archNodeId)}
+                                    hasDetails={!!archNodeId}
+                                />
+                            </foreignObject>
+                        );
+                    })}
+                </g>
+            </svg>
+
+            {/* Scale Indicator */}
+            <div className="absolute top-4 right-4 pointer-events-none">
+                <div className="px-3 py-1 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-full text-[10px] font-bold text-slate-400">
+                    Zoom: {(transform.scale * 100).toFixed(0)}%
+                </div>
+            </div>
 
             {/* Controls Overlay */}
-            <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-50">
-                <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-200 p-1.5 flex flex-col gap-1">
+            <div className="absolute bottom-6 right-6 flex flex-col gap-1 z-50">
+                <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-slate-200 p-1 flex flex-col gap-1">
                     <button
-                        onClick={() => setTransform(p => ({ ...p, scale: Math.min(p.scale + 0.2, 4) }))}
-                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
-                        title="Zoom In"
+                        onClick={() => setTransform(p => ({ ...p, scale: Math.min(p.scale + 0.2, 3) }))}
+                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition-all active:scale-90"
                     >
                         <Plus size={18} />
                     </button>
-                    <div className="h-px bg-slate-100 mx-1" />
+                    <div className="h-px bg-slate-100 mx-2" />
                     <button
                         onClick={() => setTransform(p => ({ ...p, scale: Math.max(p.scale - 0.2, 0.2) }))}
-                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
-                        title="Zoom Out"
+                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition-all active:scale-90"
                     >
                         <Minus size={18} />
                     </button>
-                    <div className="h-px bg-slate-100 mx-1" />
+                    <div className="h-px bg-slate-100 mx-2" />
                     <button
                         onClick={fitView}
-                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
-                        title="Fit View"
+                        className="p-1.5 hover:bg-slate-100 rounded-lg text-indigo-600 transition-all active:scale-90"
                     >
                         <Maximize2 size={18} />
                     </button>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function MindmapNodeJSX({ name, type, isCenter, onClick, hasDetails }: { name: string, type: string, isCenter: boolean, onClick: () => void, hasDetails: boolean }) {
+    const Icon = icons[type] || Server;
+
+    // Aesthetic role styles
+    const getStyles = () => {
+        if (isCenter) return 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-100';
+        switch (type) {
+            case 'product': return 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-indigo-50';
+            case 'domain': return 'bg-blue-50 border-blue-200 text-blue-900 shadow-blue-50';
+            case 'user': return 'bg-teal-50 border-teal-200 text-teal-800 shadow-teal-50';
+            case 'external': return 'bg-slate-50 border-slate-200 text-slate-700 shadow-slate-50';
+            default: return 'bg-white border-slate-200 text-slate-800 shadow-slate-50';
+        }
+    };
+
+    return (
+        <div
+            onClick={onClick}
+            className={`
+                group h-full w-full flex items-center gap-3 px-4 py-3
+                rounded-2xl border-2 shadow-sm transition-all duration-300
+                cursor-pointer select-none overflow-hidden
+                ${getStyles()}
+            `}
+        >
+            <div className={`
+                p-2 rounded-xl flex-shrink-0
+                ${isCenter ? 'bg-white/20' : 'bg-white shadow-inner'}
+            `}>
+                <Icon size={18} className={isCenter ? 'text-white' : 'text-slate-600'} />
+            </div>
+
+            <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold truncate leading-tight">
+                    {name}
+                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className={`text-[8px] font-extrabold uppercase tracking-widest opacity-60`}>
+                        {type}
+                    </span>
+                    {hasDetails && !isCenter && (
+                        <div className="flex items-center gap-0.5 text-[8px] font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Maximize2 size={8} /> Explore
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Interactive Pulse for center */}
+            {isCenter && (
+                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            )}
         </div>
     );
 }
