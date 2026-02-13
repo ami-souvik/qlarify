@@ -51,7 +51,7 @@ export default function ArchitecturePage() {
 
             {/* Systems Section */}
             {!isLoading && systems.length > 0 && (
-                <div className="max-w-4xl mx-auto w-full px-4">
+                <div className="absolute bottom-0 left-[50%] translate-x-[-50%] max-w-4xl mx-auto w-full px-4">
                     <div
                         className="group flex flex-col border border-b-0 border-slate-100 rounded-tl-2xl rounded-tr-2xl p-4 bg-white hover:border-indigo-100 hover:shadow-sm transition-all cursor-pointer"
                         onClick={() => setIsExpanded(prev => !prev)}

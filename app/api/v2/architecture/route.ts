@@ -41,29 +41,39 @@ export async function POST(req: Request) {
             Task: Create the ROOT Product Architecture for: "${user_input}".
             
             1. Identify the core Domains (Bounded Contexts).
-            2. Identify external actors (Users, Clients).
-            3. The 'diagram' should be a High-Level System Overview.
-               - Nodes: The Product itself, External Users, and the Key Domains as sub-systems.
-               - Edges: High level interactions.
-            4. The 'children' array MUST contain the ArchitectureNode definitions for each identified Domain.
+            2. Identify key Personas / Actors (Users, Admins, etc.).
+            3. Identify critical External Systems.
+            4. The 'diagram' should be a High-Level Strategic Mindmap.
+               - Nodes: Include Product, Domains, Personas, and External Systems.
+               - Edges: JOIN THEM MEANINGFULLY. 
+                 - Show how Personas interact with specific Domains.
+                 - Show how Domains depend on each other.
+                 - Show how Domains interface with External Systems.
+                 - DO NOT just connect everything to the center. Create a web of interactions.
+            5. The 'children' array MUST contain:
+               - ArchitectureNode definitions for each Domain (type: "domain").
+               - ArchitectureNode definitions for each Persona (type: "user").
+               - ArchitectureNode definitions for each External System (type: "external").
             
-            JSON Structure:
+            JSON Structure Example:
             {
                "architecture_node": {
-                  "id": "slug_id",
-                  "name": "Product Name",
+                  "id": "product_id",
+                  "name": "Project Name",
                   "type": "product",
-                  "explanation": "Brief summary...",
-                  "children": [
-                     { "id": "domain_sales", "name": "Sales Domain", "type": "domain", "explanation": "...", "children": [] }
-                  ],
+                  "explanation": "...",
+                  "children": [...],
                   "diagram": {
                      "type": "system_overview",
                      "nodes": [
-                        { "id": "user", "type": "custom", "data": { "label": "User", "role": "user" }, "position": { "x": 0, "y": 0 } },
-                        { "id": "domain_sales", "type": "custom", "data": { "label": "Sales Domain", "role": "service", "architecture_node_id": "domain_sales" }, "position": { "x": 100, "y": 0 } }
+                        { "id": "p_user", "type": "custom", "data": { "label": "Customer", "role": "user", "architecture_node_id": "..." }, "position": { "x": -200, "y": 0 } },
+                        { "id": "d_core", "type": "custom", "data": { "label": "Core Engine", "role": "domain", "architecture_node_id": "..." }, "position": { "x": 0, "y": 0 } },
+                        { "id": "e_stripe", "type": "custom", "data": { "label": "Stripe", "role": "external", "architecture_node_id": "..." }, "position": { "x": 200, "y": 0 } }
                      ],
-                     "edges": []
+                     "edges": [
+                        { "id": "e1", "source": "p_user", "target": "d_core", "label": "uses" },
+                        { "id": "e2", "source": "d_core", "target": "e_stripe", "label": "pays via" }
+                     ]
                   }
                }
             }
@@ -104,17 +114,37 @@ export async function POST(req: Request) {
             const email = session.user.email;
             const systemId = randomUUID();
             const timestamp = new Date().toISOString();
+            const root = jsonResponse.architecture_node;
+
+            // Extract Strategic Metadata for optimized indexing/quick views
+            const strategicSummary = {
+                domains: root.children
+                    .filter((c: any) => c.type === 'domain')
+                    .map((c: any) => ({ id: c.id, name: c.name })),
+                personas: root.diagram?.nodes
+                    ?.filter((n: any) => n.data?.role === 'user')
+                    .map((n: any) => n.data.label) || [],
+                externalSystems: root.diagram?.nodes
+                    ?.filter((n: any) => n.data?.role === 'external')
+                    .map((n: any) => n.data.label) || []
+            };
             
             const item = {
                 PK: `USER#${email}`,
                 SK: `SYSTEM#${systemId}`,
                 id: systemId,
                 type: 'system',
-                title: jsonResponse.architecture_node.name || "System Architecture",
-                nodes: [jsonResponse.architecture_node],
-                intent: intent,
-                level: level,
-                userInput: user_input,
+                status: 'strategic', // Mark as strategic level mindmap
+                title: root.name || "System Architecture",
+                description: root.explanation || "",
+                strategic_summary: strategicSummary, // Optimized structure for high-level view
+                nodes: [root],
+                metadata: {
+                    intent: intent,
+                    initialLevel: level,
+                    originalPrompt: user_input,
+                    nodeCount: root.children?.length || 0
+                },
                 createdAt: timestamp,
                 updatedAt: timestamp
             };
@@ -128,7 +158,6 @@ export async function POST(req: Request) {
             jsonResponse.system_id = systemId;
         } catch (dbError) {
             console.error("Failed to save architecture to DynamoDB:", dbError);
-            // We don't fail the whole request if saving fails, but we log it
         }
     }
 

@@ -23,6 +23,7 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         activeNodeId: null,
         breadcrumbs: []
     });
+    console.log(state);
 
     // Helper: Recursive find
     const findNodeRecursive = (node: ArchitectureNode, id: string): ArchitectureNode | null => {

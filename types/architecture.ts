@@ -1,6 +1,6 @@
 import { Node, Edge } from 'reactflow';
 
-export type ArchitectureLevel = 'product' | 'domain' | 'service' | 'database' | 'datastore' | 'api' | 'event' | 'infra';
+export type ArchitectureLevel = 'product' | 'domain' | 'service' | 'database' | 'datastore' | 'api' | 'event' | 'infra' | 'user' | 'external';
 
 export type DiagramType = 'system_overview' | 'domain_architecture' | 'service_architecture' | 'database_schema' | 'api_structure';
 
