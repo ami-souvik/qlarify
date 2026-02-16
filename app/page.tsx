@@ -1,35 +1,63 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useSession } from "next-auth/react";
-import { ArrowRight, Box, Shield, Zap, Share2, Star, Github, MessageSquare } from 'lucide-react';
+import { ArrowRight, Box, Shield, Zap, MessageSquare, Layout, Layers, Database, Cpu, Share2, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoggedInBadge from '@/components/LoggedInBadge';
 import QlarifyLogo from '@/components/QlarifyLogo';
 
-export default function Home() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+function FeatureIcon({ icon, label }: { icon: React.ReactNode, label: string }) {
+  return (
+    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-2xl border border-orange-100 shadow-sm transition-all hover:shadow-md hover:border-orange-200 group">
+      <div className="text-orange-600 transition-transform group-hover:scale-110">{icon}</div>
+      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">{label}</span>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/app');
-    }
-  }, [status, router]);
+function FloatingCard({ icon, title, description, delay, className }: { icon: React.ReactNode, title: string, description: string, delay: number, className: string }) {
+  return (
+    <motion.div
+      drag
+      dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
+      whileHover={{ cursor: 'grab', scale: 1.02 }}
+      whileDrag={{ cursor: 'grabbing', scale: 1.1, zIndex: 50 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      className={`absolute hidden lg:flex flex-col gap-2 p-4 bg-white rounded-2xl border border-orange-100 shadow-xl z-20 w-48 ${className}`}
+    >
+      <div className="flex items-center gap-2 text-orange-600 pointer-events-none">
+        {icon}
+        <span className="font-bold text-xs uppercase tracking-tighter text-slate-800">{title}</span>
+      </div>
+      <p className="text-[10px] text-slate-500 leading-tight pointer-events-none">{description}</p>
+    </motion.div>
+  );
+}
+
+export default function Home() {
+  const [projectIdea, setProjectIdea] = useState('')
+
+  const handleSignIn = () => { }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-100 relative overflow-x-hidden">
+    <div className="min-h-screen bg-ivory text-charcoal font-sans relative overflow-x-hidden">
+      {/* Dot Grid Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4]"
+        style={{ backgroundImage: 'radial-gradient(#D9775762 1.5px, transparent 0.5px)', backgroundSize: '28px 28px' }}>
+      </div>
+
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+      <nav className="fixed w-full z-50 bg-ivory/80 backdrop-blur-md border-b border-[#EEE9E2]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <QlarifyLogo />
-          <div className="flex items-center gap-6">
-            <Link href="#features" className="hidden md:block text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
+          <div className="flex items-center gap-8">
+            <Link href="#features" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-[#D97757] transition-colors">
               Features
             </Link>
-            <Link href="/blog" className="hidden md:block text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
+            <Link href="/blog" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-[#D97757] transition-colors">
               Blog
             </Link>
             <LoggedInBadge />
@@ -38,120 +66,185 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-4 overflow-hidden">
-        {/* Abstract Background Elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-50 rounded-full blur-[120px] opacity-60"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-50 rounded-full blur-[120px] opacity-60"></div>
-        </div>
+      <div className="relative flex min-h-screen items-center justify-center pt-20 px-4 pb-32">
+        <div className="max-w-4xl w-full z-10 text-center relative">
 
-        <div className="max-w-7xl mx-auto text-center">
+          {/* Floating Elements for Context */}
+          <FloatingCard
+            icon={<Cpu size={16} />}
+            title="System Map"
+            description="AI analyzes your prompt to generate hierarchical service maps."
+            delay={0.2}
+            className="-left-32 top-10"
+          />
+          <FloatingCard
+            icon={<Shield size={16} />}
+            title="Boundary Check"
+            description="Automatic detection of circular dependencies and domain violations."
+            delay={0.4}
+            className="-right-24 top-24"
+          />
+          <FloatingCard
+            icon={<Code size={16} />}
+            title="API Specs"
+            description="Instant generation of OpenAPI and Proto definitions from diagrams."
+            delay={0.6}
+            className="-left-20 bottom-10"
+          />
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-8"
+            transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wide">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100/50 text-[#D97757] text-[10px] font-bold tracking-widest uppercase mb-8 shadow-sm">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              BETA
+              The Future of Architecture
             </div>
 
-            <h1 className="text-5xl md:text-8xl font-extrabold tracking-tight text-slate-900 leading-[1.05]">
-              Modeling for <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Principal Architects.</span>
+            <h1 className="text-6xl md:text-8xl font-black text-[#1A1A1A] tracking-tighter mb-8 leading-[0.9]">
+              Architect your vision, <br />
+              <span className="text-[#D97757]">effortlessly.</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Discard drawing tools. Start reasoning with AI. Qlarify is the structured canonical model for your entire system architecture.
+            <p className="text-xl md:text-2xl text-slate-600 font-medium max-w-2xl mx-auto mb-12">
+              Turn complex system ideas into verifiable, production-grade architectures in seconds. Stop drawing, start building.
             </p>
+          </motion.div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <Link
-                href="/login"
-                className="bg-indigo-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:-translate-y-1 flex items-center justify-center gap-2"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-orange-900/5 border border-orange-100 max-w-3xl mx-auto"
+          >
+            <div className="flex flex-wrap gap-3 mb-4 px-2 pt-2">
+              <FeatureIcon icon={<Layout size={14} />} label="DDD Domains" />
+              <FeatureIcon icon={<Layers size={14} />} label="Service Map" />
+              <FeatureIcon icon={<Database size={14} />} label="Canonical Model" />
+            </div>
+
+            <div className="relative group">
+              <textarea
+                value={projectIdea}
+                onChange={(e) => setProjectIdea(e.target.value)}
+                placeholder="Describe your system (e.g., 'A fintech platform with real-time fraud detection and multi-currency support'...)"
+                className="w-full h-64 rounded-3xl border-none bg-slate-50/70 p-8 text-lg focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all resize-none shadow-inner"
+              />
+              <button
+                onClick={handleSignIn}
+                disabled={!projectIdea.trim()}
+                className="absolute bottom-6 right-6 bg-[#1A1A1A] hover:bg-[#D97757] text-white rounded-2xl px-8 py-4 font-bold flex items-center gap-3 transition-all transform active:scale-95 hover:shadow-2xl disabled:opacity-30 group"
               >
-                Get Started <ArrowRight size={20} />
-              </Link>
-              <Link
-                href="https://github.com"
-                className="bg-white text-slate-700 border border-slate-200 px-10 py-4 rounded-full text-lg font-semibold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-              >
-                <Github size={20} /> Enterprise
-              </Link>
+                Qlarify System <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* How it Works */}
+      <section className="py-12 pb-32">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
+            <Step
+              number="01"
+              title="Describe your vision"
+              description="Input your system requirements in plain English. Our AI understands high-level intent."
+            />
+            <Step
+              number="02"
+              title="AI Reasoning"
+              description="The AI co-pilot suggests domains, services, and data models based on best practices."
+            />
+            <Step
+              number="03"
+              title="Architect & Export"
+              description="Verify your design and export it as production-ready diagrams or specifications."
+            />
+          </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="py-24 bg-slate-50">
+      <section id="features" className="py-32 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-[#1A1A1A] mb-4">
+              Infrastructure as <span className="text-[#D97757]">Intuition</span>
+            </h2>
+            <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">
+              Everything you need to design, verify, and document complex systems with AI-guided precision.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <FeatureCard
-              icon={<Box className="text-indigo-600" />}
+              icon={<Box size={24} className="text-[#D97757]" />}
               title="Canonical Modeling"
-              description="Define hierarchical entities from Systems down to Components with strict structural validation."
+              description="Define hierarchical entities from Systems down to Components with built-in structural validation."
             />
             <FeatureCard
-              icon={<Zap className="text-purple-600" />}
-              title="AI Ghost Layer"
-              description="AI acts as a reasoning assistant, suggesting improvements without direct mutation of state."
+              icon={<Zap size={24} className="text-orange-500" />}
+              title="AI Reasoning Layer"
+              description="An intelligent co-pilot that suggests architectural patterns without forcing magic changes."
             />
             <FeatureCard
-              icon={<Shield className="text-blue-600" />}
+              icon={<Shield size={24} className="text-orange-400" />}
               title="Verifiable Design"
-              description="Automatically detect circular dependencies and service boundary violations in real-time."
+              description="Real-time detection of anti-patterns, circular dependencies, and service boundary leaks."
             />
           </div>
         </div>
       </section>
 
       {/* Social Proof */}
-      <section className="py-20 border-t border-slate-100">
+      <section className="py-24 bg-[#FAF9F6] border-y border-[#EEE9E2]">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-8">Trusted by leading engineering teams</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 grayscale opacity-40">
-            <div className="text-2xl font-bold">MONZO</div>
-            <div className="text-2xl font-bold">STRIPE</div>
-            <div className="text-2xl font-bold">VERCEL</div>
-            <div className="text-2xl font-bold">DATADOG</div>
+          <p className="text-xs font-black text-[#D97757] uppercase tracking-[0.3em] mb-12">Architecture powering the elite</p>
+          <div className="flex flex-wrap justify-center items-center gap-16 grayscale opacity-60 contrast-125">
+            <div className="text-3xl font-black italic tracking-tighter">MONZO</div>
+            <div className="text-3xl font-black italic tracking-tighter">STRIPE</div>
+            <div className="text-3xl font-black italic tracking-tighter">VERCEL</div>
+            <div className="text-3xl font-black italic tracking-tighter">DATADOG</div>
           </div>
         </div>
       </section>
 
       {/* Community Section */}
-      <section className="py-24 bg-indigo-600 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-200 via-transparent to-transparent"></div>
+      <section className="py-32 bg-[#1A1A1A] relative overflow-hidden">
+        {/* Abstract background effect */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(#D97757 0.8px, transparent 0.8px)', backgroundSize: '32px 32px' }}>
         </div>
-        <div className="max-w-4xl mx-auto px-4 text-center">
+
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="space-y-8"
+            className="space-y-10"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md text-white mb-4">
-              <MessageSquare size={40} />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-orange-600 text-white mb-4 shadow-2xl shadow-orange-600/20 transform -rotate-3">
+              <MessageSquare size={48} />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-              Join the Architecture Community
+            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none">
+              Build the future <br /> with us.
             </h2>
-            <p className="text-indigo-100 text-xl max-w-2xl mx-auto leading-relaxed">
-              Connect with fellow architects, share your designs, and help shape the future of Qlarify.
+            <p className="text-slate-300 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+              Join 5,000+ architects and engineers shaping the next generation of system modeling tools.
             </p>
-            <div className="pt-4">
+            <div className="pt-6">
               <Link
                 href="https://discord.gg/852AQe22"
                 target="_blank"
-                className="inline-flex items-center gap-2 bg-white text-indigo-600 px-10 py-4 rounded-full text-lg font-bold hover:bg-slate-50 transition-all hover:shadow-2xl hover:-translate-y-1"
+                className="inline-flex items-center gap-3 bg-white text-[#1A1A1A] px-12 py-5 rounded-3xl text-xl font-black hover:bg-orange-50 transition-all hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:-translate-y-1 group"
               >
-                Join our Discord
+                Join our Discord <Share2 size={24} className="group-hover:rotate-12 transition-transform" />
               </Link>
             </div>
           </motion.div>
@@ -159,20 +252,25 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 py-12 text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2 text-white">
-            <Box size={24} className="text-indigo-500" />
-            <span className="font-bold text-xl tracking-tight">Qlarify</span>
+      <footer className="bg-white py-20 text-slate-500 border-t border-[#EEE9E2]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-12">
+          <div className="flex flex-col items-center md:items-start gap-4">
+            <div className="flex items-center gap-2 text-[#1A1A1A]">
+              <Box size={32} className="text-[#D97757]" />
+              <span className="font-black text-3xl tracking-tighter">Qlarify</span>
+            </div>
+            <p className="text-sm font-medium">The architectural co-pilot for high-scale teams.</p>
           </div>
-          <div className="flex gap-8 text-sm font-medium">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-white transition-colors">Terms</Link>
-            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
-            <Link href="https://discord.gg/your-invite-link" target="_blank" className="hover:text-white transition-colors">Discord</Link>
+
+          <div className="flex gap-12 text-sm font-black uppercase tracking-widest">
+            <Link href="/privacy" className="hover:text-[#D97757] transition-colors">Privacy</Link>
+            <Link href="#" className="hover:text-[#D97757] transition-colors">Terms</Link>
+            <Link href="/blog" className="hover:text-[#D97757] transition-colors">Blog</Link>
+            <Link href="https://discord.gg/852AQe22" target="_blank" className="hover:text-[#D97757] transition-colors inline-flex items-center gap-2">Discord</Link>
           </div>
-          <div className="text-sm">
-            © 2026 Qlarify AI. All rights reserved.
+
+          <div className="text-xs font-bold text-slate-400">
+            © 2026 Qlarify AI. <br className="md:hidden" /> Crafted for clarity.
           </div>
         </div>
       </footer>
@@ -182,12 +280,27 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="p-8 bg-white rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-xl transition-all group">
-      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+    <div className="p-10 bg-[#FAF9F6] rounded-[2.5rem] border border-transparent hover:border-orange-100 hover:bg-white hover:shadow-2xl hover:shadow-orange-900/5 transition-all group relative overflow-hidden">
+      <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-orange-50 transition-all duration-500">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-      <p className="text-slate-500 leading-relaxed">{description}</p>
+      <h3 className="text-2xl font-black text-[#1A1A1A] mb-4 tracking-tight">{title}</h3>
+      <p className="text-slate-500 leading-relaxed font-medium">{description}</p>
+
+      {/* Subtle indicator */}
+      <div className="absolute right-8 top-8 opacity-0 group-hover:opacity-100 transition-opacity">
+        <ArrowRight size={20} className="text-orange-200" />
+      </div>
+    </div>
+  );
+}
+
+function Step({ number, title, description }: { number: string, title: string, description: string }) {
+  return (
+    <div className="group">
+      <div className="text-6xl font-black text-[#D97757]/10 group-hover:text-[#D97757]/20 transition-colors mb-4">{number}</div>
+      <h3 className="text-xl font-black text-[#1A1A1A] mb-2 tracking-tight">{title}</h3>
+      <p className="text-slate-500 font-medium leading-relaxed">{description}</p>
     </div>
   );
 }

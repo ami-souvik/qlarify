@@ -14,70 +14,76 @@ export default function BlogIndex() {
     const posts = getBlogPosts();
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] font-sans text-slate-900 selection:bg-indigo-100">
+        <div className="min-h-screen bg-ivory font-sans text-charcoal selection:bg-orange-100 relative overflow-x-hidden">
+            {/* Dot Grid Background */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] bg-dot-grid"></div>
+
             {/* Navigation */}
-            <nav className="sticky top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+            <nav className="sticky top-0 w-full z-40 bg-ivory/80 backdrop-blur-md border-b border-[#EEE9E2]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <QlarifyLogo />
                     <LoggedInBadge />
                 </div>
             </nav>
-            <nav className='w-full py-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2 text-sm font-medium text-stone-500'>
-                <Link href="/" className="hover:text-stone-900 transition-colors">
+            <nav className='w-full py-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2 text-xs font-black uppercase tracking-widest text-slate-400 relative z-10'>
+                <Link href="/" className="hover:text-charcoal transition-colors">
                     Home
                 </Link>
-                <span className="text-stone-300">/</span>
-                <span className="text-stone-900">Blog</span>
+                <span className="text-slate-200">/</span>
+                <span className="text-terracotta">Blog</span>
             </nav>
 
             {/* Hero */}
-            <header className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6">
-                    Engineering & Design <span className="text-indigo-600">Blog</span>
+            <header className="py-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center relative z-10">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-charcoal mb-8 leading-tight">
+                    Engineering & <br /><span className="text-terracotta">Design Blog</span>
                 </h1>
-                <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                    Thoughts on system architecture, diagramming, and building AI-powered tools.
+                <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+                    Thoughts on system architecture, diagramming, and <br />building AI-powered tools for the modern web.
                 </p>
             </header>
 
             {/* Post Grid */}
-            <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-                <div className="grid gap-8 md:grid-cols-2">
+            <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 relative z-10">
+                <div className="grid gap-12 md:grid-cols-2">
                     {posts.map((post) => (
                         <Link key={post.slug} href={`/blog/${post.slug}`} className="group block h-full">
-                            <article className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all h-full flex flex-col hover:-translate-y-1 duration-200">
-                                {/* Cover Image Placeholder (or use actual if added later) */}
-                                <div className="h-48 bg-slate-100 relative overflow-hidden flex items-center justify-center">
+                            <article className="bg-white rounded-[2.5rem] border border-[#EEE9E2] shadow-2xl shadow-orange-900/5 overflow-hidden hover:shadow-orange-900/10 transition-all h-full flex flex-col hover:-translate-y-2 duration-300">
+                                {/* Cover Image Placeholder */}
+                                <div className="h-64 bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-[#EEE9E2]">
                                     {post.coverImage ? (
-                                        <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                        <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     ) : (
-                                        <div className="w-20 h-20 bg-indigo-600/10 rounded-2xl flex items-center justify-center text-indigo-600/20">
-                                            <Box size={48} />
+                                        <div className="w-24 h-24 bg-orange-100/50 rounded-3xl flex items-center justify-center text-terracotta/20 group-hover:rotate-12 transition-all">
+                                            <Box size={56} />
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <div className="flex items-center gap-4 text-xs font-medium text-slate-500 mb-4">
-                                        <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-full border border-slate-100">
-                                            <Calendar size={12} />
+                                <div className="p-10 flex-1 flex flex-col">
+                                    <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6">
+                                        <span className="flex items-center gap-2">
+                                            <Calendar size={14} className="text-terracotta" />
                                             {post.date}
                                         </span>
-                                        <span className="flex items-center gap-1.5">
-                                            <User size={12} />
+                                        <span className="flex items-center gap-2">
+                                            <User size={14} className="text-terracotta" />
                                             {post.author}
                                         </span>
                                     </div>
 
-                                    <h2 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors">
+                                    <h2 className="text-2xl font-black text-charcoal mb-4 group-hover:text-terracotta transition-colors leading-tight tracking-tight">
                                         {post.title}
                                     </h2>
-                                    <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
+                                    <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1 font-medium">
                                         {post.excerpt}
                                     </p>
 
-                                    <div className="inline-flex items-center text-indigo-600 font-semibold text-sm group-hover:gap-2 transition-all">
-                                        Read Article <ArrowLeft size={16} className="rotate-180 ml-1 group-hover:translate-x-1 transition-transform" />
+                                    <div className="inline-flex items-center text-charcoal font-black text-xs uppercase tracking-widest group/btn">
+                                        Read Article
+                                        <div className="ml-3 h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center group-hover/btn:bg-terracotta group-hover/btn:text-white transition-all">
+                                            <ArrowLeft size={16} className="rotate-180" />
+                                        </div>
                                     </div>
                                 </div>
                             </article>
@@ -86,26 +92,28 @@ export default function BlogIndex() {
                 </div>
 
                 {posts.length === 0 && (
-                    <div className="text-center py-24 text-slate-400">
-                        <p>No posts found yet. Check back soon!</p>
+                    <div className="text-center py-32 text-slate-400">
+                        <p className="font-black text-xl tracking-tighter">No posts found yet. Check back soon!</p>
                     </div>
                 )}
             </main>
 
             {/* Footer */}
-            <footer className="bg-slate-900 py-12 text-slate-400">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex items-center gap-2 text-white">
-                        <Box size={24} className="text-indigo-500" />
-                        <span className="font-bold text-xl tracking-tight">Qlarify</span>
+            <footer className="bg-charcoal py-24 text-slate-400">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-12">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-terracotta p-2 rounded-xl text-white">
+                            <Box size={24} />
+                        </div>
+                        <span className="font-black text-2xl tracking-tighter text-white">Qlarify</span>
                     </div>
-                    <div className="flex gap-8 text-sm font-medium">
-                        <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Terms</Link>
-                        <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
-                        <Link href="https://discord.gg/852AQe22" target="_blank" className="hover:text-white transition-colors">Discord</Link>
+                    <div className="flex gap-10 text-xs font-black uppercase tracking-widest">
+                        <Link href="/privacy" className="hover:text-terracotta transition-colors">Privacy</Link>
+                        <Link href="#" className="hover:text-terracotta transition-colors">Terms</Link>
+                        <Link href="/blog" className="hover:text-terracotta transition-colors">Blog</Link>
+                        <Link href="https://discord.gg/852AQe22" target="_blank" className="hover:text-terracotta transition-colors">Discord</Link>
                     </div>
-                    <div className="text-sm">
+                    <div className="text-xs font-bold opacity-50">
                         © 2026 Qlarify AI. All rights reserved.
                     </div>
                 </div>

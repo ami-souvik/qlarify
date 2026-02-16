@@ -9,7 +9,6 @@ import { useArchitecture } from "@/context/ArchitectureContext";
 
 import { useRouter } from "next/navigation";
 import QlarifyLogo from "@/components/QlarifyLogo";
-import Link from "next/link";
 import LoggedInBadge from "@/components/LoggedInBadge";
 
 export default function ArchitecturePage() {
@@ -36,30 +35,33 @@ export default function ArchitecturePage() {
     }, []);
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-white flex flex-col">
+        <div className="h-full w-full overflow-y-auto bg-ivory flex flex-col relative">
+            {/* Dot Grid Background */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] bg-dot-grid"></div>
+
             {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+            <nav className="fixed w-full z-50 bg-ivory/80 backdrop-blur-md border-b border-[#EEE9E2]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <QlarifyLogo />
                     <LoggedInBadge />
                 </div>
             </nav>
             {/* Main Architecture Tool (becomes the bottom section when no project is loaded) */}
-            <div className="flex-1 min-h-[600px]">
+            <div className="flex-1 min-h-[600px] pt-16 z-10">
                 <ArchitectureTool />
             </div>
 
             {/* Systems Section */}
             {!isLoading && systems.length > 0 && (
-                <div className="absolute bottom-0 left-[50%] translate-x-[-50%] max-w-4xl mx-auto w-full px-4">
+                <div className="absolute bottom-0 left-[50%] translate-x-[-50%] max-w-4xl mx-auto w-full px-4 z-20">
                     <div
-                        className="group flex flex-col border border-b-0 border-slate-100 rounded-tl-2xl rounded-tr-2xl p-4 bg-white hover:border-indigo-100 hover:shadow-sm transition-all cursor-pointer"
+                        className="group flex flex-col border border-b-0 border-[#EEE9E2] rounded-tl-[2rem] rounded-tr-[2rem] p-6 bg-white hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer shadow-xl"
                         onClick={() => setIsExpanded(prev => !prev)}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Clock size={16} className="text-slate-400 group-hover:text-indigo-400 transition-colors" />
-                                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-indigo-900 transition-colors">Recent Systems</h2>
+                                <Clock size={16} className="text-slate-400 group-hover:text-terracotta transition-colors" />
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-charcoal transition-colors">Recent Systems</h2>
                             </div>
                             <motion.div
                                 animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -82,20 +84,20 @@ export default function ArchitecturePage() {
                                         {systems.map((system, idx) => (
                                             <motion.div
                                                 key={system.SK || idx}
-                                                initial={{ x: -20, opacity: 0 }}
-                                                animate={{ x: 0, opacity: 1 }}
-                                                transition={{ delay: idx * 0.05 }}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ delay: idx * 0.5 }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     router.push(`/app/${system.id}`);
                                                 }}
-                                                className="w-42 group p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-200 hover:shadow-lg transition-all cursor-pointer flex flex-col gap-3"
+                                                className="w-43 group p-6 rounded-[2rem] border border-[#EEE9E2] bg-white hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer flex flex-col gap-3 min-w-[200px]"
                                             >
                                                 <div>
-                                                    <h3 className="text-sm font-bold text-slate-800 group-hover/card:text-indigo-600 transition-colors line-clamp-2">
+                                                    <h3 className="text-sm font-black text-charcoal group-hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
                                                         {system.title || "Untitled System"}
                                                     </h3>
-                                                    <p className="text-[10px] text-slate-400 font-medium mt-1">
+                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2">
                                                         {new Date(system.updatedAt || Date.now()).toLocaleDateString()}
                                                     </p>
                                                 </div>

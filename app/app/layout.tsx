@@ -21,8 +21,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     if (status === "loading") {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-                <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+            <div className="flex h-screen w-full items-center justify-center bg-ivory">
+                <Loader2 className="h-8 w-8 animate-spin text-terracotta/40" />
             </div>
         );
     }
@@ -31,8 +31,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <ArchitectureProvider>
-            <div className="flex h-screen bg-white">
-                <main className="flex-1 flex flex-col h-full overflow-hidden bg-white relative">
+            <div className="flex h-screen bg-ivory">
+                <main className="flex-1 flex flex-col h-full overflow-hidden bg-ivory relative">
                     {children}
                 </main>
             </div>

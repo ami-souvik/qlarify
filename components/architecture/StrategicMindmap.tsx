@@ -247,7 +247,7 @@ export function StrategicMindmap({ onNodeClick }: StrategicMindmapProps) {
             </div>
 
             {/* Controls Overlay */}
-            <div className="absolute bottom-6 right-6 flex flex-col gap-1 z-50">
+            <div className="absolute bottom-2 right-2 flex flex-col gap-1 z-50">
                 <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-slate-200 p-1 flex flex-col gap-1">
                     <button
                         onClick={() => setTransform(p => ({ ...p, scale: Math.min(p.scale + 0.2, 3) }))}

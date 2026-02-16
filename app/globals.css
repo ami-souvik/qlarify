@@ -2,11 +2,27 @@
 
 @theme {
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --color-ivory: #FAF9F6;
+  --color-charcoal: #1A1A1A;
+  --color-terracotta: #D97757;
+}
+
+::selection {
+  background-color: var(--color-orange-100);
 }
 
 @layer base {
   body {
     font-family: var(--font-outfit);
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
     @apply antialiased;
+  }
+}
+
+@layer utilities {
+  .bg-dot-grid {
+    background-image: radial-gradient(#D9775762 1.5px, transparent 0.5px);
+    background-size: 28px 28px;
   }
 }

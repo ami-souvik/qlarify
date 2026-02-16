@@ -39,10 +39,10 @@ export default function SystemDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-white">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
-                    <p className="text-slate-500 font-medium">Loading Architecture...</p>
+            <div className="flex h-screen w-full items-center justify-center bg-ivory">
+                <div className="flex flex-col items-center gap-6">
+                    <Loader2 className="h-12 w-12 animate-spin text-terracotta" />
+                    <p className="text-charcoal font-black tracking-tighter text-xl">Loading Architecture...</p>
                 </div>
             </div>
         );
@@ -50,16 +50,16 @@ export default function SystemDetailPage() {
 
     if (error) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-white p-8">
+            <div className="flex h-screen w-full items-center justify-center bg-ivory p-8">
                 <div className="max-w-md w-full text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 text-red-600 mb-6">
-                        <AlertCircle size={32} />
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-orange-50 text-terracotta mb-8 shadow-xl shadow-orange-900/5">
+                        <AlertCircle size={40} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Error Loading System</h2>
-                    <p className="text-slate-600 mb-8">{error}</p>
+                    <h2 className="text-3xl font-black text-charcoal mb-4 tracking-tighter">Error Loading System</h2>
+                    <p className="text-slate-500 mb-10 font-medium leading-relaxed">{error}</p>
                     <button
                         onClick={() => router.push('/app')}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all"
+                        className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-charcoal text-white font-black hover:bg-terracotta transition-all shadow-2xl shadow-orange-900/10 active:scale-95"
                     >
                         <ArrowLeft size={18} /> Back to Dashboard
                     </button>

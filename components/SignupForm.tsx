@@ -7,6 +7,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { signIn } from 'next-auth/react';
 import { Mail, Lock, Loader2, CheckCircle, ArrowRight, User, Box } from 'lucide-react';
+import QlarifyLogo from './QlarifyLogo';
 
 export default function SignupForm() {
     const router = useRouter();
@@ -65,49 +66,48 @@ export default function SignupForm() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-slate-900 selection:bg-indigo-100">
+        <div className="min-h-screen bg-ivory flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-charcoal selection:bg-orange-100 relative overflow-hidden">
+            {/* Dot Grid Background */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] bg-dot-grid"></div>
 
             {/* Header */}
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <Link href="/" className="flex items-center justify-center gap-2 mb-6 hover:opacity-80 transition-opacity">
-                    <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
-                        <Box size={20} />
-                    </div>
-                    <span className="font-bold text-2xl tracking-tight text-slate-900">Qlarify</span>
-                </Link>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md z-10">
+                <div className="flex justify-center mb-8">
+                    <QlarifyLogo />
+                </div>
+                <h2 className="mt-6 text-center text-4xl font-black text-charcoal tracking-tighter">
                     {step === 'signup' ? 'Create your account' : 'Verify your email'}
                 </h2>
-                <p className="mt-2 text-center text-sm text-slate-600">
+                <p className="mt-4 text-center text-sm text-slate-500 font-medium">
                     {step === 'signup' ? (
                         <>
                             Already have an account?{' '}
-                            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+                            <Link href="/login" className="font-bold text-terracotta hover:opacity-80 transition-opacity">
                                 Sign in
                             </Link>
                         </>
                     ) : (
                         <>
-                            We sent a code to <span className="font-bold text-slate-900">{email}</span>
+                            We sent a code to <span className="font-black text-charcoal">{email}</span>
                         </>
                     )}
                 </p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-slate-100">
+            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md z-10">
+                <div className="bg-white py-10 px-6 shadow-2xl shadow-orange-900/5 sm:rounded-[2.5rem] sm:px-12 border border-[#EEE9E2]">
 
                     {step === 'signup' ? (
                         <>
                             <form className="space-y-6" onSubmit={handleSignup}>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label htmlFor="firstName" className="block text-sm font-medium text-slate-700">
+                                        <label htmlFor="firstName" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
                                             First Name
                                         </label>
-                                        <div className="mt-1 relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <User size={18} className="text-slate-400" />
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <User size={18} className="text-slate-300" />
                                             </div>
                                             <input
                                                 id="firstName"
@@ -118,17 +118,17 @@ export default function SignupForm() {
                                                 value={firstName}
                                                 onChange={(e) => setFirstName(e.target.value)}
                                                 placeholder="John"
-                                                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+                                                className="appearance-none block w-full pl-12 pr-4 py-3 bg-slate-50 border border-[#EEE9E2] rounded-2xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:bg-white sm:text-sm transition-all font-medium"
                                             />
                                         </div>
                                     </div>
                                     <div>
-                                        <label htmlFor="lastName" className="block text-sm font-medium text-slate-700">
+                                        <label htmlFor="lastName" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
                                             Last Name
                                         </label>
-                                        <div className="mt-1 relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <User size={18} className="text-slate-400" />
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <User size={18} className="text-slate-300" />
                                             </div>
                                             <input
                                                 id="lastName"
@@ -139,19 +139,19 @@ export default function SignupForm() {
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
                                                 placeholder="Doe"
-                                                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+                                                className="appearance-none block w-full pl-12 pr-4 py-3 bg-slate-50 border border-[#EEE9E2] rounded-2xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:bg-white sm:text-sm transition-all font-medium"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="username" className="block text-sm font-medium text-slate-700">
+                                    <label htmlFor="username" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
                                         Username
                                     </label>
-                                    <div className="mt-1 relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <User size={18} className="text-slate-400" />
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <User size={18} className="text-slate-300" />
                                         </div>
                                         <input
                                             id="username"
@@ -162,18 +162,18 @@ export default function SignupForm() {
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                             placeholder="johndoe"
-                                            className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+                                            className="appearance-none block w-full pl-12 pr-4 py-3 bg-slate-50 border border-[#EEE9E2] rounded-2xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:bg-white sm:text-sm transition-all font-medium"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                                    <label htmlFor="email" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
                                         Email address
                                     </label>
-                                    <div className="mt-1 relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Mail size={18} className="text-slate-400" />
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Mail size={18} className="text-slate-300" />
                                         </div>
                                         <input
                                             id="email"
@@ -184,18 +184,18 @@ export default function SignupForm() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="name@company.com"
-                                            className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+                                            className="appearance-none block w-full pl-12 pr-4 py-3 bg-slate-50 border border-[#EEE9E2] rounded-2xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:bg-white sm:text-sm transition-all font-medium"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                                    <label htmlFor="password" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
                                         Password
                                     </label>
-                                    <div className="mt-1 relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Lock size={18} className="text-slate-400" />
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Lock size={18} className="text-slate-300" />
                                         </div>
                                         <input
                                             id="password"
@@ -207,10 +207,10 @@ export default function SignupForm() {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+                                            className="appearance-none block w-full pl-12 pr-4 py-3 bg-slate-50 border border-[#EEE9E2] rounded-2xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:bg-white sm:text-sm transition-all font-medium"
                                         />
                                     </div>
-                                    <p className="mt-2 text-xs text-slate-500">
+                                    <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest px-1">
                                         Must be at least 8 characters.
                                     </p>
                                 </div>
@@ -219,30 +219,30 @@ export default function SignupForm() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors disabled:opacity-70 disabled:cursor-not-allowed items-center gap-2"
+                                        className="w-full flex justify-center py-4 px-4 border border-transparent rounded-[1.5rem] shadow-xl text-lg font-black text-white bg-charcoal hover:bg-terracotta focus:outline-none focus:ring-4 focus:ring-orange-100 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed items-center gap-3"
                                     >
                                         {isLoading && <Loader2 size={16} className="animate-spin" />}
                                         {isLoading ? 'Creating account...' : 'Sign up'}
                                     </button>
                                 </div>
                             </form>
-                            <div className="mt-6">
+                            <div className="mt-8">
                                 <div className="relative">
                                     <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-slate-200" />
+                                        <div className="w-full border-t border-[#EEE9E2]" />
                                     </div>
-                                    <div className="relative flex justify-center text-sm">
-                                        <span className="px-2 bg-white text-slate-500 uppercase text-xs font-bold tracking-wide">Or continue with</span>
+                                    <div className="relative flex justify-center text-xs">
+                                        <span className="px-4 bg-white text-slate-400 font-bold uppercase tracking-[0.2em]">Or continue with</span>
                                     </div>
                                 </div>
-                                <div className="mt-6">
+                                <div className="mt-8">
                                     <div>
                                         <button
                                             type="button"
                                             onClick={() => signIn('cognito', { callbackUrl: '/app' }, { identity_provider: 'Google' })}
-                                            className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors items-center gap-2"
+                                            className="w-full inline-flex justify-center py-4 px-4 border border-[#EEE9E2] rounded-[1.5rem] shadow-sm bg-white text-sm font-black text-charcoal hover:bg-ivory transition-all items-center gap-3 active:scale-95"
                                         >
-                                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                            <svg className="w-6 h-6" viewBox="0 0 24 24">
                                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                                                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -255,13 +255,13 @@ export default function SignupForm() {
                             </div>
                         </>
                     ) : (
-                        <form className="space-y-6" onSubmit={handleVerify}>
+                        <form className="space-y-8" onSubmit={handleVerify}>
                             <div>
-                                <label htmlFor="code" className="block text-sm font-medium text-slate-700">
+                                <label htmlFor="code" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
                                     Verification Code
                                 </label>
-                                <div className="mt-1 relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <CheckCircle size={18} className="text-slate-400" />
                                     </div>
                                     <input
@@ -272,7 +272,7 @@ export default function SignupForm() {
                                         value={code}
                                         onChange={(e) => setCode(e.target.value)}
                                         placeholder="123456"
-                                        className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all tracking-widest"
+                                        className="appearance-none block w-full pl-12 pr-4 py-4 bg-slate-50 border border-[#EEE9E2] rounded-2xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:bg-white sm:text-sm transition-all tracking-widest font-black"
                                     />
                                 </div>
                             </div>
@@ -281,11 +281,11 @@ export default function SignupForm() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed items-center gap-2"
+                                    className="w-full flex justify-center py-5 px-4 border border-transparent rounded-[1.5rem] shadow-xl text-lg font-black text-white bg-charcoal hover:bg-terracotta focus:outline-none focus:ring-4 focus:ring-orange-100 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed items-center gap-3"
                                 >
-                                    {isLoading && <Loader2 size={16} className="animate-spin" />}
+                                    {isLoading && <Loader2 size={18} className="animate-spin" />}
                                     {isLoading ? 'Verifying...' : 'Verify Email'}
-                                    {!isLoading && <ArrowRight size={16} />}
+                                    {!isLoading && <ArrowRight size={18} />}
                                 </button>
                             </div>
 
@@ -293,7 +293,7 @@ export default function SignupForm() {
                                 <button
                                     type="button"
                                     onClick={() => setStep('signup')}
-                                    className="text-sm text-slate-500 hover:text-slate-900"
+                                    className="text-xs text-slate-400 font-bold hover:text-charcoal transition-colors uppercase tracking-widest"
                                 >
                                     Change email address
                                 </button>
