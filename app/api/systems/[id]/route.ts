@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
+import { docClient } from '@/lib/db';
 
 export async function GET(
     req: Request,

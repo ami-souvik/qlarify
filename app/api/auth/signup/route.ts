@@ -7,9 +7,9 @@ const client = new CognitoIdentityProviderClient({
 });
 
 function calculateSecretHash(username: string, clientId: string, clientSecret: string) {
-    return crypto.createHmac('sha256', clientSecret)
-        .update(username + clientId)
-        .digest('base64');
+  return crypto.createHmac('sha256', clientSecret)
+    .update(username + clientId)
+    .digest('base64');
 }
 
 export async function POST(request: Request) {

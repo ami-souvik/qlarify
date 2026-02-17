@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { randomUUID } from "crypto";
-
-// Initialize the DynamoDB Client
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
+import { docClient } from '@/lib/db';
 
 export async function POST(req: Request) {
     try {
