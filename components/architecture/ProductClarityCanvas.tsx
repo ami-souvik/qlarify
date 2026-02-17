@@ -13,7 +13,7 @@ import {
     Users,
     Globe
 } from 'lucide-react';
-import { ProductClarity, ProductClarityTodos, Persona } from '@/types/architecture';
+import { Persona, ProductClarityTodos, ProductClarity } from '@/types/architecture';
 
 export function ProductClarityCanvas() {
     const { state, setMode } = useArchitecture();
@@ -39,49 +39,56 @@ export function ProductClarityCanvas() {
             title: "Product Overview",
             icon: <FileText size={18} />,
             content: productClarity.overview,
-            type: 'text'
+            type: 'text',
+            todoIds: ['overview']
         },
         {
             id: 'personas',
             title: "Target Personas",
             icon: <Users size={18} />,
             items: productClarity.personas,
-            type: 'personas'
+            type: 'personas',
+            todoIds: ['personas']
         },
         {
             id: 'problems',
             title: "Problem Statements",
             icon: <AlertCircle size={18} />,
             items: productClarity.problems,
-            type: 'list'
+            type: 'list',
+            todoIds: ['problems']
         },
         {
             id: 'capabilities',
             title: "Core Capabilities",
             icon: <Zap size={18} />,
             items: productClarity.capabilities,
-            type: 'list'
+            type: 'list',
+            todoIds: ['capabilities']
         },
         {
             id: 'dataInputs',
             title: "Data Inputs & Outputs",
             icon: <Database size={18} />,
-            items: [...productClarity.dataInputs.map(i => `Input: ${i}`), ...productClarity.dataOutputs.map(o => `Output: ${o}`)],
-            type: 'list'
+            items: [...(productClarity.dataInputs || []).map(i => `Input: ${i}`), ...(productClarity.dataOutputs || []).map(o => `Output: ${o}`)],
+            type: 'list',
+            todoIds: ['dataInputs', 'dataOutputs']
         },
         {
             id: 'externalSystems',
             title: "External Systems",
             icon: <Globe size={18} />,
-            items: productClarity.externalSystems,
-            type: 'list'
+            items: productClarity.externalSystems || [],
+            type: 'list',
+            todoIds: ['externalSystems']
         },
         {
             id: 'constraints',
             title: "Constraints & NFRs",
             icon: <ShieldAlert size={18} />,
-            items: [...productClarity.constraints, ...productClarity.nonFunctionalRequirements],
-            type: 'list'
+            items: [...(productClarity.constraints || []), ...(productClarity.nonFunctionalRequirements || [])],
+            type: 'list',
+            todoIds: ['constraints', 'nonFunctionalRequirements']
         }
     ];
 
@@ -148,7 +155,7 @@ export function ProductClarityCanvas() {
                                             {section.content}
                                         </p>
                                         {/* Render Text Todos */}
-                                        {productClarity.todos?.[section.id as keyof ProductClarityTodos]?.map((todo: string, i: number) => (
+                                        {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
                                             <div key={i} className="flex gap-3 items-center p-2.5 bg-orange-50/30 rounded-xl border border-dashed border-orange-200/50">
                                                 <div className="w-4 h-4 rounded border-2 border-orange-200 shrink-0" />
                                                 <span className="text-[11px] text-slate-400 font-bold italic tracking-tight">{todo}</span>
@@ -165,7 +172,7 @@ export function ProductClarityCanvas() {
                                             </li>
                                         ))}
                                         {/* Render List Todos */}
-                                        {productClarity.todos?.[section.id as keyof ProductClarityTodos]?.map((todo: string, i: number) => (
+                                        {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
                                             <li key={`todo-${i}`} className="flex gap-3 items-center py-1 group">
                                                 <div className="w-4 h-4 rounded border-2 border-orange-200 group-hover:border-terracotta transition-colors shrink-0 flex items-center justify-center">
                                                     <div className="w-1 h-1 rounded-full bg-terracotta/20" />
@@ -182,7 +189,7 @@ export function ProductClarityCanvas() {
                                                 <h3 className="text-xs font-black text-charcoal uppercase tracking-wider mb-1">{persona.name}</h3>
                                                 <p className="text-[10px] font-bold text-terracotta uppercase mb-2">{persona.role}</p>
                                                 <div className="flex flex-wrap gap-1.5">
-                                                    {persona.goals.map((goal: string, gi: number) => (
+                                                    {persona.goals?.map((goal: string, gi: number) => (
                                                         <span key={gi} className="text-[9px] bg-white px-2 py-0.5 rounded-full border border-orange-100 text-slate-500 font-bold">
                                                             {goal}
                                                         </span>
@@ -191,7 +198,7 @@ export function ProductClarityCanvas() {
                                             </div>
                                         ))}
                                         {/* Render Persona Todos */}
-                                        {productClarity.todos?.[section.id as keyof ProductClarityTodos]?.map((todo: string, i: number) => (
+                                        {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
                                             <div key={`todo-${i}`} className="flex gap-3 items-center p-3 bg-orange-50/30 rounded-2xl border border-dashed border-orange-200/50">
                                                 <div className="w-5 h-5 rounded-lg border-2 border-orange-200 shrink-0 flex items-center justify-center">
                                                     <Users size={12} className="text-orange-200" />

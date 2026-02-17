@@ -137,10 +137,47 @@ export function ArchitectureCanvas() {
                         })
                     });
 
-                    const data = await res.json();
-                    if (data.architecture_node) {
-                        addChildNode(state.activeNodeId!, data.architecture_node);
-                        zoomInto(data.architecture_node.id);
+                    if (!res.ok || !res.body) throw new Error(res.statusText);
+
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    let accumulatedJson = "";
+                    let buffer = "";
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n\n');
+                        buffer = lines.pop() || "";
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const dataStr = line.replace('data: ', '').trim();
+                                if (dataStr === '[DONE]') break;
+
+                                try {
+                                    const data = JSON.parse(dataStr);
+                                    if (data.type === 'content') {
+                                        accumulatedJson += data.text || "";
+                                    }
+                                    if (data.error) {
+                                        throw new Error(data.error);
+                                    }
+                                } catch (e) {
+                                    console.error("Error parsing SSE data", e);
+                                }
+                            }
+                        }
+                    }
+
+                    if (accumulatedJson) {
+                        const data = JSON.parse(accumulatedJson);
+                        if (data.architecture_node) {
+                            addChildNode(state.activeNodeId!, data.architecture_node);
+                            zoomInto(data.architecture_node.id);
+                        }
                     }
                 } catch (err) {
                     console.error("Zoom Gen Failed", err);
