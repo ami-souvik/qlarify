@@ -6,7 +6,7 @@ import { ArchitectureNode, ArchitectureState, VisualNode, VisualEdge, ProductCla
 interface ArchitectureContextType {
     state: ArchitectureState;
     loadProject: (rootNode: ArchitectureNode) => void;
-    hydrateProject: (rootNode: ArchitectureNode | null, clarity: ProductClarity | null) => void;
+    hydrateProject: (rootNode: ArchitectureNode | null, clarity: ProductClarity | null, messages?: any[], logs?: any[]) => void;
     setProductClarity: (clarity: ProductClarity) => void;
     setMode: (mode: AppMode) => void;
     zoomInto: (nodeId: string) => void;
@@ -26,7 +26,9 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         productClarity: null,
         root: null,
         activeNodeId: null,
-        breadcrumbs: []
+        breadcrumbs: [],
+        messages: [],
+        logs: []
     });
 
     // Helper: Recursive find
@@ -66,14 +68,16 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         }));
     }, []);
 
-    const hydrateProject = useCallback((rootNode: ArchitectureNode | null, clarity: ProductClarity | null) => {
+    const hydrateProject = useCallback((rootNode: ArchitectureNode | null, clarity: ProductClarity | null, messages: any[] = [], logs: any[] = []) => {
         setState(prev => ({
             ...prev,
             root: rootNode,
             productClarity: clarity,
             activeNodeId: rootNode ? rootNode.id : null,
             breadcrumbs: rootNode ? [{ id: rootNode.id, name: rootNode.name }] : [],
-            mode: rootNode ? 'ARCHITECTURE' : 'PRODUCT_CLARITY'
+            mode: rootNode ? 'ARCHITECTURE' : 'PRODUCT_CLARITY',
+            messages: messages || [],
+            logs: logs || []
         }));
     }, []);
 
@@ -155,7 +159,9 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
             productClarity: null,
             root: null,
             activeNodeId: null,
-            breadcrumbs: []
+            breadcrumbs: [],
+            messages: [],
+            logs: []
         });
     }, []);
 

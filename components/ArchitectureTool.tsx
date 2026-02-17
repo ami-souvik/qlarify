@@ -31,7 +31,14 @@ function ArchitectureWorkspace() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     overview: projectIdea,
-                    title: projectIdea.substring(0, 30) + (projectIdea.length > 30 ? "..." : "")
+                    title: projectIdea.substring(0, 30) + (projectIdea.length > 30 ? "..." : ""),
+                    messages: [
+                        {
+                            content: projectIdea,
+                            role: "user",
+                            timestamp: Date.now()
+                        }
+                    ]
                 })
             });
 
@@ -106,7 +113,7 @@ function ArchitectureWorkspace() {
                     </div>
                 ) : (
                     <div className="max-w-2xl w-full relative z-10">
-                        <div className="text-center mb-10">
+                        <div className="text-center mb-6">
                             <div className="flex items-end justify-center gap-2 mb-4">
                                 <h2 className="text-6xl font-black text-charcoal tracking-tighter">Qlarify</h2>
                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-orange-100 text-terracotta text-[10px] font-black uppercase tracking-widest mb-1 shadow-lg shadow-orange-900/5">
@@ -120,8 +127,8 @@ function ArchitectureWorkspace() {
                             <p className="text-slate-500 text-lg font-medium">Design with precision. From Clarity to Structured Architecture.</p>
                         </div>
 
-                        <div className="bg-white rounded-[2.5rem] p-4 shadow-2xl shadow-orange-900/10 border border-[#EEE9E2]">
-                            <div className="mt-4 mb-6 flex gap-4 px-4 overflow-x-auto scrollbar-hide">
+                        <div className="bg-white rounded-[2.5rem] p-2 shadow-2xl shadow-orange-900/10 border border-[#EEE9E2]">
+                            <div className="mt-2 mb-4 flex gap-4 px-4 overflow-x-auto scrollbar-hide">
                                 <FeatureIcon icon={<Layout size={14} />} label="Product Canvas" />
                                 <FeatureIcon icon={<Layers size={14} />} label="Graph Modeling" />
                                 <FeatureIcon icon={<Database size={14} />} label="Versioned Evolution" />

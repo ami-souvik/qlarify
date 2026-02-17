@@ -99,13 +99,21 @@ export async function executeTool(name: string, args: any, email: string) {
       // Replacing the section (e.g. personas) is usually safer than blind concatenation which might duplicate.
       // So { ...existing, ...updates } is correct if updates contains the full new state of that section.
       
+      const logEntry = {
+        id: new Date().getTime().toString(), 
+        message: `Clarity updated via AI: ${Object.keys(clarityUpdates).join(", ")}`,
+        timestamp: Date.now()
+      };
+
       await docClient.send(new UpdateCommand({
         TableName: "QlarifyCore",
         Key: { PK: `USER#${email}`, SK: `SYSTEM#${systemId}` },
-        UpdateExpression: "SET productClarity = :pc, updatedAt = :ua",
+        UpdateExpression: "SET productClarity = :pc, updatedAt = :ua, logs = list_append(if_not_exists(logs, :empty_list), :log)",
         ExpressionAttributeValues: {
           ":pc": mergedClarity,
-          ":ua": new Date().toISOString()
+          ":ua": new Date().toISOString(),
+          ":log": [logEntry],
+          ":empty_list": []
         }
       }));
 

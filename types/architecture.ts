@@ -88,6 +88,18 @@ export interface ArchitectureNode {
   children: ArchitectureNode[]; 
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
+export interface SystemLog {
+  id: string;
+  message: string;
+  timestamp: number;
+}
+
 // The root store state
 export interface ArchitectureState {
   mode: AppMode;
@@ -95,4 +107,6 @@ export interface ArchitectureState {
   root: ArchitectureNode | null;
   activeNodeId: string | null;
   breadcrumbs: { id: string; name: string }[];
+  messages: ChatMessage[];
+  logs: SystemLog[];
 }

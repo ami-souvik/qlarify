@@ -2,6 +2,8 @@
 import { getToken } from "next-auth/jwt";
 import { executeTool, mcpManifest } from "@/lib/mcp";
 import OpenAI from "openai";
+import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient } from "@/lib/db";
 
 export const runtime = 'edge';
 
@@ -11,12 +13,26 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
     try {
-        const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+        const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET });
         if (!token?.email) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
         }
         
         const { messages, systemId } = await req.json();
+
+        // Save User Message synchronously before streaming
+        const lastUserMessage = messages[messages.length - 1];
+        if (lastUserMessage && lastUserMessage.role === 'user') {
+             await docClient.send(new UpdateCommand({
+                TableName: "QlarifyCore",
+                Key: { PK: `USER#${token.email}`, SK: `SYSTEM#${systemId}` },
+                UpdateExpression: "SET messages = list_append(if_not_exists(messages, :empty_list), :msg)",
+                ExpressionAttributeValues: {
+                  ":msg": [{ ...lastUserMessage, timestamp: Date.now() }],
+                  ":empty_list": []
+                }
+            }));
+        }
 
         // 1. Fetch Context (DB call - should be Edge compatible if using fetch/AWS SDK v3 lightweight)
         // Ensure executeTool doesn't use incompatible Node APIs
@@ -51,9 +67,11 @@ GUIDELINES:
         const stream = new ReadableStream({
             async start(controller) {
                 const sendEvent = (data: any) => {
-                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+                     controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
                 };
                 
+                let accumulatedAiResponse = "";
+
                 try {
                     const response = await openai.chat.completions.create({
                         model: "gpt-4o",
@@ -73,6 +91,7 @@ GUIDELINES:
                         
                         // Streaming Text Reasoning
                         if (delta?.content) {
+                            accumulatedAiResponse += delta.content;
                             sendEvent({ type: "reasoning", text: delta.content });
                         }
                         
@@ -91,6 +110,19 @@ GUIDELINES:
                                 }
                             }
                         }
+                    }
+                    
+                    // Save Assistant Message
+                    if (accumulatedAiResponse) {
+                        await docClient.send(new UpdateCommand({
+                            TableName: "QlarifyCore",
+                            Key: { PK: `USER#${token.email}`, SK: `SYSTEM#${systemId}` },
+                            UpdateExpression: "SET messages = list_append(if_not_exists(messages, :empty_list), :msg)",
+                            ExpressionAttributeValues: {
+                                ":msg": [{ role: 'assistant', content: accumulatedAiResponse, timestamp: Date.now() }],
+                                ":empty_list": []
+                            }
+                        }));
                     }
                     
                     // Execute Tools

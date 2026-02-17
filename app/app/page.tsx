@@ -17,6 +17,7 @@ export default function ArchitecturePage() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [systems, setSystems] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    console.log('systems', systems);
 
     useEffect(() => {
         resetProject();
