@@ -1,8 +1,43 @@
 import { Node, Edge } from 'reactflow';
 
-export type ArchitectureLevel = 'product' | 'domain' | 'service' | 'database' | 'datastore' | 'api' | 'event' | 'infra' | 'user' | 'external';
+export type ArchitectureLevel = 'product' | 'domain' | 'service' | 'database' | 'datastore' | 'api' | 'event' | 'infra' | 'user' | 'external' | 'persona';
 
 export type DiagramType = 'system_overview' | 'domain_architecture' | 'service_architecture' | 'database_schema' | 'api_structure';
+
+export type AppMode = 'PRODUCT_CLARITY' | 'ARCHITECTURE';
+
+export interface Persona {
+  id: string;
+  name: string;
+  role: string;
+  goals: string[];
+}
+
+export interface ProductClarityTodos {
+  overview?: string[];
+  personas?: string[];
+  problems?: string[];
+  capabilities?: string[];
+  dataInputs?: string[];
+  dataOutputs?: string[];
+  externalSystems?: string[];
+  constraints?: string[];
+  nonFunctionalRequirements?: string[];
+  [key: string]: string[] | undefined;
+}
+
+export interface ProductClarity {
+  overview: string;
+  personas: Persona[];
+  problems: string[];
+  capabilities: string[];
+  dataInputs: string[];
+  dataOutputs: string[];
+  externalSystems: string[];
+  constraints: string[];
+  nonFunctionalRequirements: string[];
+  todos?: ProductClarityTodos;
+}
 
 export interface VisualNodeData {
   architecture_node_id?: string;
@@ -13,7 +48,21 @@ export interface VisualNodeData {
 
 // Re-using ReactFlow types but strict where we need it
 export type VisualNode = Node<VisualNodeData>;
-export type VisualEdge = Edge;
+
+export type RelationshipType = 
+  | 'CONTAINS' 
+  | 'CALLS' 
+  | 'PUBLISHES' 
+  | 'SUBSCRIBES' 
+  | 'DEPENDS_ON' 
+  | 'INTERACTS_WITH';
+
+export type VisualEdge = Edge & {
+  type?: string;
+  data?: {
+    relationship?: RelationshipType;
+  };
+};
 
 export interface ArchitectureDiagram {
   type: DiagramType;
@@ -41,6 +90,8 @@ export interface ArchitectureNode {
 
 // The root store state
 export interface ArchitectureState {
+  mode: AppMode;
+  productClarity: ProductClarity | null;
   root: ArchitectureNode | null;
   activeNodeId: string | null;
   breadcrumbs: { id: string; name: string }[];

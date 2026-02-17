@@ -10,7 +10,7 @@ import { useArchitecture } from "@/context/ArchitectureContext";
 export default function SystemDetailPage() {
     const { systemId } = useParams();
     const router = useRouter();
-    const { loadProject } = useArchitecture();
+    const { hydrateProject } = useArchitecture();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -21,10 +21,15 @@ export default function SystemDetailPage() {
             setIsLoading(true);
             try {
                 const res = await axios.get(`/api/systems/${systemId}`);
-                if (res.data.system && res.data.system.nodes?.length > 0) {
-                    loadProject(res.data.system.nodes[0]);
+                const { system } = res.data;
+
+                if (system) {
+                    const rootNode = system.nodes && system.nodes.length > 0 ? system.nodes[0] : null;
+                    const productClarity = system.productClarity || null;
+
+                    hydrateProject(rootNode, productClarity);
                 } else {
-                    setError("System data is incomplete or missing.");
+                    setError("System not found.");
                 }
             } catch (err: any) {
                 console.error("Error fetching system:", err);
@@ -35,7 +40,7 @@ export default function SystemDetailPage() {
         };
 
         fetchSystem();
-    }, [systemId, loadProject]);
+    }, [systemId, hydrateProject]);
 
     if (isLoading) {
         return (

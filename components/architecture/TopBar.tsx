@@ -20,7 +20,7 @@ export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: ()
                     </div>
                     <div>
                         <h1 className="text-base font-black text-charcoal flex items-center gap-2 tracking-tight">
-                            {state.root?.name || "Untitled Project"}
+                            {state.root?.name || (state.productClarity?.overview ? (state.productClarity.overview.substring(0, 30) + (state.productClarity.overview.length > 30 ? "..." : "")) : "Untitled Project")}
                         </h1>
                         <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
                             <span className="flex items-center gap-1.5 bg-ivory border border-[#EEE9E2] px-2 py-0.5 rounded text-slate-400">

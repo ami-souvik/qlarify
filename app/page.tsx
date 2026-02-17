@@ -132,7 +132,7 @@ export default function Home() {
                 value={projectIdea}
                 onChange={(e) => setProjectIdea(e.target.value)}
                 placeholder="Describe your system (e.g., 'A fintech platform with real-time fraud detection and multi-currency support'...)"
-                className="w-full h-64 rounded-3xl border-none bg-slate-50/70 p-8 text-lg focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all resize-none shadow-inner"
+                className="w-full h-64 rounded-3xl border-none bg-slate-50/70 p-4 text-lg focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all resize-none shadow-inner"
               />
               <button
                 onClick={handleSignIn}

@@ -1,11 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { ArchitectureNode, ArchitectureState, VisualNode, VisualEdge } from '@/types/architecture';
+import { ArchitectureNode, ArchitectureState, VisualNode, VisualEdge, ProductClarity, AppMode } from '@/types/architecture';
 
 interface ArchitectureContextType {
     state: ArchitectureState;
     loadProject: (rootNode: ArchitectureNode) => void;
+    hydrateProject: (rootNode: ArchitectureNode | null, clarity: ProductClarity | null) => void;
+    setProductClarity: (clarity: ProductClarity) => void;
+    setMode: (mode: AppMode) => void;
     zoomInto: (nodeId: string) => void;
     navigateBreadcrumb: (nodeId: string) => void;
     updateActiveDiagram: (nodes: VisualNode[], edges: VisualEdge[]) => void;
@@ -19,11 +22,12 @@ const ArchitectureContext = createContext<ArchitectureContextType | undefined>(u
 
 export function ArchitectureProvider({ children }: { children: ReactNode }) {
     const [state, setState] = useState<ArchitectureState>({
+        mode: 'PRODUCT_CLARITY',
+        productClarity: null,
         root: null,
         activeNodeId: null,
         breadcrumbs: []
     });
-    console.log(state);
 
     // Helper: Recursive find
     const findNodeRecursive = (node: ArchitectureNode, id: string): ArchitectureNode | null => {
@@ -53,11 +57,36 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
     };
 
     const loadProject = useCallback((rootNode: ArchitectureNode) => {
-        setState({
+        setState(prev => ({
+            ...prev,
             root: rootNode,
             activeNodeId: rootNode.id,
-            breadcrumbs: [{ id: rootNode.id, name: rootNode.name }]
-        });
+            breadcrumbs: [{ id: rootNode.id, name: rootNode.name }],
+            mode: 'ARCHITECTURE'
+        }));
+    }, []);
+
+    const hydrateProject = useCallback((rootNode: ArchitectureNode | null, clarity: ProductClarity | null) => {
+        setState(prev => ({
+            ...prev,
+            root: rootNode,
+            productClarity: clarity,
+            activeNodeId: rootNode ? rootNode.id : null,
+            breadcrumbs: rootNode ? [{ id: rootNode.id, name: rootNode.name }] : [],
+            mode: rootNode ? 'ARCHITECTURE' : 'PRODUCT_CLARITY'
+        }));
+    }, []);
+
+    const setProductClarity = useCallback((clarity: ProductClarity) => {
+        setState(prev => ({
+            ...prev,
+            productClarity: clarity,
+            // Keep existing root/breadcrumbs if any
+        }));
+    }, []);
+
+    const setMode = useCallback((mode: AppMode) => {
+        setState(prev => ({ ...prev, mode }));
     }, []);
 
     const zoomInto = useCallback((nodeId: string) => {
@@ -122,6 +151,8 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
 
     const resetProject = useCallback(() => {
         setState({
+            mode: 'PRODUCT_CLARITY',
+            productClarity: null,
             root: null,
             activeNodeId: null,
             breadcrumbs: []
@@ -132,6 +163,9 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         <ArchitectureContext.Provider value={{
             state,
             loadProject,
+            hydrateProject,
+            setProductClarity,
+            setMode,
             zoomInto,
             navigateBreadcrumb,
             updateActiveDiagram,
