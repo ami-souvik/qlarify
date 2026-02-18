@@ -22,6 +22,7 @@ export function AIReasoningPanel() {
     const [input, setInput] = useState("");
     const [activeTab, setActiveTab] = useState<'reasoning' | 'history'>('reasoning');
     const [isSending, setIsSending] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [status, setStatus] = useState<{ message: string; tool?: string } | null>(null);
 
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -30,9 +31,7 @@ export function AIReasoningPanel() {
 
     // Sync messages from context state when it loads
     React.useEffect(() => {
-        console.log('state.messages', state.messages);
         if (state.messages && state.messages.length > 0) {
-            // @ts-ignore - mismatch between strict types and flexible state for now
             setMessages(state.messages);
         }
     }, [state.messages]);
@@ -76,11 +75,11 @@ export function AIReasoningPanel() {
     // Auto-trigger initial reasoning for new projects
     React.useEffect(() => {
         const hasModels = (state.productClarity?.personas?.length || 0) > 0 || (state.productClarity?.capabilities?.length || 0) > 0;
-
-        if (state.productClarity?.overview && !hasModels && messages.length === 0 && !status && (!state.messages || state.messages.length === 0)) {
+        if (state.productClarity?.overview && !hasModels && messages.length === 0 && !status && (!state.messages || state.messages.length === 1) && !isGenerating) {
             const initialPrompt = `I have a new idea: "${state.productClarity.overview}". Please analyze this and auto-populate the initial Personas, Problems, and Capabilities directly to the canvas.`;
 
             // Add optimistic message
+            setIsGenerating(true);
             setMessages([{ role: 'user', content: state.productClarity.overview }]);
             setStatus({ message: "Initializing analysis...", tool: "reasoning" });
 
@@ -91,7 +90,7 @@ export function AIReasoningPanel() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             systemId,
-                            messages: [{ role: "user", content: initialPrompt }]
+                            messages: [{ role: "user", content: state.productClarity?.overview }]
                         })
                     });
 

@@ -41,10 +41,12 @@ export async function POST(req: Request) {
             id: systemId,
             type: 'system',
             status: 'clarification',
-            title: title || (overview.substring(0, 30) + (overview.length > 30 ? "..." : "")),
+            title: (title || (overview.substring(0, 30) + (overview.length > 30 ? "..." : ""))) || "New System",
             description: overview,
             productClarity: productClarity,
             nodes: [],
+            messages: body.messages || [],
+            logs: [],
             createdAt: timestamp,
             updatedAt: timestamp
         };

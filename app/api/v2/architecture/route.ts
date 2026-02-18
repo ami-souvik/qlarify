@@ -118,11 +118,11 @@ export async function POST(req: Request) {
                 let fullContent = "";
 
                 for await (const chunk of response) {
-                     const content = chunk.choices[0]?.delta?.content || "";
-                     fullContent += content;
-                     if (content) {
-                         sendEvent({ type: "content", text: content });
-                     }
+                    const content = chunk.choices[0]?.delta?.content || "";
+                    fullContent += content;
+                    if (content) {
+                        sendEvent({ type: "content", text: content });
+                    }
                 }
 
                 // After streaming completes, parse and save to DB

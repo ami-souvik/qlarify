@@ -27,7 +27,10 @@ export default function SystemDetailPage() {
                     const rootNode = system.nodes && system.nodes.length > 0 ? system.nodes[0] : null;
                     const productClarity = system.productClarity || null;
 
-                    hydrateProject(rootNode, productClarity);
+                    const messages = system.messages || [];
+                    const logs = system.logs || [];
+
+                    hydrateProject(rootNode, productClarity, messages, logs);
                 } else {
                     setError("System not found.");
                 }

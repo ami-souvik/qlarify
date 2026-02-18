@@ -23,7 +23,7 @@ function ArchitectureWorkspace() {
     const [projectIdea, setProjectIdea] = useState("");
 
     const handleCreateProject = async () => {
-        if (!projectIdea.trim()) return;
+        if (!projectIdea.trim() || isGenerating) return;
         setIsGenerating(true);
         try {
             const res = await fetch('/api/systems', {
@@ -31,14 +31,7 @@ function ArchitectureWorkspace() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     overview: projectIdea,
-                    title: projectIdea.substring(0, 30) + (projectIdea.length > 30 ? "..." : ""),
-                    messages: [
-                        {
-                            content: projectIdea,
-                            role: "user",
-                            timestamp: Date.now()
-                        }
-                    ]
+                    title: projectIdea.substring(0, 30) + (projectIdea.length > 30 ? "..." : "")
                 })
             });
 
