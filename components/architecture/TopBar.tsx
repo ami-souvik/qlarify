@@ -6,7 +6,7 @@ import { Save, Share2, Users, GitBranch, Layout, Box, Trash2 } from 'lucide-reac
 import { useParams, useRouter } from 'next/navigation';
 
 export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: () => void }) {
-    const { state } = useArchitecture();
+    const { state, setMode } = useArchitecture();
     const params = useParams();
     const systemId = params?.systemId;
 
@@ -33,15 +33,23 @@ export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: ()
                 </div>
             </div>
 
-            {/* Middle: Collaboration Status */}
-            <div className="hidden md:flex items-center gap-8">
-                <div className="flex -space-x-3">
-                    <div className="w-9 h-9 rounded-2xl border-2 border-white bg-orange-50 flex items-center justify-center text-[10px] font-black text-terracotta shadow-sm">SD</div>
-                    <div className="w-9 h-9 rounded-2xl border-2 border-white bg-charcoal flex items-center justify-center text-[10px] font-black text-white shadow-sm">AI</div>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] font-black text-terracotta uppercase tracking-[0.2em] bg-orange-50/50 px-3 py-1.5 rounded-xl border border-orange-100">
-                    <div className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse" /> Live Collaboration
-                </div>
+            {/* Middle: Mode Toggle */}
+            <div className="hidden md:flex items-center bg-gray-100/50 p-1 rounded-xl border border-gray-200">
+                {(['BRAINSTORMING', 'PRODUCT_CLARITY', 'ARCHITECTURE'] as const).map((mode) => (
+                    <button
+                        key={mode}
+                        onClick={() => setMode(mode)}
+                        className={`
+                            px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all
+                            ${state.mode === mode
+                                ? 'bg-white text-terracotta shadow-sm ring-1 ring-gray-200'
+                                : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
+                            }
+                        `}
+                    >
+                        {mode.replace('_', ' ')}
+                    </button>
+                ))}
             </div>
 
             {/* Right: Actions */}

@@ -8,6 +8,7 @@ import { useArchitecture } from '@/context/ArchitectureContext';
 import { InfoIcon, Loader2, Plus } from 'lucide-react';
 import { CustomArchitectureNode } from './CustomArchitectureNode';
 import { StrategicMindmap } from './StrategicMindmap';
+import { Breadcrumbs } from './Breadcrumbs';
 
 const nodeTypes = {
     default: CustomArchitectureNode, // Override default for consistent look
@@ -199,78 +200,83 @@ export function ArchitectureCanvas() {
     const isStrategicView = state.breadcrumbs.length === 1;
 
     return (
-        <div className="h-full w-full relative">
-            {isLoading && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-                    <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-                        <span className="text-sm font-medium text-slate-600">Architecting...</span>
-                    </div>
-                </div>
-            )}
-
-            {isStrategicView ? (
-                <StrategicMindmap onNodeClick={(id) => zoomInto(id)} />
-            ) : (
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    nodeTypes={nodeTypes}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onNodeDragStop={onNodeDragStop}
-                    onNodeClick={onNodeClick}
-                    connectionMode={ConnectionMode.Loose}
-                    fitView
-                    className="bg-slate-50"
-                >
-                    <Background color="#cbd5e1" gap={20} />
-                    <Controls />
-                </ReactFlow>
-            )}
-
-            {/* Perspective Overlay */}
-            {state.breadcrumbs.length === 1 && (
-                <>
-                    <div className="absolute top-4 left-4 z-10">
-                        <div className="bg-white/90 backdrop-blur-md border border-slate-200 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                                Strategic Mindmap <span className="text-slate-300 ml-1 font-medium">High Level</span>
-                            </span>
-                            <div
-                                ref={infoButtonRef}
-                                className={`p-1 rounded-full transition-colors cursor-pointer ${showLegend ? 'bg-indigo-100 text-indigo-600' : 'hover:bg-slate-100 text-slate-600'}`}
-                                onClick={() => setShowLegend(!showLegend)}
-                            >
-                                <InfoIcon className="w-3 h-3" />
-                            </div>
+        <>
+            <div className="flex h-12 items-center justify-between border-b border-[#EEE9E2] bg-white/80 backdrop-blur-md px-4 z-10">
+                <Breadcrumbs />
+            </div>
+            <div className="h-full w-full relative">
+                {isLoading && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                            <span className="text-sm font-medium text-slate-600">Architecting...</span>
                         </div>
                     </div>
+                )}
 
-                    {showLegend && (
-                        <div
-                            ref={legendRef}
-                            className="absolute top-16 left-4 z-10 animate-in fade-in slide-in-from-top-2 duration-200"
-                        >
-                            <div className="bg-white/95 backdrop-blur-md border border-slate-200 px-4 py-3 rounded-2xl shadow-xl flex flex-col gap-2 min-w-[180px]">
-                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pb-1 border-b border-slate-100">
-                                    Ecosystem Legend
+                {isStrategicView ? (
+                    <StrategicMindmap onNodeClick={(id) => zoomInto(id)} />
+                ) : (
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        nodeTypes={nodeTypes}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onNodeDragStop={onNodeDragStop}
+                        onNodeClick={onNodeClick}
+                        connectionMode={ConnectionMode.Loose}
+                        fitView
+                        className="bg-slate-50"
+                    >
+                        <Background color="#cbd5e1" gap={20} />
+                        <Controls />
+                    </ReactFlow>
+                )}
+
+                {/* Perspective Overlay */}
+                {state.breadcrumbs.length === 1 && (
+                    <>
+                        <div className="absolute top-4 left-4 z-10">
+                            <div className="bg-white/90 backdrop-blur-md border border-slate-200 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                    Strategic Mindmap <span className="text-slate-300 ml-1 font-medium">High Level</span>
                                 </span>
-                                <LegendItem dot="#6366f1" label="Product Core" />
-                                <LegendItem dot="#3b82f6" label="System Domains" />
-                                <LegendItem dot="#14b8a6" label="User Personas" />
-                                <LegendItem dot="#94a3b8" label="External Systems" />
-                                <div className="mt-1 pt-2 border-t border-slate-50">
-                                    <p className="text-[9px] text-slate-400 leading-relaxed font-medium">
-                                        This view shows high-level strategic relationships between core actors and domains.
-                                    </p>
+                                <div
+                                    ref={infoButtonRef}
+                                    className={`p-1 rounded-full transition-colors cursor-pointer ${showLegend ? 'bg-indigo-100 text-indigo-600' : 'hover:bg-slate-100 text-slate-600'}`}
+                                    onClick={() => setShowLegend(!showLegend)}
+                                >
+                                    <InfoIcon className="w-3 h-3" />
                                 </div>
                             </div>
                         </div>
-                    )}
-                </>
-            )}
-        </div>
+
+                        {showLegend && (
+                            <div
+                                ref={legendRef}
+                                className="absolute top-16 left-4 z-10 animate-in fade-in slide-in-from-top-2 duration-200"
+                            >
+                                <div className="bg-white/95 backdrop-blur-md border border-slate-200 px-4 py-3 rounded-2xl shadow-xl flex flex-col gap-2 min-w-[180px]">
+                                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pb-1 border-b border-slate-100">
+                                        Ecosystem Legend
+                                    </span>
+                                    <LegendItem dot="#6366f1" label="Product Core" />
+                                    <LegendItem dot="#3b82f6" label="System Domains" />
+                                    <LegendItem dot="#14b8a6" label="User Personas" />
+                                    <LegendItem dot="#94a3b8" label="External Systems" />
+                                    <div className="mt-1 pt-2 border-t border-slate-50">
+                                        <p className="text-[9px] text-slate-400 leading-relaxed font-medium">
+                                            This view shows high-level strategic relationships between core actors and domains.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </>
     );
 }

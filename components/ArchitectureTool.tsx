@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, ArrowRight, Layout, Database, Layers, Sparkles } from "lucide-react";
+import { ArrowRight, Layout, Database, Layers, Sparkles } from "lucide-react";
 import { useArchitecture } from "@/context/ArchitectureContext";
-import { Breadcrumbs } from "@/components/architecture/Breadcrumbs";
 import { SystemMap } from "@/components/architecture/SystemMap";
 import { ArchitectureCanvas } from "@/components/architecture/ArchitectureCanvas";
 import { AIReasoningPanel } from "@/components/architecture/AIReasoningPanel";
@@ -13,6 +12,7 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 
 import { ProductClarityCanvas } from "@/components/architecture/ProductClarityCanvas";
+import { BrainstormingCanvas } from "@/components/architecture/BrainstormingCanvas";
 
 function ArchitectureWorkspace() {
     const { state, loadProject, resetProject, setMode, setProductClarity } = useArchitecture();
@@ -154,7 +154,7 @@ function ArchitectureWorkspace() {
         <div className="flex flex-col h-screen w-full bg-ivory overflow-hidden">
             <TopBar onSave={handleSave} onDelete={handleDelete} />
 
-            <div className={`flex flex-1 overflow-hidden ${state.mode === 'PRODUCT_CLARITY' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex flex-1 overflow-hidden flex-row`}>
                 {/* Side Panel: Explorer or Reasoning depending on mode */}
                 {state.mode === 'ARCHITECTURE' && (
                     <aside className="w-80 border-r border-[#EEE9E2] bg-white flex flex-col z-10 shadow-xl shadow-orange-900/5">
@@ -169,27 +169,13 @@ function ArchitectureWorkspace() {
 
                 {/* Main Content Area */}
                 <main className="flex flex-1 flex-col relative overflow-hidden bg-white/20">
-                    {state.mode === 'ARCHITECTURE' ? (
-                        <>
-                            <div className="flex h-12 items-center justify-between border-b border-[#EEE9E2] bg-white/80 backdrop-blur-md px-4 z-10">
-                                <Breadcrumbs />
-                                <div className="flex items-center gap-4">
-                                    <button
-                                        onClick={() => setMode('PRODUCT_CLARITY')}
-                                        className="text-[10px] font-black text-slate-400 hover:text-terracotta uppercase tracking-widest transition-colors"
-                                    >
-                                        Back to Clarity
-                                    </button>
-                                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Perspective: Default</div>
-                                </div>
-                            </div>
-                            <div className="flex-1 relative">
-                                <ArchitectureCanvas />
-                            </div>
-                        </>
-                    ) : (
-                        <ProductClarityCanvas />
-                    )}
+                    {
+                        state.mode === 'ARCHITECTURE' ?
+                            <ArchitectureCanvas /> :
+                            state.mode === 'BRAINSTORMING' ?
+                                <BrainstormingCanvas /> :
+                                <ProductClarityCanvas />
+                    }
                 </main>
 
                 {/* AI Reasoning Side Panel */}
