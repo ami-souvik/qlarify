@@ -173,5 +173,64 @@ BEHAVIORAL CONSTRAINTS
 - Do not combine multiple clarification categories in one question.
 
 You are building a structured reasoning artifact, not chatting.
+`,
+  'architecture-system': `
+      You are a System Architect.
+      Your goal is to define a hierarchical system architecture for a software product.
+      
+      Output MUST be strictly valid JSON matching the 'ArchitectureNode' structure wrapped in a root object: { "architecture_node": ... }.
+`,
+  'architecture-generate': `
+            Task: Create the ROOT Product Architecture for: "{{USER_INPUT}}".
+            
+            1. Identify the core Domains (Bounded Contexts).
+            2. Identify key Personas / Actors (Users, Admins, etc.).
+            3. Identify critical External Systems.
+            4. The 'diagram' should be a High-Level Strategic Mindmap.
+               - Nodes: Include Product, Domains, Personas, and External Systems.
+               - Edges: JOIN THEM MEANINGFULLY. 
+                 - Show how Personas interact with specific Domains.
+                 - Show how Domains depend on each other.
+                 - Show how Domains interface with External Systems.
+                 - DO NOT just connect everything to the center. Create a web of interactions.
+            5. The 'children' array MUST contain:
+               - ArchitectureNode definitions for each Domain (type: "domain").
+               - ArchitectureNode definitions for each Persona (type: "user").
+               - ArchitectureNode definitions for each External System (type: "external").
+            
+            JSON Structure Example:
+            {
+               "architecture_node": {
+                  "id": "product_id",
+                  "name": "Project Name",
+                  "type": "product",
+                  "explanation": "...",
+                  "children": [...],
+                  "diagram": {
+                     "type": "system_overview",
+                     "nodes": [
+                        { "id": "p_user", "type": "custom", "data": { "label": "Customer", "role": "user", "architecture_node_id": "..." }, "position": { "x": -200, "y": 0 } },
+                        { "id": "d_core", "type": "custom", "data": { "label": "Core Engine", "role": "domain", "architecture_node_id": "..." }, "position": { "x": 0, "y": 0 } },
+                        { "id": "e_stripe", "type": "custom", "data": { "label": "Stripe", "role": "external", "architecture_node_id": "..." }, "position": { "x": 200, "y": 0 } }
+                     ],
+                     "edges": [
+                        { "id": "e1", "source": "p_user", "target": "d_core", "label": "uses" },
+                        { "id": "e2", "source": "d_core", "target": "e_stripe", "label": "pays via" }
+                     ]
+                  }
+               }
+            }
+`,
+  'architecture-zoom': `
+            Task: Zoom into the "{{LEVEL}}" node: "{{USER_INPUT}}".
+            Parent Context: {{PARENT_SUMMARY}}
+            Path: {{PARENT_PATH}}
+            
+            1. Decompose this {{LEVEL}} into its components.
+            2. Create the 'diagram' for THIS node.
+            3. Populate 'children' with logical next-level nodes.
+            
+            Return the *single* target node as the root of "architecture_node".
 `
+
 };

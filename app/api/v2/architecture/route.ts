@@ -1,9 +1,11 @@
 
 import { getToken } from "next-auth/jwt";
 import OpenAI from "openai";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
-import { docClient } from '@/lib/db';
+import { SystemRepository } from "@/lib/modeling/repository";
+import { PromptManager } from "@/lib/ai/PromptManager";
 import { randomUUID } from "crypto";
+
+import { NextRequest } from "next/server";
 
 export const runtime = 'edge';
 
@@ -11,7 +13,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     const body = await req.json();
@@ -22,73 +25,26 @@ export async function POST(req: Request) {
          return new Response(JSON.stringify({ error: "User input is required" }), { status: 400 });
     }
 
-    const systemPrompt = `
-      You are a System Architect.
-      Your goal is to define a hierarchical system architecture for a software product.
-      
-      Output MUST be strictly valid JSON matching the 'ArchitectureNode' structure wrapped in a root object: { "architecture_node": ... }.
-    `;
+    const promptManager = new PromptManager();
+    const systemPrompt = await promptManager.loadPrompt('architecture-system');
 
     // Construct Contextual Prompt based on Level
     let specificPrompt = "";
 
     if (level === 'product' && intent === 'generate') {
-         specificPrompt = `
-            Task: Create the ROOT Product Architecture for: "${user_input}".
-            
-            1. Identify the core Domains (Bounded Contexts).
-            2. Identify key Personas / Actors (Users, Admins, etc.).
-            3. Identify critical External Systems.
-            4. The 'diagram' should be a High-Level Strategic Mindmap.
-               - Nodes: Include Product, Domains, Personas, and External Systems.
-               - Edges: JOIN THEM MEANINGFULLY. 
-                 - Show how Personas interact with specific Domains.
-                 - Show how Domains depend on each other.
-                 - Show how Domains interface with External Systems.
-                 - DO NOT just connect everything to the center. Create a web of interactions.
-            5. The 'children' array MUST contain:
-               - ArchitectureNode definitions for each Domain (type: "domain").
-               - ArchitectureNode definitions for each Persona (type: "user").
-               - ArchitectureNode definitions for each External System (type: "external").
-            
-            JSON Structure Example:
-            {
-               "architecture_node": {
-                  "id": "product_id",
-                  "name": "Project Name",
-                  "type": "product",
-                  "explanation": "...",
-                  "children": [...],
-                  "diagram": {
-                     "type": "system_overview",
-                     "nodes": [
-                        { "id": "p_user", "type": "custom", "data": { "label": "Customer", "role": "user", "architecture_node_id": "..." }, "position": { "x": -200, "y": 0 } },
-                        { "id": "d_core", "type": "custom", "data": { "label": "Core Engine", "role": "domain", "architecture_node_id": "..." }, "position": { "x": 0, "y": 0 } },
-                        { "id": "e_stripe", "type": "custom", "data": { "label": "Stripe", "role": "external", "architecture_node_id": "..." }, "position": { "x": 200, "y": 0 } }
-                     ],
-                     "edges": [
-                        { "id": "e1", "source": "p_user", "target": "d_core", "label": "uses" },
-                        { "id": "e2", "source": "d_core", "target": "e_stripe", "label": "pays via" }
-                     ]
-                  }
-               }
-            }
-         `;
+         specificPrompt = await promptManager.loadPrompt('architecture-generate', {
+             USER_INPUT: user_input
+         });
     } else if (intent === 'zoom') {
         const parentSummary = current_architecture_context?.root_summary || "";
         const parentPath = current_architecture_context?.parent_path || [];
         
-        specificPrompt = `
-            Task: Zoom into the "${level}" node: "${user_input}".
-            Parent Context: ${parentSummary}
-            Path: ${parentPath.join(' -> ')}
-            
-            1. Decompose this ${level} into its components.
-            2. Create the 'diagram' for THIS node.
-            3. Populate 'children' with logical next-level nodes.
-            
-            Return the *single* target node as the root of "architecture_node".
-        `;
+        specificPrompt = await promptManager.loadPrompt('architecture-zoom', {
+             LEVEL: level,
+             USER_INPUT: user_input,
+             PARENT_SUMMARY: parentSummary,
+             PARENT_PATH: parentPath.join(' -> ')
+        });
     }
 
     const encoder = new TextEncoder();
@@ -174,10 +130,8 @@ export async function POST(req: Request) {
                             updatedAt: timestamp
                         };
             
-                        await docClient.send(new PutCommand({
-                            TableName: "QlarifyCore",
-                            Item: item
-                        }));
+                        const repo = new SystemRepository(email);
+                        await repo.saveSystem(item);
             
                         // Send the system ID event
                         sendEvent({ type: "saved", system_id: systemId });

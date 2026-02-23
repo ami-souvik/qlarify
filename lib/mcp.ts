@@ -1,6 +1,4 @@
-
-import { docClient } from "@/lib/db";
-import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { SystemRepository } from "@/lib/modeling/repository";
 
 export const mcpManifest = {
   protocol: "mcp",
@@ -50,22 +48,21 @@ export const mcpManifest = {
     }
   ]
 };
-
 export async function executeTool(name: string, args: any, email: string) {
+  const repo = new SystemRepository(email);
+
   switch (name) {
     case "get_canvas_context": {
       const { systemId } = args;
-      const res = await docClient.send(new GetCommand({
-        TableName: "QlarifyCore",
-        Key: { PK: `USER#${email}`, SK: `SYSTEM#${systemId}` }
-      }));
+      const system = await repo.getSystem(systemId);
 
-      if (!res.Item) throw new Error("System not found");
+      if (!system) throw new Error("System not found");
 
       return {
-        productClarity: res.Item.productClarity,
-        architectureRoot: res.Item.nodes?.[0] || null,
-        status: res.Item.status
+        productClarity: system.productClarity,
+        architectureRoot: system.nodes?.[0] || null,
+        status: system.status
+
       };
     }
 
@@ -84,12 +81,9 @@ export async function executeTool(name: string, args: any, email: string) {
 
       // If no confirmation required, we update the DB immediately (Auto-apply)
       // 1. Fetch current state to merge
-      const getRes = await docClient.send(new GetCommand({
-        TableName: "QlarifyCore",
-        Key: { PK: `USER#${email}`, SK: `SYSTEM#${systemId}` }
-      }));
+      const system = await repo.getSystem(systemId);
 
-      const existingClarity = getRes.Item?.productClarity || {};
+      const existingClarity = system?.productClarity || {};
       
       // 2. Merge updates
       const mergedClarity = { ...existingClarity, ...clarityUpdates };
@@ -105,17 +99,8 @@ export async function executeTool(name: string, args: any, email: string) {
         timestamp: Date.now()
       };
 
-      await docClient.send(new UpdateCommand({
-        TableName: "QlarifyCore",
-        Key: { PK: `USER#${email}`, SK: `SYSTEM#${systemId}` },
-        UpdateExpression: "SET productClarity = :pc, updatedAt = :ua, logs = list_append(if_not_exists(logs, :empty_list), :log)",
-        ExpressionAttributeValues: {
-          ":pc": mergedClarity,
-          ":ua": new Date().toISOString(),
-          ":log": [logEntry],
-          ":empty_list": []
-        }
-      }));
+      await repo.updateClarity(systemId, mergedClarity, logEntry);
+
 
       return { status: "success", message: "Clarity model updated successfully." };
     }
