@@ -35,7 +35,7 @@ export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: ()
 
             {/* Middle: Mode Toggle */}
             <div className="hidden md:flex items-center bg-gray-100/50 p-1 rounded-xl border border-gray-200">
-                {(['BRAINSTORMING', 'PRODUCT_CLARITY', 'ARCHITECTURE'] as const).map((mode) => (
+                {(['PRODUCT_CLARITY', 'ARCHITECTURE'] as const).map((mode) => (
                     <button
                         key={mode}
                         onClick={() => setMode(mode)}

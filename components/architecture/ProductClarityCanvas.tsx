@@ -14,6 +14,7 @@ import {
     Globe
 } from 'lucide-react';
 import { Persona, ProductClarityTodos, ProductClarity } from '@/types/architecture';
+import { ClarityDomainService } from '@/lib/modeling/engine';
 
 export function ProductClarityCanvas() {
     const { state, setMode } = useArchitecture();
@@ -92,14 +93,7 @@ export function ProductClarityCanvas() {
         }
     ];
 
-    const isThresholdReached = (
-        (productClarity.personas?.length || 0) >= 1 &&
-        (productClarity.problems?.length || 0) >= 1 &&
-        (productClarity.capabilities?.length || 0) >= 3 &&
-        ((productClarity.dataInputs?.length || 0) + (productClarity.dataOutputs?.length || 0)) >= 1 &&
-        ((productClarity.constraints?.length || 0) + (productClarity.nonFunctionalRequirements?.length || 0)) >= 1
-    );
-
+    const { isThresholdReached, missingRequirements } = ClarityDomainService.getClarityScore(productClarity);
     const handleGenerateArchitecture = async () => {
         setMode('ARCHITECTURE');
     };
@@ -130,7 +124,7 @@ export function ProductClarityCanvas() {
                         </div>
                         <div className="flex-1">
                             <p className="text-[10px] font-black uppercase tracking-widest text-terracotta mb-0.5">Threshold Requirements</p>
-                            <p className="text-xs text-orange-900/60 font-medium">Add 1+ Persona, 1+ Problem, 3+ Capabilities, and 1+ Constraint to unlock architecture generation.</p>
+                            <p className="text-xs text-orange-900/60 font-medium">Missing: {missingRequirements.join(', ')}.</p>
                         </div>
                     </div>
                 )}
