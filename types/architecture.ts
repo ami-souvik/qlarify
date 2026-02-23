@@ -4,7 +4,7 @@ export type ArchitectureLevel = 'product' | 'domain' | 'service' | 'database' | 
 
 export type DiagramType = 'system_overview' | 'domain_architecture' | 'service_architecture' | 'database_schema' | 'api_structure';
 
-export type AppMode = 'PRODUCT_CLARITY' | 'ARCHITECTURE' | 'BRAINSTORMING';
+export type AppMode = 'PRODUCT_CLARITY' | 'ARCHITECTURE';
 
 export interface Persona {
   id: string;
