@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Sparkles, MessageSquare, Check, X, RefreshCw, Send, BrainCircuit, History, Users } from 'lucide-react';
+import { Sparkles, MessageSquare, Check, X, RefreshCw, Send, BrainCircuit, History, Users, ArrowRight } from 'lucide-react';
 import { useArchitecture } from '@/context/ArchitectureContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams } from 'next/navigation';
@@ -263,13 +263,13 @@ export function AIReasoningPanel() {
             <div className="flex border-b border-[#EEE9E2] bg-ivory/50 flex-shrink-0">
                 <button
                     onClick={() => setActiveTab('reasoning')}
-                    className={`flex-1 py-4 px-4 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeTab === 'reasoning' ? 'text-terracotta bg-white border-b-2 border-terracotta' : 'text-slate-400 hover:text-charcoal'}`}
+                    className={`flex-1 py-2.5 px-4 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeTab === 'reasoning' ? 'text-terracotta bg-white border-b-2 border-terracotta' : 'text-slate-400 hover:text-charcoal'}`}
                 >
                     <BrainCircuit size={14} /> Reasoning
                 </button>
                 <button
                     onClick={() => setActiveTab('history')}
-                    className={`flex-1 py-4 px-4 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeTab === 'history' ? 'text-terracotta bg-white border-b-2 border-terracotta' : 'text-slate-400 hover:text-charcoal'}`}
+                    className={`flex-1 py-2.5 px-4 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeTab === 'history' ? 'text-terracotta bg-white border-b-2 border-terracotta' : 'text-slate-400 hover:text-charcoal'}`}
                 >
                     <History size={14} /> Logs
                 </button>
@@ -398,7 +398,7 @@ export function AIReasoningPanel() {
             </AnimatePresence>
 
             {/* Input Area */}
-            <div className="p-2 border-t border-[#EEE9E2] bg-white text-charcoal flex-shrink-0 relative z-30">
+            <div className="border-t border-[#EEE9E2] bg-white text-charcoal flex-shrink-0 relative z-30">
                 <div className="relative">
                     <textarea
                         value={input}
@@ -410,14 +410,14 @@ export function AIReasoningPanel() {
                             }
                         }}
                         placeholder="Ask AI to refine or expand..."
-                        className="w-full h-20 rounded-xl border-2 border-[#EEE9E2]/50 bg-ivory/50 p-2 text-sm font-medium focus:border-terracotta/30 focus:bg-white focus:ring-0 transition-all resize-none pr-12 placeholder:text-slate-300"
+                        className="w-full h-20 bg-ivory/50 p-2 text-sm font-medium focus:border-terracotta/30 focus:bg-white focus:ring-0 transition-all resize-none pr-12 placeholder:text-slate-300"
                     />
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || isSending}
-                        className="absolute bottom-3 right-2 p-2 bg-charcoal text-white rounded-lg hover:bg-terracotta transition-all shadow-lg shadow-orange-900/10 active:scale-95 leading-none disabled:opacity-30"
+                        className="absolute bottom-2 right-2 p-2 bg-charcoal text-white rounded-lg hover:bg-terracotta transition-all shadow-lg shadow-orange-900/10 active:scale-95 leading-none disabled:opacity-30"
                     >
-                        {isSending ? <RefreshCw size={16} className="animate-spin" /> : <Send size={16} />}
+                        {isSending ? <RefreshCw size={16} className="animate-spin" /> : <ArrowRight size={16} />}
                     </button>
                 </div>
             </div>

@@ -191,7 +191,7 @@ export function ArchitectureCanvas() {
 
     if (!state.activeNodeId) {
         return (
-            <div className="flex h-full w-full items-center justify-center text-slate-400">
+            <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
                 Select a node to view architecture.
             </div>
         );

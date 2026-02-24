@@ -1,32 +1,30 @@
 "use client";
 
-import React from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Share2, Box, Trash2 } from 'lucide-react';
 import { useArchitecture } from '@/context/ArchitectureContext';
-import { Save, Share2, Users, GitBranch, Layout, Box, Trash2 } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
 
-export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: () => void }) {
+export function TopBar({ onDelete }: { onDelete?: () => void }) {
     const { state, setMode } = useArchitecture();
     const params = useParams();
     const systemId = params?.systemId;
 
     return (
-        <header className="h-16 border-b border-[#EEE9E2] bg-white flex items-center justify-between px-6 z-20 shrink-0">
+        <header className="h-12 border-b border-[#EEE9E2] bg-white grid grid-cols-3 items-center px-6 z-20 shrink-0">
             {/* Left: Project Info */}
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="bg-terracotta p-2 rounded-xl text-white shadow-lg shadow-orange-900/10">
-                        <Box size={20} />
-                    </div>
+                    <Link href="/app" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <div className="bg-terracotta p-1.5 rounded-xl text-white shadow-lg shadow-orange-900/10">
+                            <Box size={18} />
+                        </div>
+                    </Link>
                     <div>
-                        <h1 className="text-base font-black text-charcoal flex items-center gap-2 tracking-tight">
-                            {state.root?.name || (state.productClarity?.overview ? (state.productClarity.overview.substring(0, 30) + (state.productClarity.overview.length > 30 ? "..." : "")) : "Untitled Project")}
+                        <h1 className="text-sm font-bold text-charcoal flex items-center gap-2 tracking-tight">
+                            {state.root?.name || (state.productClarity?.overview ? (state.productClarity.overview.substring(0, 60) + (state.productClarity.overview.length > 60 ? "..." : "")) : "Untitled Project")}
                         </h1>
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                            <span className="flex items-center gap-1.5 bg-ivory border border-[#EEE9E2] px-2 py-0.5 rounded text-slate-400">
-                                <GitBranch size={10} className="text-terracotta" /> v2.0.4-beta
-                            </span>
-                            <span className="opacity-30">•</span>
+                        <div className="flex items-center gap-2 text-[9px] text-slate-400 font-black uppercase tracking-widest">
                             <span>Last saved 2m ago</span>
                         </div>
                     </div>
@@ -34,7 +32,7 @@ export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: ()
             </div>
 
             {/* Middle: Mode Toggle */}
-            <div className="hidden md:flex items-center bg-gray-100/50 p-1 rounded-xl border border-gray-200">
+            <div className="flex justify-center items-center bg-gray-100/50 p-1 rounded-xl border border-gray-200">
                 {(['PRODUCT_CLARITY', 'ARCHITECTURE'] as const).map((mode) => (
                     <button
                         key={mode}
@@ -53,7 +51,10 @@ export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: ()
             </div>
 
             {/* Right: Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex justify-end items-center gap-3">
+                <button className="flex items-center gap-2 p-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-charcoal hover:bg-ivory rounded-xl transition-all">
+                    <Share2 size={16} /> Share
+                </button>
                 {systemId && onDelete && (
                     <button
                         onClick={() => {
@@ -61,21 +62,12 @@ export function TopBar({ onSave, onDelete }: { onSave: () => void, onDelete?: ()
                                 onDelete();
                             }
                         }}
-                        className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                         title="Delete Project"
                     >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                     </button>
                 )}
-                <button className="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-charcoal hover:bg-ivory rounded-xl transition-all">
-                    <Share2 size={16} /> Share
-                </button>
-                <button
-                    onClick={onSave}
-                    className="flex items-center gap-3 px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white bg-charcoal hover:bg-terracotta rounded-xl transition-all shadow-xl shadow-orange-900/10 active:scale-95"
-                >
-                    <Save size={16} /> Commit Changes
-                </button>
             </div>
         </header>
     );
