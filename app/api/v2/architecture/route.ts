@@ -3,7 +3,6 @@ import { getToken } from "next-auth/jwt";
 import OpenAI from "openai";
 import { SystemRepository } from "@/lib/modeling/repository";
 import { PromptManager } from "@/lib/ai/PromptManager";
-import { randomUUID } from "crypto";
 
 import { NextRequest } from "next/server";
 
@@ -93,7 +92,7 @@ export async function POST(req: NextRequest) {
                 if (token?.email && jsonResponse.architecture_node) {
                     try {
                         const email = token.email;
-                        const systemId = randomUUID();
+                        const systemId = crypto.randomUUID();
                         const timestamp = new Date().toISOString();
                         const root = jsonResponse.architecture_node;
             

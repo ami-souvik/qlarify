@@ -1,7 +1,6 @@
 
 import { docClient } from './lib/db'; // Adjust path if needed, might need ts-node path mapping
 import { GetCommand, PutCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
-import fetch from 'node-fetch';
 
 const BASE_URL = 'http://localhost:3000';
 const TEST_EMAIL = 'test@example.com'; 
