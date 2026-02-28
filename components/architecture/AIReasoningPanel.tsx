@@ -72,108 +72,12 @@ export function AIReasoningPanel() {
         setSuggestions(prev => prev.filter(s => s.id !== id));
     };
 
-    // Auto-trigger initial reasoning for new projects
-    React.useEffect(() => {
-        const hasModels = (state.productClarity?.personas?.length || 0) > 0 || (state.productClarity?.capabilities?.length || 0) > 0;
-        if (state.productClarity?.overview && !hasModels && messages.length === 0 && !status && (!state.messages || state.messages.length === 1) && !isGenerating) {
-            const initialPrompt = `I have a new idea: "${state.productClarity.overview}". Please analyze this and auto-populate the initial Personas, Problems, and Capabilities directly to the canvas.`;
-
-            // Add optimistic message
-            setIsGenerating(true);
-            setMessages([{ role: 'user', content: state.productClarity.overview }]);
-            setStatus({ message: "Initializing analysis...", tool: "reasoning" });
-
-            const runInitialAnalysis = async () => {
-                try {
-                    const response = await fetch('/api/reasoning', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            systemId,
-                            messages: [{ role: "user", content: state.productClarity?.overview }]
-                        })
-                    });
-
-                    if (!response.ok || !response.body) throw new Error(response.statusText);
-
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
-                    let assistantMessage = "";
-                    let buffer = "";
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split('\n\n');
-                        buffer = lines.pop() || "";
-
-                        for (const line of lines) {
-                            if (line.startsWith('data: ')) {
-                                const dataStr = line.replace('data: ', '').trim();
-                                if (dataStr === '[DONE]') break;
-
-                                try {
-                                    const data = JSON.parse(dataStr);
-
-                                    if (data.type === 'reasoning' || data.type === 'content') {
-                                        assistantMessage += data.text || "";
-                                        setMessages(prev => {
-                                            // Only update if it's the first message or appended
-                                            if (prev.length === 0 || prev[prev.length - 1].role !== 'assistant') {
-                                                return [...prev, { role: 'assistant', content: assistantMessage }];
-                                            } else {
-                                                const newPrev = [...prev];
-                                                newPrev[newPrev.length - 1].content = assistantMessage;
-                                                return newPrev;
-                                            }
-                                        });
-                                    }
-
-                                    if (data.type === 'refresh' || data.requiresRefresh) {
-                                        setStatus({ message: "Populating canvas...", tool: "refresh" });
-                                        const res = await fetch(`/api/systems/${systemId}`);
-                                        const sysData = await res.json();
-                                        if (sysData.system) {
-                                            hydrateProject(sysData.system.nodes?.[0] || null, sysData.system.productClarity, sysData.system.messages, sysData.system.logs);
-                                        }
-                                    }
-                                } catch (e) {
-                                    console.error("Error parsing SSE data", e);
-                                }
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error(error);
-                } finally {
-                    setStatus(null);
-                }
-            };
-
-            runInitialAnalysis();
-        }
-    }, [state.productClarity?.overview, systemId]);
-
-    const handleSend = async () => {
-        if (!input.trim() || isSending) return;
-        setIsSending(true);
-        setStatus({ message: "Thinking...", tool: "reasoning" });
-
-        // Optimistic UI updates
-        const userMessage = input;
-        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-        setInput("");
-
+    const performReasoningRequest = async (messageBody: string) => {
         try {
-            const response = await fetch('/api/reasoning', {
+            const response = await fetch(`/api/reasoning?systemId=${systemId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    systemId,
-                    messages: [...messages, { role: "user", content: userMessage }]
-                })
+                body: messageBody
             });
 
             if (!response.ok || !response.body) {
@@ -205,7 +109,7 @@ export function AIReasoningPanel() {
                                 assistantMessage += data.text || "";
                                 setMessages(prev => {
                                     const last = prev[prev.length - 1];
-                                    if (last.role === 'assistant') {
+                                    if (last?.role === 'assistant') {
                                         return [...prev.slice(0, -1), { role: 'assistant', content: assistantMessage }];
                                     } else {
                                         return [...prev, { role: 'assistant', content: assistantMessage }];
@@ -253,8 +157,35 @@ export function AIReasoningPanel() {
             setStatus({ message: "Error processing request", tool: "error" });
         } finally {
             setIsSending(false);
+            setIsGenerating(false);
             setStatus(null);
         }
+    };
+
+    // Auto-trigger initial reasoning for new projects
+    React.useEffect(() => {
+        const hasModels = (state.productClarity?.personas?.length || 0) > 0 || (state.productClarity?.capabilities?.length || 0) > 0;
+        if (state.productClarity?.overview && !hasModels && messages.length === 0 && !status && (!state.messages || state.messages.length === 1) && !isGenerating) {
+            // Add optimistic message
+            setIsGenerating(true);
+            setMessages([{ role: 'user', content: state.productClarity.overview }]);
+            setStatus({ message: "Initializing analysis...", tool: "reasoning" });
+
+            performReasoningRequest(state.productClarity.overview);
+        }
+    }, [state.productClarity?.overview, systemId]);
+
+    const handleSend = async () => {
+        if (!input.trim() || isSending) return;
+        setIsSending(true);
+        setStatus({ message: "Thinking...", tool: "reasoning" });
+
+        // Optimistic UI updates
+        const userMessage = input;
+        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+        setInput("");
+
+        await performReasoningRequest(userMessage);
     };
 
     return (

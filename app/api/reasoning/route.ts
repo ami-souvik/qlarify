@@ -1,9 +1,10 @@
-
 import { getToken } from "next-auth/jwt";
 import { executeTool, mcpManifest } from "@/lib/mcp";
 import OpenAI from "openai";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/db";
+import { PRODUCT_CLARITY_ORCHESTRATOR_PROMPT } from '@/prompts';
+import { NextRequest } from "next/server";
 
 export const runtime = 'edge';
 
@@ -11,48 +12,29 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
         const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET });
         if (!token?.email) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
         }
         
-        const { messages, systemId } = await req.json();
-
-        // Save User Message synchronously before streaming
-        const lastUserMessage = messages[messages.length - 1];
-        if (lastUserMessage && lastUserMessage.role === 'user') {
-             await docClient.send(new UpdateCommand({
-                TableName: "QlarifyCore",
-                Key: { PK: `USER#${token.email}`, SK: `SYSTEM#${systemId}` },
-                UpdateExpression: "SET messages = list_append(if_not_exists(messages, :empty_list), :msg)",
-                ExpressionAttributeValues: {
-                  ":msg": [{ ...lastUserMessage, timestamp: Date.now() }],
-                  ":empty_list": []
-                }
-            }));
+        const systemId = req.nextUrl.searchParams.get("systemId");
+        if(!systemId) {
+            return new Response(JSON.stringify({ error: "System ID is required" }), { status: 400 });
         }
 
-        // 1. Fetch Context (DB call - should be Edge compatible if using fetch/AWS SDK v3 lightweight)
-        // Ensure executeTool doesn't use incompatible Node APIs
-        const context = await executeTool("get_canvas_context", { systemId }, token.email);
-        
-        const systemPrompt = `
-You are an advanced software architect AI. You are helping a user design a software system.
-Current Context:
-${JSON.stringify(context.productClarity, null, 2)}
-
-Your goal is to help the user refine their product clarity (Personas, Problems, Capabilities, Data, etc.).
-When the user provides input, analyze it and use the available tools to update the canvas.
-
-GUIDELINES:
-1. If the user's request is explicit and clear (e.g., "Add a User persona"), use the 'propose_clarity_update' tool with 'requiresConfirmation: false'.
-2. If you are inferring something new or suggesting a complex change that the user didn't explicitly ask for, use 'propose_clarity_update' with 'requiresConfirmation: true'.
-3. Always provide a brief reasoning for your actions in the tool call or your response text.
-4. Maintain the existing structure of the canvas. Do not remove existing items unless asked.
-5. If creating a new persona, try to link it to potential problems or capabilities.
-`;
+        // Save User Message synchronously before streaming
+        const lastUserMessage = { role: 'user' as const, content: await req.text() };
+        await docClient.send(new UpdateCommand({
+            TableName: "QlarifyCore",
+            Key: { PK: `USER#${token.email}`, SK: `SYSTEM#${systemId}` },
+            UpdateExpression: "SET messages = list_append(if_not_exists(messages, :empty_list), :msg)",
+            ExpressionAttributeValues: {
+                ":msg": [{ ...lastUserMessage, timestamp: Date.now() }],
+                ":empty_list": []
+            }
+        }));
 
         const encoder = new TextEncoder();
         const tools = mcpManifest.tools.map(t => ({
@@ -67,7 +49,7 @@ GUIDELINES:
         const stream = new ReadableStream({
             async start(controller) {
                 const sendEvent = (data: any) => {
-                     controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
                 };
                 
                 let accumulatedAiResponse = "";
@@ -76,8 +58,8 @@ GUIDELINES:
                     const response = await openai.chat.completions.create({
                         model: "gpt-4o",
                         messages: [
-                            { role: "system", content: systemPrompt },
-                            ...messages
+                            { role: "system", content: PRODUCT_CLARITY_ORCHESTRATOR_PROMPT },
+                            lastUserMessage
                         ],
                         tools: tools,
                         tool_choice: "auto",

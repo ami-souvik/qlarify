@@ -52,20 +52,6 @@ function ArchitectureWorkspace() {
             <TopBar onDelete={handleDelete} />
 
             <div className={`flex flex-1 overflow-hidden flex-row`}>
-                {/* Side Panel: Explorer or Reasoning depending on mode */}
-                {
-                    state.mode === 'ARCHITECTURE' && (
-                        <aside className="w-80 border-r border-[#EEE9E2] bg-white flex flex-col z-10 shadow-xl shadow-orange-900/5">
-                            <div className="px-6 py-2.5 border-b border-[#EEE9E2] flex items-center justify-between bg-ivory/50">
-                                <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">System Explorer</h2>
-                            </div>
-                            <div className="flex-1 overflow-y-auto scrollbar-hide py-4">
-                                <SystemMap />
-                            </div>
-                        </aside>
-                    )
-                }
-
                 {/* Main Content Area */}
                 <main className="flex flex-1 flex-col relative overflow-hidden bg-white/20">
                     {
