@@ -111,7 +111,7 @@ export default function BlogIndex() {
                         <Link href="/privacy" className="hover:text-terracotta transition-colors">Privacy</Link>
                         <Link href="#" className="hover:text-terracotta transition-colors">Terms</Link>
                         <Link href="/blog" className="hover:text-terracotta transition-colors">Blog</Link>
-                        <Link href="https://discord.gg/852AQe22" target="_blank" className="hover:text-terracotta transition-colors">Discord</Link>
+                        <Link href="https://discord.gg/jDPw4mfKYn" target="_blank" className="hover:text-terracotta transition-colors">Discord</Link>
                     </div>
                     <div className="text-xs font-bold opacity-50">
                         © 2026 Qlarify AI. All rights reserved.

@@ -32,16 +32,9 @@ export default function ArchitecturePage() {
         if (!projectIdea.trim() || isGenerating) return;
         setIsGenerating(true);
         try {
-            const res = await fetch('/api/systems', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    overview: projectIdea,
-                    title: projectIdea.substring(0, 30) + (projectIdea.length > 30 ? "..." : "")
-                })
-            });
-
-            const data = await res.json();
+            const data = await axios.post('/api/systems', {
+                title: projectIdea
+            }).then((res) => res.data);
 
             if (data.systemId) {
                 router.push(`/app/${data.systemId}`);

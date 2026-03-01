@@ -1,4 +1,4 @@
-import { getToken } from "next-auth/jwt";
+
 import OpenAI from "openai";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/db";
@@ -11,28 +11,35 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: NextRequest) {
+export async function POST(
+    req: NextRequest,
+    { params }: { params: Promise<{ systemId: string }> }
+) {
     try {
-        const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET });
-        if (!token?.email) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-        }
+        const userEmail = req.headers.get("x-user-email");
         
-        const systemId = req.nextUrl.searchParams.get("systemId");
+        const { systemId } = await params;
         if(!systemId) {
             return new Response(JSON.stringify({ error: "System ID is required" }), { status: 400 });
         }
 
         // Save User Message synchronously before streaming
         const lastUserMessage = { role: 'user' as const, content: await req.text() };
-        await docClient.send(new UpdateCommand({
+        const updateResult = await docClient.send(new UpdateCommand({
             TableName: "QlarifyCore",
-            Key: { PK: `USER#${token.email}`, SK: `SYSTEM#${systemId}` },
+            Key: { PK: `USER#${userEmail}`, SK: `SYSTEM#${systemId}` },
             UpdateExpression: "SET messages = list_append(if_not_exists(messages, :empty_list), :msg)",
             ExpressionAttributeValues: {
                 ":msg": [{ ...lastUserMessage, timestamp: Date.now() }],
                 ":empty_list": []
-            }
+            },
+            ReturnValues: "ALL_NEW"
+        }));
+
+        const messages = updateResult.Attributes?.messages || [{ ...lastUserMessage }];
+        const formattedInput = messages.map((m: any) => ({
+            role: m.role,
+            content: m.content
         }));
 
         const encoder = new TextEncoder();
@@ -51,12 +58,10 @@ export async function POST(req: NextRequest) {
                         instructions: `
                         ${PRODUCT_CLARITY_ORCHESTRATOR_PROMPT}
                         Here's some information:
-                        User ID: ${token.email}
+                        User ID: ${userEmail}
                         System ID: ${systemId}
                         `,
-                        input: [
-                            lastUserMessage
-                        ],
+                        input: formattedInput,
                         tools: [
                             {
                                 type: "mcp",
@@ -101,7 +106,7 @@ export async function POST(req: NextRequest) {
                     if (accumulatedAiResponse) {
                         await docClient.send(new UpdateCommand({
                             TableName: "QlarifyCore",
-                            Key: { PK: `USER#${token.email}`, SK: `SYSTEM#${systemId}` },
+                            Key: { PK: `USER#${userEmail}`, SK: `SYSTEM#${systemId}` },
                             UpdateExpression: "SET messages = list_append(if_not_exists(messages, :empty_list), :msg)",
                             ExpressionAttributeValues: {
                                 ":msg": [{ role: 'assistant', content: accumulatedAiResponse, timestamp: Date.now() }],

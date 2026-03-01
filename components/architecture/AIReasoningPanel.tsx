@@ -1,10 +1,11 @@
 "use client";
 
+import axios from 'axios';
 import React, { useState } from 'react';
 import { Sparkles, MessageSquare, Check, X, RefreshCw, Send, BrainCircuit, History, Users, ArrowRight } from 'lucide-react';
-import { useArchitecture } from '@/context/ArchitectureContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams } from 'next/navigation';
+import { useArchitecture } from '@/context/ArchitectureContext';
 import { ProductClarity } from '@/types/architecture';
 
 interface Suggestion {
@@ -74,7 +75,7 @@ export function AIReasoningPanel() {
 
     const performReasoningRequest = async (messageBody: string) => {
         try {
-            const response = await fetch(`/api/reasoning?systemId=${systemId}`, {
+            const response = await fetch(`/api/reasoning/${systemId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: messageBody
@@ -131,15 +132,6 @@ export function AIReasoningPanel() {
                                 ]);
                             }
 
-                            if (data.type === 'refresh' || data.requiresRefresh) {
-                                setStatus({ message: "Updating canvas...", tool: "refresh" });
-                                const res = await fetch(`/api/systems/${systemId}`);
-                                const sysData = await res.json();
-                                if (sysData.system) {
-                                    hydrateProject(sysData.system.nodes?.[0] || null, sysData.system.productClarity, sysData.system.messages, sysData.system.logs);
-                                }
-                            }
-
                             if (data.error) {
                                 console.error("Stream Error:", data.error);
                                 setStatus({ message: "Error: " + data.error, tool: "error" });
@@ -156,6 +148,11 @@ export function AIReasoningPanel() {
             console.error(error);
             setStatus({ message: "Error processing request", tool: "error" });
         } finally {
+            setStatus({ message: "Updating canvas...", tool: "refresh" });
+            const res = await axios.get(`/api/systems/${systemId}`);
+            if (res.data.system) {
+                hydrateProject(res.data.system.nodes?.[0] || null, res.data.system.productClarity, res.data.system.messages, res.data.system.logs);
+            }
             setIsSending(false);
             setIsGenerating(false);
             setStatus(null);

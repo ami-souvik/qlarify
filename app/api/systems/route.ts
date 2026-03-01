@@ -13,10 +13,10 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { title, overview } = body;
+        const { title } = body;
 
-        if (!overview) {
-            return NextResponse.json({ error: "Overview is required" }, { status: 400 });
+        if (!title) {
+            return NextResponse.json({ error: "Title is required" }, { status: 400 });
         }
 
         const email = session.user.email;
@@ -24,15 +24,13 @@ export async function POST(req: Request) {
         const timestamp = new Date().toISOString();
 
         const productClarity = {
-            overview: overview,
-            personas: [],
-            problems: [],
-            capabilities: [],
-            dataInputs: [],
-            dataOutputs: [],
-            externalSystems: [],
-            constraints: [],
-            nonFunctionalRequirements: []
+            overview: '',
+            problemStatements: '',
+            targetPersonas: '',
+            coreCapabilities: '',
+            dataInputsOutputs: '',
+            externalSystems: '',
+            constraints: ''
         };
 
         const item = {
@@ -41,9 +39,9 @@ export async function POST(req: Request) {
             id: systemId,
             type: 'system',
             status: 'clarification',
-            title: (title || (overview.substring(0, 30) + (overview.length > 30 ? "..." : ""))) || "New System",
-            description: overview,
-            productClarity: productClarity,
+            title: title,
+            description: '',
+            productClarity,
             nodes: [],
             messages: body.messages || [],
             logs: [],

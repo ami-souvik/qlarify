@@ -15,7 +15,8 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
 
   try {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const userEmail = req.headers.get("x-user-email");
+
     const body = await req.json();
     const { intent, level, user_input, context_node_id, current_architecture_context } = body;
 
@@ -89,9 +90,8 @@ export async function POST(req: NextRequest) {
                     sendEvent({ error: "Failed to parse generated architecture" });
                 }
 
-                if (token?.email && jsonResponse.architecture_node) {
+                if (userEmail && jsonResponse.architecture_node) {
                     try {
-                        const email = token.email;
                         const systemId = crypto.randomUUID();
                         const timestamp = new Date().toISOString();
                         const root = jsonResponse.architecture_node;
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
                         };
                         
                         const item = {
-                            PK: `USER#${email}`,
+                            PK: `USER#${userEmail}`,
                             SK: `SYSTEM#${systemId}`,
                             id: systemId,
                             type: 'system',
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
                             updatedAt: timestamp
                         };
             
-                        const repo = new SystemRepository(email);
+                        const repo = new SystemRepository(userEmail);
                         await repo.saveSystem(item);
             
                         // Send the system ID event
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
                         console.error("Failed to save architecture to DynamoDB:", dbError);
                         sendEvent({ error: "Failed to save system" });
                     }
-                } else if (!token?.email) {
+                } else if (!userEmail) {
                     console.log("No user session, skipping save");
                 }
 

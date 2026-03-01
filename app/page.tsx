@@ -240,7 +240,7 @@ export default function Home() {
             </p>
             <div className="pt-6">
               <Link
-                href="https://discord.gg/852AQe22"
+                href="https://discord.gg/jDPw4mfKYn"
                 target="_blank"
                 className="inline-flex items-center gap-3 bg-white text-[#1A1A1A] px-12 py-5 rounded-3xl text-xl font-black hover:bg-orange-50 transition-all hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:-translate-y-1 group"
               >
@@ -266,7 +266,7 @@ export default function Home() {
             <Link href="/privacy" className="hover:text-[#D97757] transition-colors">Privacy</Link>
             <Link href="#" className="hover:text-[#D97757] transition-colors">Terms</Link>
             <Link href="/blog" className="hover:text-[#D97757] transition-colors">Blog</Link>
-            <Link href="https://discord.gg/852AQe22" target="_blank" className="hover:text-[#D97757] transition-colors inline-flex items-center gap-2">Discord</Link>
+            <Link href="https://discord.gg/jDPw4mfKYn" target="_blank" className="hover:text-[#D97757] transition-colors inline-flex items-center gap-2">Discord</Link>
           </div>
 
           <div className="text-xs font-bold text-slate-400">
