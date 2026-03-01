@@ -1,5 +1,4 @@
 import { getToken } from "next-auth/jwt";
-import { executeTool, mcpManifest } from "@/lib/mcp";
 import OpenAI from "openai";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/db";
@@ -37,14 +36,6 @@ export async function POST(req: NextRequest) {
         }));
 
         const encoder = new TextEncoder();
-        const tools = mcpManifest.tools.map(t => ({
-                type: "function" as const,
-                function: {
-                    name: t.name,
-                    description: t.description,
-                    parameters: t.input_schema
-                }
-        }));
 
         const stream = new ReadableStream({
             async start(controller) {
@@ -55,45 +46,57 @@ export async function POST(req: NextRequest) {
                 let accumulatedAiResponse = "";
 
                 try {
-                    const response = await openai.chat.completions.create({
+                    const responseStream = openai.responses.stream({
                         model: "gpt-4o",
-                        messages: [
-                            { role: "system", content: PRODUCT_CLARITY_ORCHESTRATOR_PROMPT },
+                        instructions: `
+                        ${PRODUCT_CLARITY_ORCHESTRATOR_PROMPT}
+                        Here's some information:
+                        User ID: ${token.email}
+                        System ID: ${systemId}
+                        `,
+                        input: [
                             lastUserMessage
                         ],
-                        tools: tools,
-                        tool_choice: "auto",
-                        stream: true
+                        tools: [
+                            {
+                                type: "mcp",
+                                server_label: "qlarify-mcp",
+                                server_url: process.env.MCP_SERVER_URL,
+                                require_approval: "never",
+                            }
+                        ]
+                    });
+                    
+                    responseStream.on('response.output_item.added', (event) => {
+                        console.log('Output Item Added: ', event);
+                        
+                        const item = event.item;
+
+                        if (item.type === "mcp_call" || item.type === "function_call") {
+                            console.log("🔧 Tool Selected:", item.name);
+                            console.log("Arguments:", item.arguments);
+                        }
                     });
 
-                    let finalToolCalls: any = {};
+                    // 🔹 When tool execution is completed
+                    responseStream.on('response.output_item.done', (event) => {
+                        console.log('Output Item Done: ', event);
 
-                    for await (const chunk of response) {
-                        const delta = chunk.choices[0]?.delta;
-                        
-                        // Streaming Text Reasoning
-                        if (delta?.content) {
-                            accumulatedAiResponse += delta.content;
-                            sendEvent({ type: "reasoning", text: delta.content });
+                        const item = event.item;
+
+                        if (item.type === "mcp_call" || item.type === "function_call") {
+                            console.log("✅ Tool Finished:", item.name);
+                            console.log("Result:", (item as any).output);
                         }
-                        
-                        // Accumulate Tool Calls
-                        if (delta?.tool_calls) {
-                             for (const toolCall of delta.tool_calls) {
-                                const index = toolCall.index;
-                                if (!finalToolCalls[index]) {
-                                    finalToolCalls[index] = {
-                                        id: toolCall.id,
-                                        function: { name: toolCall.function?.name, arguments: "" }
-                                    };
-                                }
-                                if (toolCall.function?.arguments) {
-                                    finalToolCalls[index].function.arguments += toolCall.function.arguments;
-                                }
-                            }
-                        }
-                    }
-                    
+                    });
+
+                    responseStream.on('response.output_text.delta', (event) => {
+                        accumulatedAiResponse += event.delta;
+                        sendEvent({ type: "reasoning", text: event.delta });
+                    });
+
+                    const finalResponse = await responseStream.finalResponse();
+                    // console.log('Final Response: ', finalResponse);
                     // Save Assistant Message
                     if (accumulatedAiResponse) {
                         await docClient.send(new UpdateCommand({
@@ -105,38 +108,6 @@ export async function POST(req: NextRequest) {
                                 ":empty_list": []
                             }
                         }));
-                    }
-                    
-                    // Execute Tools
-                    const toolCallsArray = Object.values(finalToolCalls);
-                    if (toolCallsArray.length > 0) {
-                         for (const toolCall of toolCallsArray as any[]) {
-                            const functionName = toolCall.function.name;
-                            const argsJson = toolCall.function.arguments;
-                            let args: any = {};
-                            try {
-                                args = JSON.parse(argsJson);
-                            } catch (e) {
-                                console.error("Failed to parse tool args", e);
-                                sendEvent({ error: "Failed to parse tool arguments" });
-                                continue;
-                            }
-
-                            if (!args.systemId) args.systemId = systemId;
-
-                            if (functionName === "propose_clarity_update") {
-                                // Execute Tool
-                                const result = await executeTool(functionName, args, token.email!);
-                                
-                                if (result.status === "proposal_created") {
-                                    const proposal = result.proposal;
-                                    if (args.reasoning) (proposal as any).reasoning = args.reasoning;
-                                    sendEvent({ type: "proposal", proposal });
-                                } else if (result.status === "success") {
-                                    sendEvent({ type: "refresh", requiresRefresh: true });
-                                }
-                            }
-                         }
                     }
 
                     controller.enqueue(encoder.encode("data: [DONE]\n\n"));

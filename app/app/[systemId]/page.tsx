@@ -22,11 +22,10 @@ export default function SystemDetailPage() {
             try {
                 const res = await axios.get(`/api/systems/${systemId}`);
                 const { system } = res.data;
-
+                console.log('System: ', system);
                 if (system) {
                     const rootNode = system.nodes && system.nodes.length > 0 ? system.nodes[0] : null;
                     const productClarity = system.productClarity || null;
-
                     const messages = system.messages || [];
                     const logs = system.logs || [];
 

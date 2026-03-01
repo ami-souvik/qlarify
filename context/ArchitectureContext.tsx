@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { ArchitectureNode, ArchitectureState, VisualNode, VisualEdge, ProductClarity, AppMode } from '@/types/architecture';
 
 interface ArchitectureContextType {
