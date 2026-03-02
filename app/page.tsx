@@ -37,11 +37,42 @@ function FloatingCard({ icon, title, description, delay, className }: { icon: Re
   );
 }
 
-export default function Home() {
+function IdeaInput() {
   const [projectIdea, setProjectIdea] = useState('')
-
   const handleSignIn = () => { }
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-orange-900/5 border border-orange-100 max-w-3xl mx-auto"
+    >
+      <div className="flex flex-wrap gap-3 mb-4 px-2 pt-2">
+        <FeatureIcon icon={<Layout size={14} />} label="DDD Domains" />
+        <FeatureIcon icon={<Layers size={14} />} label="Service Map" />
+        <FeatureIcon icon={<Database size={14} />} label="Canonical Model" />
+      </div>
 
+      <div className="relative group">
+        <textarea
+          value={projectIdea}
+          onChange={(e) => setProjectIdea(e.target.value)}
+          placeholder="Describe your system (e.g., 'A fintech platform with real-time fraud detection and multi-currency support'...)"
+          className="w-full h-64 rounded-3xl border-none bg-slate-50/70 p-4 text-lg focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all resize-none shadow-inner"
+        />
+        <button
+          onClick={handleSignIn}
+          disabled={!projectIdea.trim()}
+          className="absolute bottom-6 right-6 bg-[#1A1A1A] hover:bg-[#D97757] text-white rounded-2xl px-8 py-4 font-bold flex items-center gap-3 transition-all transform active:scale-95 hover:shadow-2xl disabled:opacity-30 group"
+        >
+          Qlarify System <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
+export default function Home() {
   return (
     <div className="min-h-screen bg-ivory text-charcoal font-sans relative overflow-x-hidden">
       {/* Dot Grid Background */}
@@ -115,34 +146,14 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-orange-900/5 border border-orange-100 max-w-3xl mx-auto"
+          {/* <IdeaInput /> */}
+          <Link
+            href="https://discord.gg/jDPw4mfKYn"
+            target="_blank"
+            className="inline-flex items-center gap-3 bg-terracotta text-white px-12 py-5 rounded-3xl text-xl font-black hover:bg-terracotta/80 transition-all hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:-translate-y-1 group"
           >
-            <div className="flex flex-wrap gap-3 mb-4 px-2 pt-2">
-              <FeatureIcon icon={<Layout size={14} />} label="DDD Domains" />
-              <FeatureIcon icon={<Layers size={14} />} label="Service Map" />
-              <FeatureIcon icon={<Database size={14} />} label="Canonical Model" />
-            </div>
-
-            <div className="relative group">
-              <textarea
-                value={projectIdea}
-                onChange={(e) => setProjectIdea(e.target.value)}
-                placeholder="Describe your system (e.g., 'A fintech platform with real-time fraud detection and multi-currency support'...)"
-                className="w-full h-64 rounded-3xl border-none bg-slate-50/70 p-4 text-lg focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all resize-none shadow-inner"
-              />
-              <button
-                onClick={handleSignIn}
-                disabled={!projectIdea.trim()}
-                className="absolute bottom-6 right-6 bg-[#1A1A1A] hover:bg-[#D97757] text-white rounded-2xl px-8 py-4 font-bold flex items-center gap-3 transition-all transform active:scale-95 hover:shadow-2xl disabled:opacity-30 group"
-              >
-                Qlarify System <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </motion.div>
+            Join our Discord <Share2 size={24} className="group-hover:rotate-12 transition-transform" />
+          </Link>
         </div>
       </div>
 

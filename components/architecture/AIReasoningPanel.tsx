@@ -161,7 +161,7 @@ export function AIReasoningPanel() {
 
     // Auto-trigger initial reasoning for new projects
     React.useEffect(() => {
-        const hasModels = (state.productClarity?.personas?.length || 0) > 0 || (state.productClarity?.capabilities?.length || 0) > 0;
+        const hasModels = (state.productClarity?.targetPersonas?.length || 0) > 0 || (state.productClarity?.coreCapabilities?.length || 0) > 0;
         if (state.productClarity?.overview && !hasModels && messages.length === 0 && !status && (!state.messages || state.messages.length === 1) && !isGenerating) {
             // Add optimistic message
             setIsGenerating(true);

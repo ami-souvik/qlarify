@@ -12,7 +12,8 @@ import {
     Globe,
     Maximize2
 } from 'lucide-react';
-import { Persona, ProductClarityTodos, ProductClarity } from '@/types/architecture';
+import { ProductClarityTodos } from '@/types/architecture';
+import ReactMarkdown from 'react-markdown';
 import { ClarityDomainService } from '@/lib/modeling/engine';
 
 export function ProductClarityCanvas() {
@@ -39,56 +40,49 @@ export function ProductClarityCanvas() {
             title: "Product Overview",
             icon: <FileText size={18} />,
             content: productClarity.overview,
-            type: 'text',
             todoIds: ['overview']
         },
         {
-            id: 'personas',
+            id: 'targetPersonas',
             title: "Target Personas",
             icon: <Users size={18} />,
-            items: productClarity.personas,
-            type: 'personas',
-            todoIds: ['personas']
+            content: productClarity.targetPersonas || '',
+            todoIds: ['targetPersonas']
         },
         {
-            id: 'problems',
+            id: 'problemStatements',
             title: "Problem Statements",
             icon: <AlertCircle size={18} />,
-            items: productClarity.problems,
-            type: 'list',
-            todoIds: ['problems']
+            content: productClarity.problemStatements || '',
+            todoIds: ['problemStatements']
         },
         {
-            id: 'capabilities',
+            id: 'coreCapabilities',
             title: "Core Capabilities",
             icon: <Zap size={18} />,
-            items: productClarity.capabilities,
-            type: 'list',
-            todoIds: ['capabilities']
+            content: productClarity.coreCapabilities || '',
+            todoIds: ['coreCapabilities']
         },
         {
-            id: 'dataInputs',
+            id: 'dataInputsOutputs',
             title: "Data Inputs & Outputs",
             icon: <Database size={18} />,
-            items: [...(productClarity.dataInputs || []).map(i => `Input: ${i}`), ...(productClarity.dataOutputs || []).map(o => `Output: ${o}`)],
-            type: 'list',
-            todoIds: ['dataInputs', 'dataOutputs']
+            content: productClarity.dataInputsOutputs || '',
+            todoIds: ['dataInputsOutputs']
         },
         {
             id: 'externalSystems',
             title: "External Systems",
             icon: <Globe size={18} />,
-            items: productClarity.externalSystems || [],
-            type: 'list',
+            content: productClarity.externalSystems || '',
             todoIds: ['externalSystems']
         },
         {
             id: 'constraints',
             title: "Constraints & NFRs",
             icon: <ShieldAlert size={18} />,
-            items: [...(productClarity.constraints || []), ...(productClarity.nonFunctionalRequirements || [])],
-            type: 'list',
-            todoIds: ['constraints', 'nonFunctionalRequirements']
+            content: productClarity.constraints || '',
+            todoIds: ['constraints']
         }
     ];
 
@@ -142,66 +136,20 @@ export function ProductClarityCanvas() {
                                         <Maximize2 size={14} />
                                     </button>
                                 </div>
-                                <div className="px-4 py-3 flex-1">
-                                    {section.type === 'text' && (
-                                        <div className="space-y-3">
-                                            <p className="text-sm text-slate-600 leading-relaxed font-medium capitalize">
-                                                {section.content}
-                                            </p>
-                                            {/* Render Text Todos */}
-                                            {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
-                                                <div key={i} className="flex gap-3 items-center p-2.5 bg-orange-50/30 rounded-xl border border-dashed border-orange-200/50">
-                                                    <div className="w-4 h-4 rounded border-2 border-orange-200 shrink-0" />
-                                                    <span className="text-[11px] text-slate-400 font-bold italic tracking-tight">{todo}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {section.type === 'list' && (
-                                        <ul className="space-y-2.5">
-                                            {(section.items as string[])?.map((item, i) => (
-                                                <li key={i} className="flex gap-3 text-sm text-slate-600 font-medium leading-tight">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-200 mt-1.5 flex-shrink-0" />
-                                                    {item}
-                                                </li>
-                                            ))}
-                                            {/* Render List Todos */}
-                                            {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
-                                                <li key={`todo-${i}`} className="flex gap-3 items-center py-1 group">
-                                                    <div className="w-4 h-4 rounded border-2 border-orange-200 group-hover:border-terracotta transition-colors shrink-0 flex items-center justify-center">
-                                                        <div className="w-1 h-1 rounded-full bg-terracotta/20" />
-                                                    </div>
-                                                    <span className="text-[11px] text-slate-400 font-bold italic tracking-tight">{todo}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                    {section.type === 'personas' && (
-                                        <div className="space-y-4">
-                                            {(section.items as Persona[])?.map((persona, i) => (
-                                                <div key={i} className="bg-ivory/50 rounded-2xl p-4 border border-[#EEE9E2]/50">
-                                                    <h3 className="text-xs font-black text-charcoal uppercase tracking-wider mb-1">{persona.name}</h3>
-                                                    <p className="text-[10px] font-bold text-terracotta uppercase mb-2">{persona.role}</p>
-                                                    <div className="flex flex-wrap gap-1.5">
-                                                        {persona.goals?.map((goal: string, gi: number) => (
-                                                            <span key={gi} className="text-[9px] bg-white px-2 py-0.5 rounded-full border border-orange-100 text-slate-500 font-bold">
-                                                                {goal}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {/* Render Persona Todos */}
-                                            {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
-                                                <div key={`todo-${i}`} className="flex gap-3 items-center p-3 bg-orange-50/30 rounded-2xl border border-dashed border-orange-200/50">
-                                                    <div className="w-5 h-5 rounded-lg border-2 border-orange-200 shrink-0 flex items-center justify-center">
-                                                        <Users size={12} className="text-orange-200" />
-                                                    </div>
-                                                    <span className="text-[11px] text-slate-400 font-bold italic tracking-tight">{todo}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                <div className="px-4 py-3 flex-1 flex flex-col gap-4">
+                                    <div className="prose prose-sm prose-slate max-w-none prose-headings:font-bold prose-headings:text-charcoal prose-p:text-slate-600">
+                                        <ReactMarkdown>{section.content}</ReactMarkdown>
+                                    </div>
+
+                                    {/* Render Todos */}
+                                    <div className="space-y-2 mt-auto">
+                                        {section.todoIds.flatMap(todoId => productClarity.todos?.[todoId as keyof ProductClarityTodos] || []).map((todo, i) => (
+                                            <div key={i} className="flex gap-3 items-center p-2.5 bg-orange-50/30 rounded-xl border border-dashed border-orange-200/50">
+                                                <div className="w-4 h-4 rounded border-2 border-orange-200 shrink-0" />
+                                                <span className="text-[11px] text-slate-400 font-bold italic tracking-tight">{todo}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}

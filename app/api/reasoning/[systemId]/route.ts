@@ -17,6 +17,8 @@ export async function POST(
 ) {
     try {
         const userEmail = req.headers.get("x-user-email");
+        console.log(req.headers);
+        console.log('User Email:', userEmail);
         
         const { systemId } = await params;
         if(!systemId) {
@@ -73,8 +75,6 @@ export async function POST(
                     });
                     
                     responseStream.on('response.output_item.added', (event) => {
-                        console.log('Output Item Added: ', event);
-                        
                         const item = event.item;
 
                         if (item.type === "mcp_call" || item.type === "function_call") {
@@ -85,8 +85,6 @@ export async function POST(
 
                     // 🔹 When tool execution is completed
                     responseStream.on('response.output_item.done', (event) => {
-                        console.log('Output Item Done: ', event);
-
                         const item = event.item;
 
                         if (item.type === "mcp_call" || item.type === "function_call") {

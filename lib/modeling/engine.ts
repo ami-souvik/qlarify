@@ -11,24 +11,24 @@ export class ClarityDomainService {
     ): ClarityScore {
         const missingRequirements: string[] = [];
 
-        if ((clarity.personas?.length || 0) < thresholds.minPersonas) {
-            missingRequirements.push(`${thresholds.minPersonas}+ Persona`);
+        if ((clarity.targetPersonas?.length || 0) < thresholds.minPersonas * 20) {
+            missingRequirements.push(`More Persona details`);
         }
-        if ((clarity.problems?.length || 0) < thresholds.minProblems) {
-            missingRequirements.push(`${thresholds.minProblems}+ Problem`);
+        if ((clarity.problemStatements?.length || 0) < thresholds.minProblems * 20) {
+            missingRequirements.push(`More Problem details`);
         }
-        if ((clarity.capabilities?.length || 0) < thresholds.minCapabilities) {
-            missingRequirements.push(`${thresholds.minCapabilities}+ Capabilities`);
+        if ((clarity.coreCapabilities?.length || 0) < thresholds.minCapabilities * 10) {
+            missingRequirements.push(`More Capabilities`);
         }
         
-        const dataPointCount = (clarity.dataInputs?.length || 0) + (clarity.dataOutputs?.length || 0);
-        if (dataPointCount < thresholds.minDataPoints) {
-            missingRequirements.push(`${thresholds.minDataPoints}+ Data Point (Input/Output)`);
+        const dataPointCount = clarity.dataInputsOutputs?.length || 0;
+        if (dataPointCount < thresholds.minDataPoints * 10) {
+            missingRequirements.push(`More Data Points (Input/Output)`);
         }
 
-        const constraintCount = (clarity.constraints?.length || 0) + (clarity.nonFunctionalRequirements?.length || 0);
-        if (constraintCount < thresholds.minConstraints) {
-            missingRequirements.push(`${thresholds.minConstraints}+ Constraint/NFR`);
+        const constraintCount = clarity.constraints?.length || 0;
+        if (constraintCount < thresholds.minConstraints * 10) {
+            missingRequirements.push(`More Constraints/NFRs`);
         }
 
         return {

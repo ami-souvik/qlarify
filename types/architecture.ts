@@ -15,27 +15,23 @@ export interface Persona {
 
 export interface ProductClarityTodos {
   overview?: string[];
-  personas?: string[];
-  problems?: string[];
-  capabilities?: string[];
-  dataInputs?: string[];
-  dataOutputs?: string[];
+  targetPersonas?: string[];
+  problemStatements?: string[];
+  coreCapabilities?: string[];
+  dataInputsOutputs?: string[];
   externalSystems?: string[];
   constraints?: string[];
-  nonFunctionalRequirements?: string[];
   [key: string]: string[] | undefined;
 }
 
 export interface ProductClarity {
   overview: string;
-  personas: Persona[];
-  problems: string[];
-  capabilities: string[];
-  dataInputs: string[];
-  dataOutputs: string[];
-  externalSystems: string[];
-  constraints: string[];
-  nonFunctionalRequirements: string[];
+  targetPersonas: string;
+  problemStatements: string;
+  coreCapabilities: string;
+  dataInputsOutputs: string;
+  externalSystems: string;
+  constraints: string;
   todos?: ProductClarityTodos;
 }
 

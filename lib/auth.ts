@@ -1,9 +1,9 @@
 
+import crypto from 'crypto';
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import CognitoProvider from "next-auth/providers/cognito";
 import { CognitoIdentityProviderClient, InitiateAuthCommand, RespondToAuthChallengeCommand, GetUserCommand } from "@aws-sdk/client-cognito-identity-provider";
-import crypto from 'crypto';
 
 function calculateSecretHash(username: string, clientId: string, clientSecret: string) {
     return crypto.createHmac('sha256', clientSecret)

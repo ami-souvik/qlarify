@@ -1,23 +1,16 @@
 import { getToken } from 'next-auth/jwt';
 import { NextResponse, NextRequest } from 'next/server';
 
-export async function proxy(request: NextRequest) {
-    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
-    
+export default async function proxy(req: NextRequest) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     if (!token?.email) {
         return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-email', token.email);
-
+    const headers = new Headers(req.headers);
+    headers.set('x-user-email', token.email);
+    headers.set('x-user-id', token.sub!);
     return NextResponse.next({
-        request: {
-            headers: requestHeaders,
-        },
+        request: { headers },
     });
 }
-
-export const config = {
-    matcher: '/api/:path',
-};
