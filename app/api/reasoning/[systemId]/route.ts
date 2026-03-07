@@ -46,7 +46,6 @@ export async function POST(
         }));
 
         const encoder = new TextEncoder();
-
         const stream = new ReadableStream({
             async start(controller) {
                 const sendEvent = (data: any) => {
@@ -59,8 +58,8 @@ export async function POST(
                     const responseStream = openai.responses.stream({
                         model: "gpt-4o",
                         instructions: `
-                        ${IDEA_AGENT_PROMPT}
-                        System ID: ${systemId}
+                            ${IDEA_AGENT_PROMPT}
+                            System Id: ${systemId}
                         `,
                         input: formattedInput,
                         tools: [
@@ -68,11 +67,10 @@ export async function POST(
                                 type: "mcp",
                                 server_label: "qlarify-mcp",
                                 server_url: process.env.MCP_SERVER_URL || "",
-                                require_approval: "always",
-                                authorization: `Bearer ${process.env.MCP_SERVER_TOKEN}`,
+                                require_approval: "never",
                                 headers: {
-                                    "x-user-email": userEmail,
-                                    "x-system-id": systemId
+                                    "Authorization": `Bearer ${process.env.MCP_SERVER_TOKEN}`,
+                                    "x-user-email": userEmail
                                 }
                             }
                         ]
@@ -93,6 +91,7 @@ export async function POST(
 
                         if (item.type === "mcp_call" || item.type === "function_call") {
                             console.log("✅ Tool Finished:", item.name);
+                            console.log("Arguments:", item.arguments);
                             console.log("Result:", (item as any).output);
                         }
                     });

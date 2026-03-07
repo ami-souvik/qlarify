@@ -14,7 +14,7 @@ import { ProductClarity } from '@/types/architecture';
 export function ProductClarityCanvas() {
     const { state, setMode } = useArchitecture();
     const { canvas } = state;
-    console.log(canvas);
+
     if (!canvas) {
         return (
             <div className="flex-1 flex items-center justify-center p-12">

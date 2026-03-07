@@ -133,6 +133,10 @@ Always call canvas_view before making updates.
 
 This ensures you preserve existing information.
 
+When calling canvas_edit you must provide:
+
+* system_id
+
 ---
 
 ## canvas_edit
@@ -148,7 +152,7 @@ Rules:
 
 When calling canvas_edit you must provide:
 
-* project_id
+* system_id
 * updated_canvas_markdown
 * change_summary
 
