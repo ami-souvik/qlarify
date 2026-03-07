@@ -23,16 +23,6 @@ export async function POST(req: Request) {
         const systemId = randomUUID();
         const timestamp = new Date().toISOString();
 
-        const productClarity = {
-            overview: '',
-            problemStatements: '',
-            targetPersonas: '',
-            coreCapabilities: '',
-            dataInputsOutputs: '',
-            externalSystems: '',
-            constraints: ''
-        };
-
         const item = {
             PK: `USER#${email}`,
             SK: `SYSTEM#${systemId}`,
@@ -41,7 +31,7 @@ export async function POST(req: Request) {
             status: 'clarification',
             title: title,
             description: '',
-            productClarity,
+            canvas: '',
             nodes: [],
             messages: body.messages || [],
             logs: [],

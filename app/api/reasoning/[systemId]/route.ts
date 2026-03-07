@@ -2,7 +2,7 @@
 import OpenAI from "openai";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/db";
-import { PRODUCT_CLARITY_ORCHESTRATOR_PROMPT } from '@/prompts';
+import { IDEA_AGENT_PROMPT } from '@/prompts';
 import { NextRequest } from "next/server";
 
 export const runtime = 'edge';
@@ -17,9 +17,10 @@ export async function POST(
 ) {
     try {
         const userEmail = req.headers.get("x-user-email");
-        console.log(req.headers);
-        console.log('User Email:', userEmail);
-        
+        if(!userEmail) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+        }
+
         const { systemId } = await params;
         if(!systemId) {
             return new Response(JSON.stringify({ error: "System ID is required" }), { status: 400 });
@@ -58,9 +59,7 @@ export async function POST(
                     const responseStream = openai.responses.stream({
                         model: "gpt-4o",
                         instructions: `
-                        ${PRODUCT_CLARITY_ORCHESTRATOR_PROMPT}
-                        Here's some information:
-                        User ID: ${userEmail}
+                        ${IDEA_AGENT_PROMPT}
                         System ID: ${systemId}
                         `,
                         input: formattedInput,
@@ -68,8 +67,13 @@ export async function POST(
                             {
                                 type: "mcp",
                                 server_label: "qlarify-mcp",
-                                server_url: process.env.MCP_SERVER_URL,
-                                require_approval: "never",
+                                server_url: process.env.MCP_SERVER_URL || "",
+                                require_approval: "always",
+                                authorization: `Bearer ${process.env.MCP_SERVER_TOKEN}`,
+                                headers: {
+                                    "x-user-email": userEmail,
+                                    "x-system-id": systemId
+                                }
                             }
                         ]
                     });

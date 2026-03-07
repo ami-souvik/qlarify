@@ -99,7 +99,8 @@ export interface SystemLog {
 // The root store state
 export interface ArchitectureState {
   mode: AppMode;
-  productClarity: ProductClarity | null;
+  title: string;
+  canvas: string | null;
   root: ArchitectureNode | null;
   activeNodeId: string | null;
   breadcrumbs: { id: string; name: string }[];

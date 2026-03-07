@@ -9,7 +9,6 @@ export default async function proxy(req: NextRequest) {
 
     const headers = new Headers(req.headers);
     headers.set('x-user-email', token.email);
-    headers.set('x-user-id', token.sub!);
     return NextResponse.next({
         request: { headers },
     });

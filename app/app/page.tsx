@@ -12,7 +12,7 @@ import LoggedInBadge from "@/components/LoggedInBadge";
 
 function FeatureIcon({ icon, label }: { icon: React.ReactNode, label: string }) {
     return (
-        <div className="flex items-center gap-3 bg-ivory px-4 py-2 rounded-2xl border border-[#EEE9E2] text-slate-500 hover:border-terracotta/30 transition-all cursor-default flex-shrink-0">
+        <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-xl border border-[#EEE9E2] text-slate-500 hover:border-terracotta/30 transition-all cursor-default flex-shrink-0">
             <div className="text-terracotta">{icon}</div>
             <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
         </div>
@@ -110,11 +110,11 @@ export default function ArchitecturePage() {
                                         </span>
                                     </div>
                                 </div>
-                                <p className="text-slate-500 text-lg font-medium">Design with precision. From Clarity to Structured Architecture.</p>
+                                <p className="text-slate-500 text-sm font-medium">Design with precision. From Clarity to Structured Architecture.</p>
                             </div>
 
-                            <div className="bg-white rounded-[2.5rem] p-2 shadow-2xl shadow-orange-900/10 border border-[#EEE9E2]">
-                                <div className="mt-2 mb-4 flex gap-4 px-4 overflow-x-auto scrollbar-hide">
+                            <div className="bg-white rounded-3xl p-2 shadow-2xl shadow-orange-900/10 border border-[#EEE9E2]">
+                                <div className="mt-2 mb-4 flex gap-2 px-2 overflow-x-auto scrollbar-hide">
                                     <FeatureIcon icon={<Layout size={14} />} label="Product Canvas" />
                                     <FeatureIcon icon={<Layers size={14} />} label="Graph Modeling" />
                                     <FeatureIcon icon={<Database size={14} />} label="Versioned Evolution" />
@@ -125,7 +125,7 @@ export default function ArchitecturePage() {
                                         value={projectIdea}
                                         onChange={(e) => setProjectIdea(e.target.value)}
                                         placeholder="Describe your idea or problem space..."
-                                        className="w-full h-72 rounded-[2rem] border-2 border-[#EEE9E2]/50 bg-ivory/50 p-4 text-lg font-medium focus:border-terracotta/30 focus:bg-white focus:ring-0 transition-all resize-none placeholder:text-slate-300"
+                                        className="w-full h-64 rounded-2xl border-2 border-[#EEE9E2]/50 bg-ivory/50 p-4 font-medium focus:border-terracotta/30 focus:bg-white focus:ring-0 transition-all resize-none placeholder:text-slate-300"
                                     />
                                     <button
                                         onClick={handleCreateProject}
@@ -184,13 +184,18 @@ export default function ArchitecturePage() {
                                                 }}
                                                 className="w-43 p-4 rounded-xl border border-[#EEE9E2] bg-white hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer flex flex-col gap-3 min-w-[200px]"
                                             >
-                                                <div>
+                                                <div className="flex flex-1 flex-col justify-between">
                                                     <h3 className="text-sm font-black text-charcoal hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
                                                         {system.title || "Untitled System"}
                                                     </h3>
-                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2">
-                                                        {new Date(system.updatedAt || Date.now()).toLocaleDateString()}
-                                                    </p>
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-charcoal hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
+                                                            Status: {system.status ?? "Blueprint Ready"}
+                                                        </h3>
+                                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">
+                                                            Created: {new Date(system.updatedAt || Date.now()).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </motion.div>
                                         ))}

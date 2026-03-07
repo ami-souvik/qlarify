@@ -22,7 +22,7 @@ export function TopBar({ onDelete }: { onDelete?: () => void }) {
                     </Link>
                     <div>
                         <h1 className="text-sm font-bold text-charcoal flex items-center gap-2 tracking-tight">
-                            {state.root?.name || (state.productClarity?.overview ? (state.productClarity.overview.substring(0, 60) + (state.productClarity.overview.length > 60 ? "..." : "")) : "Untitled Project")}
+                            {state.title || "Untitled Project"}
                         </h1>
                         <div className="flex items-center gap-2 text-[9px] text-slate-400 font-black uppercase tracking-widest">
                             <span>Last saved 2m ago</span>

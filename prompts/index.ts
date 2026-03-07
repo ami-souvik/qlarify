@@ -1,1 +1,1 @@
-export * from "./product-clarity-orchestrator";
+export * from "./idea-agent-prompt";

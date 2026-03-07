@@ -13,21 +13,6 @@ import { ProductClarityCanvas } from "@/components/architecture/ProductClarityCa
 
 function ArchitectureWorkspace() {
     const { state, resetProject } = useArchitecture();
-    const { productClarity } = state;
-
-    if (!productClarity) {
-        return (
-            <div className="flex-1 flex items-center justify-center p-12">
-                <div className="text-center max-w-md">
-                    <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        <FileText className="text-terracotta" size={32} />
-                    </div>
-                    <h3 className="text-xl font-black text-charcoal mb-2">Initialize Product Clarity</h3>
-                    <p className="text-slate-500 text-sm">Use the AI Chat on the right to start defining your product vision and constraints.</p>
-                </div>
-            </div>
-        );
-    }
 
     const router = useRouter();
     const params = useParams();

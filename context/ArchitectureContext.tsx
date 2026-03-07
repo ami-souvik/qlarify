@@ -5,9 +5,8 @@ import { ArchitectureNode, ArchitectureState, VisualNode, VisualEdge, ProductCla
 
 interface ArchitectureContextType {
     state: ArchitectureState;
-    loadProject: (rootNode: ArchitectureNode) => void;
-    hydrateProject: (rootNode: ArchitectureNode | null, clarity: ProductClarity | null, messages?: any[], logs?: any[]) => void;
-    setProductClarity: (clarity: ProductClarity) => void;
+    hydrateProject: (title: string, canvas: string | null, messages?: any[], logs?: any[]) => void;
+    setCanvas: (canvas: string) => void;
     setMode: (mode: AppMode) => void;
     zoomInto: (nodeId: string) => void;
     navigateBreadcrumb: (nodeId: string) => void;
@@ -23,7 +22,8 @@ const ArchitectureContext = createContext<ArchitectureContextType | undefined>(u
 export function ArchitectureProvider({ children }: { children: ReactNode }) {
     const [state, setState] = useState<ArchitectureState>({
         mode: 'PRODUCT_CLARITY',
-        productClarity: null,
+        title: 'Untitled System',
+        canvas: null,
         root: null,
         activeNodeId: null,
         breadcrumbs: [],
@@ -58,33 +58,20 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         return null;
     };
 
-    const loadProject = useCallback((rootNode: ArchitectureNode) => {
+    const hydrateProject = useCallback((title: string, canvas: string | null, messages: any[] = [], logs: any[] = []) => {
         setState(prev => ({
             ...prev,
-            root: rootNode,
-            activeNodeId: rootNode.id,
-            breadcrumbs: [{ id: rootNode.id, name: rootNode.name }],
-            mode: 'ARCHITECTURE'
-        }));
-    }, []);
-
-    const hydrateProject = useCallback((rootNode: ArchitectureNode | null, clarity: ProductClarity | null, messages: any[] = [], logs: any[] = []) => {
-        setState(prev => ({
-            ...prev,
-            root: rootNode,
-            productClarity: clarity,
-            activeNodeId: rootNode ? rootNode.id : null,
-            breadcrumbs: rootNode ? [{ id: rootNode.id, name: rootNode.name }] : [],
-            mode: rootNode ? 'ARCHITECTURE' : 'PRODUCT_CLARITY',
+            title,
+            canvas,
             messages: messages || [],
             logs: logs || []
         }));
     }, []);
 
-    const setProductClarity = useCallback((clarity: ProductClarity) => {
+    const setCanvas = useCallback((canvas: string) => {
         setState(prev => ({
             ...prev,
-            productClarity: clarity,
+            canvas,
             // Keep existing root/breadcrumbs if any
         }));
     }, []);
@@ -156,7 +143,8 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
     const resetProject = useCallback(() => {
         setState({
             mode: 'PRODUCT_CLARITY',
-            productClarity: null,
+            title: 'Untitled System',
+            canvas: null,
             root: null,
             activeNodeId: null,
             breadcrumbs: [],
@@ -168,9 +156,8 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
     return (
         <ArchitectureContext.Provider value={{
             state,
-            loadProject,
             hydrateProject,
-            setProductClarity,
+            setCanvas,
             setMode,
             zoomInto,
             navigateBreadcrumb,
