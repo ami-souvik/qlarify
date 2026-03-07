@@ -9,7 +9,7 @@ import { useArchitecture } from "@/context/ArchitectureContext";
 import { useRouter } from "next/navigation";
 import QlarifyLogo from "@/components/QlarifyLogo";
 import LoggedInBadge from "@/components/LoggedInBadge";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SettingsDialog } from "@/components/SettingsDialog";
 
 function FeatureIcon({ icon, label }: { icon: React.ReactNode, label: string }) {
     return (
@@ -75,7 +75,7 @@ export default function ArchitecturePage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <QlarifyLogo />
                     <div className="flex items-center gap-4">
-                        <ThemeToggle />
+                        <SettingsDialog />
                         <LoggedInBadge />
                     </div>
                 </div>

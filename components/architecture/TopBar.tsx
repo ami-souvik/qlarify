@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Share2, Box, Trash2 } from 'lucide-react';
 import { useArchitecture } from '@/context/ArchitectureContext';
 
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { SettingsDialog } from '@/components/SettingsDialog';
 
 export function TopBar({ onDelete }: { onDelete?: () => void }) {
     const { state, setMode } = useArchitecture();
@@ -54,7 +54,7 @@ export function TopBar({ onDelete }: { onDelete?: () => void }) {
 
             {/* Right: Actions */}
             <div className="flex justify-end items-center gap-3">
-                <ThemeToggle />
+                <SettingsDialog />
                 {systemId && onDelete && (
                     <button
                         onClick={() => {
