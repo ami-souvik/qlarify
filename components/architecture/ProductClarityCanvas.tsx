@@ -51,13 +51,13 @@ export function ProductClarityCanvas() {
             <div className="flex-1 overflow-y-auto p-4 bg-ivory/20 dark:bg-charcoal scrollbar-hide">
                 <div className="max-w-6xl mx-auto">
                     {!isThresholdReached && (
-                        <div className="mb-4 px-4 py-2 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20 rounded-xl flex items-center gap-4">
+                        <div className="mb-4 px-4 py-2 bg-white dark:bg-zinc-900 border border-terracotta dark:border-terracotta/20 rounded-xl flex items-center gap-4">
                             <div className="bg-white dark:bg-charcoal p-2 rounded-xl shadow-sm text-terracotta">
                                 <Zap size={16} />
                             </div>
                             <div className="flex-1">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-terracotta mb-0.5">Threshold Requirements</p>
-                                <p className="text-xs text-orange-900/60 dark:text-orange-900/80 font-medium">Missing: {missingRequirements.join(', ')}.</p>
+                                <p className="text-xs text-terracotta dark:text-terracotta/60 font-medium">Missing: {missingRequirements.join(', ')}.</p>
                             </div>
                         </div>
                     )}

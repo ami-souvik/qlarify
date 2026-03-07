@@ -2,18 +2,19 @@
 
 import * as React from "react"
 import {
-    Settings, Bell, Zap, Grid, Database, Shield, Users, User, X, ChevronDown, Play, ShieldAlert
+    Settings, Bell, Zap, Grid, Database, Shield, Users, User, X, ChevronDown, Play, ShieldAlert,
+    Check
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 
 const ACCENT_COLORS = [
-    { name: 'Terracotta', color: '#D97757', value: '#D97757' },
-    { name: 'Orange', color: '#EA580C', value: '#EA580C' },
-    { name: 'Ocean', color: '#3B82F6', value: '#3B82F6' },
-    { name: 'Forest', color: '#10B981', value: '#10B981' },
-    { name: 'Amethyst', color: '#8B5CF6', value: '#8B5CF6' },
-    { name: 'Rose', color: '#F43F5E', value: '#F43F5E' },
+    { label: 'Terracotta', color: '#D97757', value: '#D97757' },
+    { label: 'Orange', color: '#EA580C', value: '#EA580C' },
+    { label: 'Ocean', color: '#3B82F6', value: '#3B82F6' },
+    { label: 'Forest', color: '#10B981', value: '#10B981' },
+    { label: 'Amethyst', color: '#8B5CF6', value: '#8B5CF6' },
+    { label: 'Rose', color: '#F43F5E', value: '#F43F5E' },
 ]
 
 const SIDEBAR_ITEMS = [
@@ -146,13 +147,13 @@ export function SettingsDialog() {
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="relative w-full max-w-4xl h-[85vh] sm:h-[640px] flex bg-[#F9F9F9] dark:bg-[#1E1E1E] border border-[#EEE9E2] dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-10"
+                            className="relative w-full max-w-2xl h-[85vh] sm:h-[640px] flex bg-[#F9F9F9] dark:bg-[#1E1E1E] border border-[#EEE9E2] dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-10"
                         >
                             {/* Left Sidebar */}
-                            <div className="w-64 flex-shrink-0 border-r border-[#EEE9E2] dark:border-white/10 bg-[#F9F9F9] dark:bg-[#151515] p-3 flex flex-col pt-16 relative">
+                            <div className="w-48 flex-shrink-0 border-r border-[#EEE9E2] dark:border-white/10 bg-[#F9F9F9] dark:bg-[#151515] p-3 flex flex-col pt-12 relative">
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="absolute top-5 left-5 p-2 text-slate-500 hover:text-charcoal dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors"
+                                    className="absolute top-4 left-4 p-2 text-slate-500 hover:text-charcoal dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors"
                                 >
                                     <X size={20} />
                                 </button>
@@ -180,34 +181,13 @@ export function SettingsDialog() {
 
                             {/* Main Content Area */}
                             <div className="flex-1 flex flex-col bg-white dark:bg-[#1E1E1E] overflow-y-auto">
-                                <div className="p-10 max-w-3xl w-full mx-auto">
-                                    <h1 className="text-[22px] font-medium text-charcoal dark:text-ivory mb-8">
+                                <div className="p-4 max-w-3xl w-full mx-auto">
+                                    <h1 className="pb-4 text-[22px] font-medium text-charcoal dark:text-ivory border-b border-[#EEE9E2] dark:border-white/5">
                                         {SIDEBAR_ITEMS.find(i => i.id === activeTab)?.label}
                                     </h1>
 
                                     {activeTab === 'general' ? (
                                         <div className="space-y-6">
-                                            {/* MFA Banner */}
-                                            <div className="relative border border-[#EEE9E2] dark:border-white/5 bg-slate-50 dark:bg-[#202020] rounded-2xl p-6 mb-8">
-                                                <button className="absolute top-4 right-4 text-slate-400 hover:text-charcoal dark:hover:text-white transition-colors">
-                                                    <X size={16} />
-                                                </button>
-                                                <div className="flex gap-4">
-                                                    <div className="mt-1 text-charcoal dark:text-ivory">
-                                                        <ShieldAlert size={28} />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="font-semibold text-charcoal dark:text-ivory text-[15px] mb-2">Secure your account</h3>
-                                                        <p className="text-[13px] text-slate-600 dark:text-slate-300 mb-5 max-w-md leading-relaxed">
-                                                            Add multi-factor authentication (MFA), like a passkey or text message, to help protect your account when logging in.
-                                                        </p>
-                                                        <button className="px-4 py-2 hover:bg-slate-200/50 dark:bg-[#2A2A2A] border border-slate-300 dark:border-white/10 dark:hover:bg-white/10 text-charcoal dark:text-ivory text-sm font-medium rounded-full transition-colors">
-                                                            Set up MFA
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                             {/* Settings List */}
                                             <div className="divide-y divide-[#EEE9E2] dark:divide-white/5">
 
@@ -231,10 +211,7 @@ export function SettingsDialog() {
                                                     <CustomSelect
                                                         value={accent}
                                                         onChange={(val: string) => handleAccentChange(val)}
-                                                        options={[
-                                                            { label: 'Default', value: '#D97757', color: '#9CA3AF' },
-                                                            ...ACCENT_COLORS.filter(c => c.value !== '#D97757').map(c => ({ label: c.name, value: c.value, color: c.color }))
-                                                        ]}
+                                                        options={ACCENT_COLORS}
                                                     />
                                                 </div>
 
@@ -289,9 +266,10 @@ export function SettingsDialog() {
                                 </div>
                             </div>
                         </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                    </div >
+                )
+                }
+            </AnimatePresence >
         </>
     )
 }

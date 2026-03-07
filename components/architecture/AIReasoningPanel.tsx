@@ -148,8 +148,8 @@ export function AIReasoningPanel() {
                                 animate={{ opacity: 1 }}
                                 className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                             >
-                                <div className={`p-3 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
-                                    ? 'bg-charcoal dark:bg-ivory text-white dark:text-charcoal rounded-br-none'
+                                <div className={`px-4 py-2 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
+                                    ? 'bg-charcoal dark:bg-terracotta text-white dark:text-charcoal rounded-br-none'
                                     : 'bg-white dark:bg-[#252525] border border-[#EEE9E2] dark:border-white/10 text-charcoal dark:text-ivory rounded-bl-none shadow-sm'
                                     }`}>
                                     {msg.content}
