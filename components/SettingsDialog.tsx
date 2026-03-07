@@ -28,21 +28,73 @@ const SIDEBAR_ITEMS = [
 ]
 
 // Custom select component to match the visual
-function NativeSelect({ value, onChange, options, minWidth = "w-32" }: any) {
+function CustomSelect({ value, onChange, options, minWidth = "w-auto" }: any) {
+    const [isOpen, setIsOpen] = React.useState(false)
+    const selectRef = React.useRef<HTMLDivElement>(null)
+
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+                setIsOpen(false)
+            }
+        }
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside)
+        }
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [isOpen])
+
+    const selectedOption = options.find((o: any) => o.value === value) || options[0]
+
     return (
-        <div className="relative inline-block text-left">
-            <select
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={`appearance-none bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 px-3 py-1.5 pr-8 rounded-lg text-sm font-medium text-charcoal dark:text-ivory outline-none cursor-pointer ${minWidth}`}
+        <div className={`relative inline-block text-left ${minWidth}`} ref={selectRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center justify-between gap-2.5 bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 px-2.5 py-1.5 rounded-lg text-[14px] font-medium outline-none transition-colors group ${isOpen ? 'text-charcoal dark:text-ivory bg-slate-100 dark:bg-white/5' : 'text-charcoal dark:text-ivory'}`}
             >
-                {options.map((opt: any) => (
-                    <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#252525] text-charcoal dark:text-ivory font-medium">
-                        {opt.label}
-                    </option>
-                ))}
-            </select>
-            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                <div className="flex items-center gap-2.5">
+                    {selectedOption?.color && (
+                        <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: selectedOption.color }} />
+                    )}
+                    {selectedOption?.label}
+                </div>
+                <ChevronDown size={16} className="text-slate-400 group-hover:text-charcoal dark:group-hover:text-ivory transition-colors" />
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        transition={{ duration: 0.1 }}
+                        className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[#303030] border border-[#EEE9E2] dark:border-white/10 rounded-2xl shadow-xl overflow-y-auto max-h-[300px] z-[200] py-2"
+                    >
+                        {options.map((opt: any) => (
+                            <button
+                                key={opt.value}
+                                onClick={() => {
+                                    onChange(opt.value)
+                                    setIsOpen(false)
+                                }}
+                                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-[14px] font-medium transition-colors hover:bg-slate-100 dark:hover:bg-[#404040] ${value === opt.value ? 'bg-slate-50 dark:bg-white/5 text-charcoal dark:text-ivory' : 'text-slate-600 dark:text-white/80'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    {opt.color ? (
+                                        <div className="w-3 h-3 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: opt.color }} />
+                                    ) : null}
+                                    {opt.label}
+                                </div>
+                                {value === opt.value && (
+                                    <Check size={16} className="text-charcoal dark:text-ivory" />
+                                )}
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
@@ -114,8 +166,8 @@ export function SettingsDialog() {
                                                 key={item.id}
                                                 onClick={() => setActiveTab(item.id)}
                                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-colors ${isActive
-                                                        ? 'bg-slate-200/60 dark:bg-white/10 text-charcoal dark:text-ivory'
-                                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                                                    ? 'bg-slate-200/60 dark:bg-white/10 text-charcoal dark:text-ivory'
+                                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                                                     }`}
                                             >
                                                 <Icon size={18} className={isActive ? "text-charcoal dark:text-ivory" : "text-slate-500 dark:text-slate-400"} />
@@ -160,9 +212,9 @@ export function SettingsDialog() {
                                             <div className="divide-y divide-[#EEE9E2] dark:divide-white/5">
 
                                                 {/* Appearance */}
-                                                <div className="py-4 flex items-center justify-between">
-                                                    <span className="text-sm text-charcoal dark:text-ivory">Appearance</span>
-                                                    <NativeSelect
+                                                <div className="py-4 flex items-center justify-between relative z-[60]">
+                                                    <span className="text-[14px] text-charcoal dark:text-ivory">Appearance</span>
+                                                    <CustomSelect
                                                         value={theme || 'system'}
                                                         onChange={(val: string) => setTheme(val)}
                                                         options={[
@@ -174,22 +226,22 @@ export function SettingsDialog() {
                                                 </div>
 
                                                 {/* Accent Color */}
-                                                <div className="py-4 flex items-center justify-between">
-                                                    <span className="text-sm text-charcoal dark:text-ivory">Accent color</span>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: accent }} />
-                                                        <NativeSelect
-                                                            value={accent}
-                                                            onChange={(val: string) => handleAccentChange(val)}
-                                                            options={ACCENT_COLORS.map(c => ({ label: c.name, value: c.value }))}
-                                                        />
-                                                    </div>
+                                                <div className="py-4 flex items-center justify-between relative z-[50]">
+                                                    <span className="text-[14px] text-charcoal dark:text-ivory">Accent color</span>
+                                                    <CustomSelect
+                                                        value={accent}
+                                                        onChange={(val: string) => handleAccentChange(val)}
+                                                        options={[
+                                                            { label: 'Default', value: '#D97757', color: '#9CA3AF' },
+                                                            ...ACCENT_COLORS.filter(c => c.value !== '#D97757').map(c => ({ label: c.name, value: c.value, color: c.color }))
+                                                        ]}
+                                                    />
                                                 </div>
 
                                                 {/* Language */}
-                                                <div className="py-4 flex items-center justify-between">
-                                                    <span className="text-sm text-charcoal dark:text-ivory">Language</span>
-                                                    <NativeSelect
+                                                <div className="py-4 flex items-center justify-between relative z-[40]">
+                                                    <span className="text-[14px] text-charcoal dark:text-ivory">Language</span>
+                                                    <CustomSelect
                                                         value="auto"
                                                         onChange={() => { }}
                                                         options={[{ label: 'Auto-detect', value: 'auto' }]}
@@ -197,14 +249,14 @@ export function SettingsDialog() {
                                                 </div>
 
                                                 {/* Spoken Language */}
-                                                <div className="py-5 flex items-start justify-between">
+                                                <div className="py-5 flex items-start justify-between relative z-[30]">
                                                     <div className="max-w-[70%]">
-                                                        <span className="text-sm text-charcoal dark:text-ivory block mb-1">Spoken language</span>
+                                                        <span className="text-[14px] text-charcoal dark:text-ivory block mb-1">Spoken language</span>
                                                         <p className="text-[13px] text-slate-500 dark:text-slate-400">
                                                             For best results, select the language you mainly speak. If it's not listed, it may still be supported via auto-detection.
                                                         </p>
                                                     </div>
-                                                    <NativeSelect
+                                                    <CustomSelect
                                                         value="auto"
                                                         onChange={() => { }}
                                                         options={[{ label: 'Auto-detect', value: 'auto' }]}
@@ -212,14 +264,14 @@ export function SettingsDialog() {
                                                 </div>
 
                                                 {/* Voice */}
-                                                <div className="py-4 flex items-center justify-between">
-                                                    <span className="text-sm text-charcoal dark:text-ivory">Voice</span>
+                                                <div className="py-4 flex items-center justify-between relative z-[20]">
+                                                    <span className="text-[14px] text-charcoal dark:text-ivory">Voice</span>
                                                     <div className="flex items-center gap-3">
                                                         <button className="flex items-center gap-2 px-3 py-1.5 bg-[#EEE9E2] dark:bg-[#333333] hover:bg-slate-200 dark:hover:bg-[#444444] text-charcoal dark:text-ivory text-sm font-medium rounded-full transition-colors">
                                                             <Play size={12} className="fill-current" />
                                                             Play
                                                         </button>
-                                                        <NativeSelect
+                                                        <CustomSelect
                                                             value="maple"
                                                             onChange={() => { }}
                                                             options={[{ label: 'Maple', value: 'maple' }]}
