@@ -6,6 +6,8 @@ import { MessageSquare, RefreshCw, BrainCircuit, ArrowRight } from 'lucide-react
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams } from 'next/navigation';
 import { useArchitecture } from '@/context/ArchitectureContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export function AIReasoningPanel() {
     const { state, hydrateProject } = useArchitecture();
@@ -152,7 +154,11 @@ export function AIReasoningPanel() {
                                     ? 'bg-charcoal dark:bg-terracotta text-white dark:text-charcoal rounded-br-none'
                                     : 'bg-white dark:bg-[#252525] border border-[#EEE9E2] dark:border-white/10 text-charcoal dark:text-ivory rounded-bl-none shadow-sm'
                                     }`}>
-                                    {msg.content}
+                                    <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert text-white dark:text-charcoal' : 'dark:prose-invert'}`}>
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {msg.content}
+                                        </ReactMarkdown>
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}
