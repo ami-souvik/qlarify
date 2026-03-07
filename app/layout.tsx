@@ -24,20 +24,29 @@ export const metadata: Metadata = {
   description: "Turn text into system architectures",
 };
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${outfit.variable} antialiased`}
+        className={`${outfit.variable} antialiased selection:bg-orange-100 selection:text-charcoal`}
       >
-        <AuthContext>
-          <Toaster position="top-center" richColors />
-          {children}
-        </AuthContext>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthContext>
+            <Toaster position="top-center" richColors />
+            {children}
+          </AuthContext>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -135,9 +135,9 @@ export function AIReasoningPanel() {
     };
 
     return (
-        <aside className="w-80 border-l border-[#EEE9E2] bg-white flex flex-col shadow-2xl shadow-orange-900/5 z-10 overflow-hidden">
+        <aside className="w-80 border-l border-[#EEE9E2] dark:border-white/10 bg-white dark:bg-charcoal flex flex-col shadow-2xl shadow-orange-900/5 z-10 overflow-hidden shrink-0">
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-ivory/30">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-ivory/30 dark:bg-charcoal/30">
                 <div className="flex flex-col gap-6">
                     {/* Conversation History */}
                     <div className="space-y-4 pb-4">
@@ -149,8 +149,8 @@ export function AIReasoningPanel() {
                                 className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                             >
                                 <div className={`p-3 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
-                                    ? 'bg-charcoal text-white rounded-br-none'
-                                    : 'bg-white border border-[#EEE9E2] text-charcoal rounded-bl-none shadow-sm'
+                                    ? 'bg-charcoal dark:bg-ivory text-white dark:text-charcoal rounded-br-none'
+                                    : 'bg-white dark:bg-[#252525] border border-[#EEE9E2] dark:border-white/10 text-charcoal dark:text-ivory rounded-bl-none shadow-sm'
                                     }`}>
                                     {msg.content}
                                 </div>
@@ -160,8 +160,8 @@ export function AIReasoningPanel() {
 
                         {messages.length === 0 && (
                             <div className="text-center py-16 opacity-30">
-                                <MessageSquare size={40} className="mx-auto text-slate-300 mb-4" />
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Waiting for analysis...</p>
+                                <MessageSquare size={40} className="mx-auto text-slate-300 dark:text-slate-500 mb-4" />
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Waiting for analysis...</p>
                             </div>
                         )}
                     </div>
@@ -175,7 +175,7 @@ export function AIReasoningPanel() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="px-6 py-2 bg-charcoal border-t border-white/10 overflow-hidden flex-shrink-0"
+                        className="px-6 py-2 bg-charcoal dark:bg-[#252525] border-t border-white/10 overflow-hidden flex-shrink-0"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -183,7 +183,7 @@ export function AIReasoningPanel() {
                                     {status.tool ? <RefreshCw size={10} className="text-terracotta animate-spin" /> : <BrainCircuit size={10} className="text-terracotta" />}
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-0.5">{status.message}</p>
+                                    <p className="text-[10px] font-black text-white dark:text-ivory uppercase tracking-widest leading-none mb-0.5">{status.message}</p>
                                 </div>
                             </div>
                         </div>
@@ -192,7 +192,7 @@ export function AIReasoningPanel() {
             </AnimatePresence>
 
             {/* Input Area */}
-            <div className="border-t border-[#EEE9E2] bg-white text-charcoal flex-shrink-0 relative z-30">
+            <div className="border-t border-[#EEE9E2] dark:border-white/10 bg-white dark:bg-charcoal text-charcoal flex-shrink-0 relative z-30">
                 <div className="relative">
                     <textarea
                         value={input}
@@ -204,12 +204,12 @@ export function AIReasoningPanel() {
                             }
                         }}
                         placeholder="Ask AI to refine or expand..."
-                        className="w-full h-20 bg-ivory/50 p-2 text-sm font-medium focus:border-terracotta/30 focus:bg-white focus:ring-0 transition-all resize-none pr-12 placeholder:text-slate-300"
+                        className="w-full h-20 bg-ivory/50 dark:bg-charcoal/50 p-2 text-sm font-medium focus:border-terracotta/30 focus:bg-white dark:focus:bg-[#252525] focus:ring-0 dark:text-ivory transition-all resize-none pr-12 placeholder:text-slate-300 dark:placeholder:text-slate-600 outline-none"
                     />
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || isGenerating}
-                        className="absolute bottom-2 right-2 p-2 bg-charcoal text-white rounded-lg hover:bg-terracotta transition-all shadow-lg shadow-orange-900/10 active:scale-95 leading-none disabled:opacity-30"
+                        className="absolute bottom-2 right-2 p-2 bg-charcoal dark:bg-ivory text-white dark:text-charcoal rounded-lg hover:bg-terracotta dark:hover:bg-terracotta dark:hover:text-white transition-all shadow-lg shadow-orange-900/10 dark:shadow-none active:scale-95 leading-none disabled:opacity-30"
                     >
                         {isGenerating ? <RefreshCw size={16} className="animate-spin" /> : <ArrowRight size={16} />}
                     </button>

@@ -9,10 +9,11 @@ import { useArchitecture } from "@/context/ArchitectureContext";
 import { useRouter } from "next/navigation";
 import QlarifyLogo from "@/components/QlarifyLogo";
 import LoggedInBadge from "@/components/LoggedInBadge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 function FeatureIcon({ icon, label }: { icon: React.ReactNode, label: string }) {
     return (
-        <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-xl border border-[#EEE9E2] text-slate-500 hover:border-terracotta/30 transition-all cursor-default flex-shrink-0">
+        <div className="flex items-center gap-2 bg-ivory dark:bg-charcoal px-4 py-2 rounded-xl border border-[#EEE9E2] dark:border-white/10 text-slate-500 hover:border-terracotta/30 dark:hover:border-terracotta/30 transition-all cursor-default flex-shrink-0">
             <div className="text-terracotta">{icon}</div>
             <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
         </div>
@@ -65,20 +66,23 @@ export default function ArchitecturePage() {
     }, []);
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-ivory flex flex-col relative">
+        <div className="h-full w-full overflow-y-auto bg-ivory dark:bg-charcoal flex flex-col relative text-charcoal dark:text-ivory">
             {/* Dot Grid Background */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] bg-dot-grid"></div>
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] dark:opacity-10 bg-dot-grid"></div>
 
             {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-ivory/80 backdrop-blur-md border-b border-[#EEE9E2]">
+            <nav className="fixed w-full z-50 bg-ivory/80 dark:bg-charcoal/80 backdrop-blur-md border-b border-[#EEE9E2] dark:border-white/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <QlarifyLogo />
-                    <LoggedInBadge />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                        <LoggedInBadge />
+                    </div>
                 </div>
             </nav>
             {/* Main Architecture Tool (becomes the bottom section when no project is loaded) */}
             <div className="flex-1 min-h-[600px] pt-16 z-10">
-                <div className="flex flex-1 w-full items-center justify-center bg-ivory p-8 overflow-hidden relative min-h-[600px]">
+                <div className="flex flex-1 w-full items-center justify-center bg-ivory dark:bg-transparent p-8 overflow-hidden relative min-h-[600px]">
                     <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none">
                         <div className="absolute top-10 left-10 w-64 h-64 bg-orange-100 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-10 right-10 w-96 h-96 bg-slate-100 rounded-full blur-3xl"></div>
@@ -101,7 +105,7 @@ export default function ArchitecturePage() {
                         <div className="max-w-2xl w-full relative z-10">
                             <div className="text-center mb-6">
                                 <div className="flex items-end justify-center gap-2 mb-4">
-                                    <h2 className="text-6xl font-black text-charcoal tracking-tighter">Qlarify</h2>
+                                    <h2 className="text-6xl font-black text-charcoal dark:text-ivory tracking-tighter">Qlarify</h2>
                                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-orange-100 text-terracotta text-[10px] font-black uppercase tracking-widest mb-1 shadow-lg shadow-orange-900/5">
                                         v3.0
                                         <span className="relative flex h-2 w-2">
@@ -113,7 +117,7 @@ export default function ArchitecturePage() {
                                 <p className="text-slate-500 text-sm font-medium">Design with precision. From Clarity to Structured Architecture.</p>
                             </div>
 
-                            <div className="bg-white rounded-3xl p-2 shadow-2xl shadow-orange-900/10 border border-[#EEE9E2]">
+                            <div className="bg-white dark:bg-charcoal rounded-3xl p-2 shadow-2xl shadow-orange-900/10 dark:shadow-none border border-[#EEE9E2] dark:border-white/10">
                                 <div className="mt-2 mb-4 flex gap-2 px-2 overflow-x-auto scrollbar-hide">
                                     <FeatureIcon icon={<Layout size={14} />} label="Product Canvas" />
                                     <FeatureIcon icon={<Layers size={14} />} label="Graph Modeling" />
@@ -125,12 +129,12 @@ export default function ArchitecturePage() {
                                         value={projectIdea}
                                         onChange={(e) => setProjectIdea(e.target.value)}
                                         placeholder="Describe your idea or problem space..."
-                                        className="w-full h-64 rounded-2xl border-2 border-[#EEE9E2]/50 bg-ivory/50 p-4 font-medium focus:border-terracotta/30 focus:bg-white focus:ring-0 transition-all resize-none placeholder:text-slate-300"
+                                        className="w-full h-64 rounded-2xl border-2 border-[#EEE9E2]/50 dark:border-white/10 bg-ivory/50 dark:bg-black/50 p-4 font-medium focus:border-terracotta/30 dark:focus:border-terracotta/50 focus:bg-white dark:focus:bg-[#252525] focus:ring-0 transition-all resize-none placeholder:text-slate-300 dark:placeholder:text-slate-600 outline-none"
                                     />
                                     <button
                                         onClick={handleCreateProject}
                                         disabled={!projectIdea.trim()}
-                                        className="absolute bottom-6 right-6 bg-charcoal hover:bg-terracotta text-white rounded-2xl px-8 py-4 font-black flex items-center gap-3 transition-all transform active:scale-95 hover:shadow-2xl hover:shadow-orange-900/20 disabled:opacity-30 disabled:hover:bg-charcoal"
+                                        className="absolute bottom-6 right-6 bg-charcoal dark:bg-ivory hover:bg-terracotta dark:hover:bg-terracotta text-white dark:text-charcoal dark:hover:text-white rounded-2xl px-8 py-4 font-black flex items-center gap-3 transition-all transform active:scale-95 hover:shadow-2xl hover:shadow-orange-900/20 disabled:opacity-30 disabled:hover:bg-charcoal dark:disabled:hover:bg-ivory"
                                     >
                                         Start Reasoning <ArrowRight size={18} />
                                     </button>
@@ -146,7 +150,7 @@ export default function ArchitecturePage() {
             {!isLoading && systems.length > 0 && (
                 <div className="absolute bottom-0 left-[50%] translate-x-[-50%] max-w-4xl mx-auto w-full px-4 z-20">
                     <div
-                        className="group flex flex-col border border-b-0 border-[#EEE9E2] rounded-tl-xl rounded-tr-xl p-4 bg-white hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer shadow-xl"
+                        className="group flex flex-col border border-b-0 border-[#EEE9E2] dark:border-white/10 rounded-tl-xl rounded-tr-xl p-4 bg-white dark:bg-charcoal hover:border-orange-100 dark:hover:border-terracotta/30 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer shadow-xl"
                         onClick={() => setIsExpanded(prev => !prev)}
                     >
                         <div className="flex items-center justify-between">
@@ -182,14 +186,14 @@ export default function ArchitecturePage() {
                                                     e.stopPropagation();
                                                     router.push(`/app/${system.id}`);
                                                 }}
-                                                className="w-43 p-4 rounded-xl border border-[#EEE9E2] bg-white hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer flex flex-col gap-3 min-w-[200px]"
+                                                className="w-43 p-4 rounded-xl border border-[#EEE9E2] dark:border-white/10 bg-white dark:bg-[#252525] hover:border-orange-100 dark:hover:border-terracotta/30 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer flex flex-col gap-3 min-w-[200px]"
                                             >
                                                 <div className="flex flex-1 flex-col justify-between">
-                                                    <h3 className="text-sm font-black text-charcoal hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
+                                                    <h3 className="text-sm font-black text-charcoal dark:text-ivory hover:text-terracotta dark:hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
                                                         {system.title || "Untitled System"}
                                                     </h3>
                                                     <div>
-                                                        <h3 className="text-sm font-semibold text-charcoal hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
+                                                        <h3 className="text-sm font-semibold text-charcoal dark:text-gray-300 hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
                                                             Status: {system.status ?? "Blueprint Ready"}
                                                         </h3>
                                                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">

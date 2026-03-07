@@ -20,6 +20,16 @@
     color: var(--color-charcoal);
     @apply antialiased;
   }
+
+  .dark body {
+    background-color: var(--color-charcoal);
+    color: var(--color-ivory);
+  }
+
+  .dark ::selection {
+    color: var(--color-ivory);
+    background-color: var(--color-terracotta);
+  }
 }
 
 @layer utilities {
