@@ -202,8 +202,6 @@ export function ArchitectureCanvas() {
         );
     }
 
-    const isStrategicView = state.breadcrumbs.length === 1;
-
     return (
         <>
             <div className="flex h-12 items-center justify-between border-b border-[#EEE9E2] bg-white/80 backdrop-blur-md px-4 z-10">
@@ -219,25 +217,21 @@ export function ArchitectureCanvas() {
                     </div>
                 )}
 
-                {isStrategicView ? (
-                    <StrategicMindmap onNodeClick={(id) => zoomInto(id)} />
-                ) : (
-                    <ReactFlow
-                        nodes={nodes}
-                        edges={edges}
-                        nodeTypes={nodeTypes}
-                        onNodesChange={onNodesChange}
-                        onEdgesChange={onEdgesChange}
-                        onNodeDragStop={onNodeDragStop}
-                        onNodeClick={onNodeClick}
-                        connectionMode={ConnectionMode.Loose}
-                        fitView
-                        className="bg-slate-50"
-                    >
-                        <Background color="#cbd5e1" gap={20} />
-                        <Controls />
-                    </ReactFlow>
-                )}
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    nodeTypes={nodeTypes}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onNodeDragStop={onNodeDragStop}
+                    onNodeClick={onNodeClick}
+                    connectionMode={ConnectionMode.Loose}
+                    fitView
+                    className="bg-slate-50"
+                >
+                    <Background color="#cbd5e1" gap={20} />
+                    <Controls />
+                </ReactFlow>
 
                 {/* Perspective Overlay */}
                 {state.breadcrumbs.length === 1 && (

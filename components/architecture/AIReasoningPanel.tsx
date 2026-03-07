@@ -11,7 +11,6 @@ export function AIReasoningPanel() {
     const { state, hydrateProject } = useArchitecture();
     const { systemId } = useParams();
     const [input, setInput] = useState("");
-    const [isSending, setIsSending] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [status, setStatus] = useState<{ message: string; tool?: string } | null>(null);
     const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([]);
@@ -33,7 +32,7 @@ export function AIReasoningPanel() {
     // Auto-scroll to bottom when messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isSending]); // Scroll when sending too (optimistic update)
+    }, [messages, isGenerating]); // Scroll when sending too (optimistic update)
 
     const performReasoningRequest = async (messageBody: string) => {
         try {
@@ -101,15 +100,17 @@ export function AIReasoningPanel() {
             if (res.data.system) {
                 hydrateProject(res.data.system.title, res.data.system.canvas, res.data.system.messages, res.data.system.logs);
             }
-            setIsSending(false);
             setIsGenerating(false);
             setStatus(null);
         }
     };
 
+    const initialized = useRef(false);
+
     // Auto-trigger initial reasoning for new projects
     useEffect(() => {
-        if (!state.canvas && state.messages.length === 0 && !isGenerating) {
+        if (!initialized.current && !state.canvas && state.messages.length === 0 && !isGenerating) {
+            initialized.current = true;
             // Add optimistic message
             setIsGenerating(true);
             setStatus({ message: "Initializing analysis...", tool: "reasoning" });
@@ -118,11 +119,11 @@ export function AIReasoningPanel() {
 
             performReasoningRequest(messageContent);
         }
-    }, []);
+    }, [state.canvas, state.messages.length, state.title, isGenerating]);
 
     const handleSend = async () => {
-        if (!input.trim() || isSending) return;
-        setIsSending(true);
+        if (!input.trim() || isGenerating) return;
+        setIsGenerating(true);
         setStatus({ message: "Thinking...", tool: "reasoning" });
 
         // Optimistic UI updates
@@ -147,15 +148,12 @@ export function AIReasoningPanel() {
                                 animate={{ opacity: 1 }}
                                 className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                             >
-                                <div className={`max-w-[85%] p-3 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
+                                <div className={`p-3 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
                                     ? 'bg-charcoal text-white rounded-br-none'
                                     : 'bg-white border border-[#EEE9E2] text-charcoal rounded-bl-none shadow-sm'
                                     }`}>
                                     {msg.content}
                                 </div>
-                                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-1 px-1">
-                                    {msg.role === 'user' ? 'You' : 'AI Architect'}
-                                </span>
                             </motion.div>
                         ))}
                         <div ref={messagesEndRef} />
@@ -210,10 +208,10 @@ export function AIReasoningPanel() {
                     />
                     <button
                         onClick={handleSend}
-                        disabled={!input.trim() || isSending}
+                        disabled={!input.trim() || isGenerating}
                         className="absolute bottom-2 right-2 p-2 bg-charcoal text-white rounded-lg hover:bg-terracotta transition-all shadow-lg shadow-orange-900/10 active:scale-95 leading-none disabled:opacity-30"
                     >
-                        {isSending ? <RefreshCw size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                        {isGenerating ? <RefreshCw size={16} className="animate-spin" /> : <ArrowRight size={16} />}
                     </button>
                 </div>
             </div>

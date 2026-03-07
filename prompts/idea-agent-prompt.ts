@@ -36,8 +36,6 @@ Do not remove or rename section headers.
 
 You may only edit the content inside sections.
 
-# Product Overview
-
 ## Product Summary
 
 Brief description of the product and what it does.

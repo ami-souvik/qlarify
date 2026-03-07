@@ -33,7 +33,7 @@ export async function POST(req: Request) {
             description: '',
             canvas: '',
             nodes: [],
-            messages: body.messages || [],
+            messages: [],
             logs: [],
             createdAt: timestamp,
             updatedAt: timestamp
