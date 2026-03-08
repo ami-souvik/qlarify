@@ -74,21 +74,21 @@ function IdeaInput() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-ivory text-charcoal font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-ivory dark:bg-charcoal text-charcoal font-sans relative overflow-x-hidden">
       {/* Dot Grid Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4]"
-        style={{ backgroundImage: 'radial-gradient(#D9775762 1.5px, transparent 0.5px)', backgroundSize: '28px 28px' }}>
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.2]"
+        style={{ backgroundImage: 'radial-gradient(var(--theme-accent-color) 1.5px, transparent 0.5px)', backgroundSize: '28px 28px' }}>
       </div>
 
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-ivory/80 backdrop-blur-md border-b border-[#EEE9E2]">
+      <nav className="fixed w-full z-50 bg-ivory/80 dark:bg-charcoal/80 backdrop-blur-md border-b border-ivory dark:border-charcoal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <QlarifyLogo />
           <div className="flex items-center gap-8">
-            <Link href="#features" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-terracotta transition-colors">
+            <Link href="#features" className="hidden md:block text-sm font-semibold text-slate-600 dark:text-slate-200 hover:text-terracotta transition-colors">
               Features
             </Link>
-            <Link href="/blog" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-terracotta transition-colors">
+            <Link href="/blog" className="hidden md:block text-sm font-semibold text-slate-600 dark:text-slate-200 hover:text-terracotta transition-colors">
               Blog
             </Link>
             <LoggedInBadge />
@@ -128,15 +128,15 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100/50 text-terracotta text-[10px] font-bold tracking-widest uppercase mb-8 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-selection/20 text-terracotta text-[10px] font-bold tracking-widest uppercase mb-8 shadow-sm">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracotta opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-terracotta"></span>
               </span>
               The Future of Architecture
             </div>
 
-            <h1 className="text-6xl md:text-8xl font-black text-[#1A1A1A] tracking-tighter mb-8 leading-[0.9]">
+            <h1 className="text-6xl md:text-8xl font-black text-charcoal dark:text-ivory tracking-tighter mb-8 leading-[0.9]">
               Architect your vision, <br />
               <span className="text-terracotta">effortlessly.</span>
             </h1>
@@ -181,30 +181,30 @@ export default function Home() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="py-32 bg-white relative">
+      <section id="features" className="py-32 bg-ivory dark:bg-charcoal relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-[#1A1A1A] mb-4">
-              Infrastructure as <span className="text-[#D97757]">Intuition</span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-charcoal dark:text-ivory mb-4">
+              Infrastructure as <span className="text-terracotta">Intuition</span>
             </h2>
             <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">
               Everything you need to design, verify, and document complex systems with AI-guided precision.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FeatureCard
-              icon={<Box size={24} className="text-[#D97757]" />}
+              icon={<Box size={24} className="text-terracotta" />}
               title="Canonical Modeling"
               description="Define hierarchical entities from Systems down to Components with built-in structural validation."
             />
             <FeatureCard
-              icon={<Zap size={24} className="text-orange-500" />}
+              icon={<Zap size={24} className="text-terracotta" />}
               title="AI Reasoning Layer"
               description="An intelligent co-pilot that suggests architectural patterns without forcing magic changes."
             />
             <FeatureCard
-              icon={<Shield size={24} className="text-orange-400" />}
+              icon={<Shield size={24} className="text-terracotta" />}
               title="Verifiable Design"
               description="Real-time detection of anti-patterns, circular dependencies, and service boundary leaks."
             />
@@ -215,7 +215,7 @@ export default function Home() {
       {/* Social Proof */}
       <section className="py-24 bg-[#FAF9F6] border-y border-[#EEE9E2]">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-xs font-black text-[#D97757] uppercase tracking-[0.3em] mb-12">Architecture powering the elite</p>
+          <p className="text-xs font-black text-terracotta uppercase tracking-[0.3em] mb-12">Architecture powering the elite</p>
           <div className="flex flex-wrap justify-center items-center gap-16 grayscale opacity-60 contrast-125">
             <div className="text-3xl font-black italic tracking-tighter">MONZO</div>
             <div className="text-3xl font-black italic tracking-tighter">STRIPE</div>
@@ -229,7 +229,7 @@ export default function Home() {
       <section className="py-32 bg-[#1A1A1A] relative overflow-hidden">
         {/* Abstract background effect */}
         <div className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(#D97757 0.8px, transparent 0.8px)', backgroundSize: '32px 32px' }}>
+          style={{ backgroundImage: 'radial-gradient(var(--theme-accent-color) 0.8px, transparent 0.8px)', backgroundSize: '32px 32px' }}>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
@@ -240,7 +240,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="space-y-10"
           >
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-orange-600 text-white mb-4 shadow-2xl shadow-orange-600/20 transform -rotate-3">
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-terracotta text-white mb-4 shadow-2xl shadow-orange-600/20 transform -rotate-3">
               <MessageSquare size={48} />
             </div>
             <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none">
@@ -253,7 +253,7 @@ export default function Home() {
               <Link
                 href="https://discord.gg/jDPw4mfKYn"
                 target="_blank"
-                className="inline-flex items-center gap-3 bg-white text-[#1A1A1A] px-12 py-5 rounded-3xl text-xl font-black hover:bg-orange-50 transition-all hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:-translate-y-1 group"
+                className="inline-flex items-center gap-3 bg-white text-[#1A1A1A] px-12 py-5 rounded-3xl text-xl font-black hover:bg-selection transition-all hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:-translate-y-1 group"
               >
                 Join our Discord <Share2 size={24} className="group-hover:rotate-12 transition-transform" />
               </Link>
@@ -267,17 +267,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-12">
           <div className="flex flex-col items-center md:items-start gap-4">
             <div className="flex items-center gap-2 text-[#1A1A1A]">
-              <Box size={32} className="text-[#D97757]" />
+              <Box size={32} className="text-terracotta" />
               <span className="font-black text-3xl tracking-tighter">Qlarify</span>
             </div>
             <p className="text-sm font-medium">The architectural co-pilot for high-scale teams.</p>
           </div>
 
           <div className="flex gap-12 text-sm font-black uppercase tracking-widest">
-            <Link href="/privacy" className="hover:text-[#D97757] transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-[#D97757] transition-colors">Terms</Link>
-            <Link href="/blog" className="hover:text-[#D97757] transition-colors">Blog</Link>
-            <Link href="https://discord.gg/jDPw4mfKYn" target="_blank" className="hover:text-[#D97757] transition-colors inline-flex items-center gap-2">Discord</Link>
+            <Link href="/privacy" className="hover:text-terracotta transition-colors">Privacy</Link>
+            <Link href="#" className="hover:text-terracotta transition-colors">Terms</Link>
+            <Link href="/blog" className="hover:text-terracotta transition-colors">Blog</Link>
+            <Link href="https://discord.gg/jDPw4mfKYn" target="_blank" className="hover:text-terracotta transition-colors inline-flex items-center gap-2">Discord</Link>
           </div>
 
           <div className="text-xs font-bold text-slate-400">
@@ -291,8 +291,8 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="p-10 bg-[#FAF9F6] rounded-[2.5rem] border border-transparent hover:border-orange-100 hover:bg-white hover:shadow-2xl hover:shadow-orange-900/5 transition-all group relative overflow-hidden">
-      <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-orange-50 transition-all duration-500">
+    <div className="p-6 bg-[#FAF9F6] rounded-3xl border border-transparent hover:border-terracotta/20 hover:bg-white hover:shadow-2xl hover:shadow-orange-900/5 transition-all group relative overflow-hidden">
+      <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-selection/10 transition-all duration-500">
         {icon}
       </div>
       <h3 className="text-2xl font-black text-[#1A1A1A] mb-4 tracking-tight">{title}</h3>
@@ -300,7 +300,7 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
 
       {/* Subtle indicator */}
       <div className="absolute right-8 top-8 opacity-0 group-hover:opacity-100 transition-opacity">
-        <ArrowRight size={20} className="text-orange-200" />
+        <ArrowRight size={20} className="text-terracotta/40" />
       </div>
     </div>
   );
@@ -309,8 +309,8 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
 function Step({ number, title, description }: { number: string, title: string, description: string }) {
   return (
     <div className="group">
-      <div className="text-6xl font-black text-[#D97757]/10 group-hover:text-[#D97757]/20 transition-colors mb-4">{number}</div>
-      <h3 className="text-xl font-black text-[#1A1A1A] mb-2 tracking-tight">{title}</h3>
+      <div className="text-6xl font-black text-terracotta/10 group-hover:text-terracotta/20 transition-colors mb-4">{number}</div>
+      <h3 className="text-xl font-black text-[#1A1A1A] dark:text-slate-200 mb-2 tracking-tight">{title}</h3>
       <p className="text-slate-500 font-medium leading-relaxed">{description}</p>
     </div>
   );

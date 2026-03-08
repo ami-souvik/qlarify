@@ -16,7 +16,7 @@ export default function LoggedInBadge() {
     </div>;
     return (
         <div className="flex items-center gap-4">
-            <Link href="/app" className="flex items-center px-4 py-1.5 bg-white rounded-xl border border-[#EEE9E2] hover:border-orange-200 hover:shadow-sm transition-all">
+            <Link href="/app" className="flex items-center px-4 py-1.5 bg-white rounded-xl border border-terracotta/20 hover:border-terracotta/40 hover:shadow-sm transition-all">
                 <span className="text-sm font-bold text-[#1A1A1A] truncate max-w-[150px]">
                     {session.user?.name}
                 </span>
@@ -24,7 +24,7 @@ export default function LoggedInBadge() {
 
             <button
                 onClick={() => signOut()}
-                className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all"
+                className="p-2 text-terracotta/40 hover:text-terracotta/70 hover:bg-terracotta/10 rounded-xl transition-all"
                 title="Sign out"
             >
                 <LogOut size={20} />
