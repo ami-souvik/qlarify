@@ -6,6 +6,7 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
+import { useAccentTheme } from "@/context/ThemeProvider"
 
 const ACCENT_COLORS = [
     { label: 'Terracotta', color: '#D97757', value: '#D97757:#FFEDD4' },
@@ -101,26 +102,8 @@ function CustomSelect({ value, onChange, options, minWidth = "w-auto" }: any) {
 export function SettingsDialog() {
     const [isOpen, setIsOpen] = React.useState(false)
     const { theme, setTheme } = useTheme()
-    const [color, setColor] = React.useState('#D97757:#D97757')
+    const { color, setColor } = useAccentTheme()
     const [activeTab, setActiveTab] = React.useState('general')
-
-    React.useEffect(() => {
-        const savedThemeBase = localStorage.getItem('theme-accent-color')
-        if (savedThemeBase) {
-            setColor(savedThemeBase)
-            const [accent, selection] = savedThemeBase.split(':')
-            document.documentElement.style.setProperty('--theme-accent-color', accent)
-            document.documentElement.style.setProperty('--theme-selection-color', selection)
-        }
-    }, [])
-
-    const handleAccentChange = (color: string) => {
-        setColor(color)
-        const [accent, selection] = color.split(':')
-        localStorage.setItem('theme-accent-color', color)
-        document.documentElement.style.setProperty('--theme-accent-color', accent)
-        document.documentElement.style.setProperty('--theme-selection-color', selection)
-    }
 
     return (
         <>
@@ -212,7 +195,7 @@ export function SettingsDialog() {
                                                     <span className="text-[14px] text-charcoal dark:text-ivory">Accent color</span>
                                                     <CustomSelect
                                                         value={color}
-                                                        onChange={(val: string) => handleAccentChange(val)}
+                                                        onChange={(val: string) => setColor(val)}
                                                         options={ACCENT_COLORS}
                                                     />
                                                 </div>
