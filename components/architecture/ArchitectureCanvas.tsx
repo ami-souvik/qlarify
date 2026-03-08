@@ -192,7 +192,7 @@ export function ArchitectureCanvas() {
     if (!state.activeNodeId) {
         return (
             <>
-                <div className="w-full px-6 py-3 border-b border-[#EEE9E2] flex items-center justify-between bg-ivory/50">
+                <div className="w-full px-6 py-3 border-b border-[#EEE9E2] dark:border-white/10 flex items-center justify-between">
                     <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">System Explorer</h2>
                 </div>
                 <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">

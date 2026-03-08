@@ -33,12 +33,12 @@ function ArchitectureWorkspace() {
     };
 
     return (
-        <div className="flex flex-col h-screen w-full bg-ivory overflow-hidden">
+        <div className="flex flex-col h-screen w-full bg-ivory dark:bg-charcoal overflow-hidden">
             <TopBar onDelete={handleDelete} />
 
             <div className={`flex flex-1 overflow-hidden flex-row`}>
                 {/* Main Content Area */}
-                <main className="flex flex-1 flex-col relative overflow-hidden bg-white/20">
+                <main className="flex flex-1 flex-col relative overflow-hidden">
                     {
                         state.mode === 'ARCHITECTURE' ?
                             <ArchitectureCanvas /> :

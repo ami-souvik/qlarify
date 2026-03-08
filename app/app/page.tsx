@@ -66,7 +66,7 @@ export default function ArchitecturePage() {
     }, []);
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-ivory dark:bg-charcoal flex flex-col relative text-charcoal dark:text-ivory">
+        <div className="h-screen w-full overflow-y-auto bg-ivory dark:bg-charcoal flex flex-col relative text-charcoal dark:text-ivory">
             {/* Dot Grid Background */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] dark:opacity-10 bg-dot-grid"></div>
 
@@ -81,8 +81,8 @@ export default function ArchitecturePage() {
                 </div>
             </nav>
             {/* Main Architecture Tool (becomes the bottom section when no project is loaded) */}
-            <div className="flex-1 min-h-[600px] pt-16 z-10">
-                <div className="flex flex-1 w-full items-center justify-center bg-ivory dark:bg-transparent p-8 overflow-hidden relative min-h-[600px]">
+            <div className="flex-1 pt-16 z-10">
+                <div className="flex w-full h-full items-center justify-center bg-ivory dark:bg-transparent p-8 overflow-hidden relative">
                     <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none">
                         <div className="absolute top-10 left-10 w-64 h-64 bg-orange-100 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-10 right-10 w-96 h-96 bg-slate-100 rounded-full blur-3xl"></div>
@@ -150,13 +150,13 @@ export default function ArchitecturePage() {
             {!isLoading && systems.length > 0 && (
                 <div className="absolute bottom-0 left-[50%] translate-x-[-50%] max-w-4xl mx-auto w-full px-4 z-20">
                     <div
-                        className="group flex flex-col border border-b-0 border-[#EEE9E2] dark:border-white/10 rounded-tl-xl rounded-tr-xl p-4 bg-white dark:bg-charcoal hover:border-orange-100 dark:hover:border-terracotta/30 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer shadow-xl"
+                        className="group/drawer flex flex-col border border-b-0 border-[#EEE9E2] dark:border-white/10 rounded-tl-xl rounded-tr-xl p-4 bg-white dark:bg-charcoal hover:border-orange-100 dark:hover:border-terracotta/30 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer shadow-xl"
                         onClick={() => setIsExpanded(prev => !prev)}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Clock size={16} className="text-slate-400 group-hover:text-terracotta transition-colors" />
-                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-charcoal transition-colors">Recent Systems</h2>
+                                <Clock size={16} className="text-slate-400 group-hover/drawer:text-terracotta transition-colors" />
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover/drawer:text-terracotta transition-colors">Recent Systems</h2>
                             </div>
                             <motion.div
                                 animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -186,14 +186,14 @@ export default function ArchitecturePage() {
                                                     e.stopPropagation();
                                                     router.push(`/app/${system.id}`);
                                                 }}
-                                                className="w-43 p-4 rounded-xl border border-[#EEE9E2] dark:border-white/10 bg-white dark:bg-[#252525] hover:border-orange-100 dark:hover:border-terracotta/30 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer flex flex-col gap-3 min-w-[200px]"
+                                                className="group/card w-43 p-4 rounded-xl border border-[#EEE9E2] dark:border-white/10 bg-white dark:bg-[#252525] hover:border-orange-100 dark:hover:border-terracotta/30 hover:shadow-2xl hover:shadow-orange-900/5 transition-all cursor-pointer flex flex-col gap-3 min-w-[200px]"
                                             >
                                                 <div className="flex flex-1 flex-col justify-between">
-                                                    <h3 className="text-sm font-black text-charcoal dark:text-ivory hover:text-terracotta dark:hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
+                                                    <h3 className="text-sm font-black text-charcoal dark:text-ivory group-hover/card:text-terracotta dark:group-hover/card:text-terracotta transition-colors line-clamp-2 tracking-tight">
                                                         {system.title || "Untitled System"}
                                                     </h3>
                                                     <div>
-                                                        <h3 className="text-sm font-semibold text-charcoal dark:text-gray-300 hover:text-terracotta transition-colors line-clamp-2 tracking-tight">
+                                                        <h3 className="text-sm font-semibold text-charcoal dark:text-gray-300 transition-colors line-clamp-2 tracking-tight">
                                                             Status: {system.status ?? "Blueprint Ready"}
                                                         </h3>
                                                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">

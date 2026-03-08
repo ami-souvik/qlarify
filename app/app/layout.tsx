@@ -31,8 +31,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <ArchitectureProvider>
-            <div className="flex h-screen bg-ivory">
-                <main className="flex-1 flex flex-col h-full overflow-hidden bg-ivory relative">
+            <div className="flex h-screen">
+                <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                     {children}
                 </main>
             </div>

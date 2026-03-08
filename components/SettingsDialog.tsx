@@ -2,15 +2,13 @@
 
 import * as React from "react"
 import {
-    Settings, Bell, Zap, Grid, Database, Shield, Users, User, X, ChevronDown, Play, ShieldAlert,
-    Check
+    Settings, Bell, Zap, Grid, Database, Shield, Users, User, X, ChevronDown, Play, Check
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 
 const ACCENT_COLORS = [
     { label: 'Terracotta', color: '#D97757', value: '#D97757' },
-    { label: 'Orange', color: '#EA580C', value: '#EA580C' },
     { label: 'Ocean', color: '#3B82F6', value: '#3B82F6' },
     { label: 'Forest', color: '#10B981', value: '#10B981' },
     { label: 'Amethyst', color: '#8B5CF6', value: '#8B5CF6' },

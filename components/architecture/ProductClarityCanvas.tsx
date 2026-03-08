@@ -62,11 +62,9 @@ export function ProductClarityCanvas() {
                         </div>
                     )}
 
-                    <div className="overflow-hidden bg-white dark:bg-charcoal rounded-xl border border-[#EEE9E2] dark:border-white/10 shadow-lg shadow-orange-900/5 dark:shadow-none">
-                        <div className="px-4 py-3">
-                            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-sm prose-headings:font-bold prose-headings:text-charcoal dark:prose-headings:text-ivory prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-hr:my-6">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{canvas}</ReactMarkdown>
-                            </div>
+                    <div className="overflow-hidden bg-white dark:bg-charcoal">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-sm prose-headings:font-bold prose-headings:text-charcoal dark:prose-headings:text-ivory prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-hr:my-6">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{canvas}</ReactMarkdown>
                         </div>
                     </div>
                 </div>
