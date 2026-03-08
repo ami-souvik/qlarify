@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 import { ArrowRight, Box, Shield, Zap, MessageSquare, Layout, Layers, Database, Cpu, Share2, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoggedInBadge from '@/components/LoggedInBadge';
 import QlarifyLogo from '@/components/QlarifyLogo';
+import { CustomSelect } from '@/components/CustomSelect';
 
 function FeatureIcon({ icon, label }: { icon: React.ReactNode, label: string }) {
   return (
@@ -73,6 +75,7 @@ function IdeaInput() {
 }
 
 export default function Home() {
+  const { theme, setTheme } = useTheme()
   return (
     <div className="min-h-screen bg-ivory dark:bg-charcoal text-charcoal font-sans relative overflow-x-hidden">
       {/* Dot Grid Background */}
@@ -271,6 +274,16 @@ export default function Home() {
               <span className="font-black text-3xl tracking-tighter">Qlarify</span>
             </div>
             <p className="text-sm font-medium">The architectural co-pilot for high-scale teams.</p>
+            {/* Appearance */}
+            <CustomSelect
+              value={theme || 'system'}
+              onChange={(val: string) => setTheme(val)}
+              options={[
+                { label: 'System', value: 'system' },
+                { label: 'Light', value: 'light' },
+                { label: 'Dark', value: 'dark' }
+              ]}
+            />
           </div>
 
           <div className="flex gap-12 text-sm font-black uppercase tracking-widest">

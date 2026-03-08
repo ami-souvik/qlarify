@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <ArchitectureProvider>
             <div className="flex h-screen">
-                <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+                <main className="flex-1 flex flex-col h-full overflow-hidden">
                     {children}
                 </main>
             </div>

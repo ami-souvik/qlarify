@@ -66,12 +66,12 @@ export default function ArchitecturePage() {
     }, []);
 
     return (
-        <div className="h-screen w-full overflow-y-auto bg-ivory dark:bg-charcoal flex flex-col relative text-charcoal dark:text-ivory">
+        <div className="h-screen w-full overflow-y-auto bg-ivory dark:bg-charcoal flex flex-col text-charcoal dark:text-ivory">
             {/* Dot Grid Background */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] dark:opacity-10 bg-dot-grid"></div>
 
             {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-ivory/80 dark:bg-charcoal/80 backdrop-blur-md border-b border-[#EEE9E2] dark:border-white/10">
+            <nav className="w-full z-50 bg-ivory/80 dark:bg-charcoal/80 backdrop-blur-md border-b border-[#EEE9E2] dark:border-white/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <QlarifyLogo />
                     <div className="flex items-center gap-4">
@@ -81,7 +81,7 @@ export default function ArchitecturePage() {
                 </div>
             </nav>
             {/* Main Architecture Tool (becomes the bottom section when no project is loaded) */}
-            <div className="flex-1 pt-16 z-10">
+            <div className="flex-1 z-10">
                 <div className="flex w-full h-full items-center justify-center bg-ivory dark:bg-transparent p-8 overflow-hidden relative">
                     <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none">
                         <div className="absolute top-10 left-10 w-64 h-64 bg-orange-100 rounded-full blur-3xl"></div>
