@@ -8,11 +8,11 @@ import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 
 const ACCENT_COLORS = [
-    { label: 'Terracotta', color: '#D97757', value: '#D97757' },
-    { label: 'Ocean', color: '#3B82F6', value: '#3B82F6' },
-    { label: 'Forest', color: '#10B981', value: '#10B981' },
-    { label: 'Amethyst', color: '#8B5CF6', value: '#8B5CF6' },
-    { label: 'Rose', color: '#F43F5E', value: '#F43F5E' },
+    { label: 'Terracotta', color: '#D97757', value: '#D97757:#FFEDD4' },
+    { label: 'Ocean', color: '#3B82F6', value: '#3B82F6:#A9CAFF' },
+    { label: 'Forest', color: '#10B981', value: '#10B981:#AAF4DC' },
+    { label: 'Amethyst', color: '#8B5CF6', value: '#8B5CF6:#D8C7FE' },
+    { label: 'Rose', color: '#F43F5E', value: '#F43F5E:#FFB8C4' },
 ]
 
 const SIDEBAR_ITEMS = [
@@ -101,21 +101,25 @@ function CustomSelect({ value, onChange, options, minWidth = "w-auto" }: any) {
 export function SettingsDialog() {
     const [isOpen, setIsOpen] = React.useState(false)
     const { theme, setTheme } = useTheme()
-    const [accent, setAccent] = React.useState('#D97757')
+    const [color, setColor] = React.useState('#D97757:#D97757')
     const [activeTab, setActiveTab] = React.useState('general')
 
     React.useEffect(() => {
         const savedThemeBase = localStorage.getItem('theme-accent-color')
         if (savedThemeBase) {
-            setAccent(savedThemeBase)
-            document.documentElement.style.setProperty('--theme-accent-color', savedThemeBase)
+            setColor(savedThemeBase)
+            const [accent, selection] = savedThemeBase.split(':')
+            document.documentElement.style.setProperty('--theme-accent-color', accent)
+            document.documentElement.style.setProperty('--theme-selection-color', selection)
         }
     }, [])
 
     const handleAccentChange = (color: string) => {
-        setAccent(color)
+        setColor(color)
+        const [accent, selection] = color.split(':')
         localStorage.setItem('theme-accent-color', color)
-        document.documentElement.style.setProperty('--theme-accent-color', color)
+        document.documentElement.style.setProperty('--theme-accent-color', accent)
+        document.documentElement.style.setProperty('--theme-selection-color', selection)
     }
 
     return (
@@ -207,7 +211,7 @@ export function SettingsDialog() {
                                                 <div className="py-4 flex items-center justify-between relative z-[50]">
                                                     <span className="text-[14px] text-charcoal dark:text-ivory">Accent color</span>
                                                     <CustomSelect
-                                                        value={accent}
+                                                        value={color}
                                                         onChange={(val: string) => handleAccentChange(val)}
                                                         options={ACCENT_COLORS}
                                                     />

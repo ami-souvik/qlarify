@@ -45,10 +45,10 @@ export default function SystemDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-ivory">
+            <div className="flex h-screen w-full items-center justify-center bg-ivory dark:bg-charcoal">
                 <div className="flex flex-col items-center gap-6">
                     <Loader2 className="h-12 w-12 animate-spin text-terracotta" />
-                    <p className="text-charcoal font-black tracking-tighter text-xl">Loading Architecture...</p>
+                    <p className="text-charcoal dark:text-ivory font-black tracking-tighter text-xl">Loading Architecture...</p>
                 </div>
             </div>
         );

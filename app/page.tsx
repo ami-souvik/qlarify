@@ -85,10 +85,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <QlarifyLogo />
           <div className="flex items-center gap-8">
-            <Link href="#features" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-[#D97757] transition-colors">
+            <Link href="#features" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-terracotta transition-colors">
               Features
             </Link>
-            <Link href="/blog" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-[#D97757] transition-colors">
+            <Link href="/blog" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-terracotta transition-colors">
               Blog
             </Link>
             <LoggedInBadge />
@@ -128,7 +128,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100/50 text-[#D97757] text-[10px] font-bold tracking-widest uppercase mb-8 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100/50 text-terracotta text-[10px] font-bold tracking-widest uppercase mb-8 shadow-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
@@ -138,7 +138,7 @@ export default function Home() {
 
             <h1 className="text-6xl md:text-8xl font-black text-[#1A1A1A] tracking-tighter mb-8 leading-[0.9]">
               Architect your vision, <br />
-              <span className="text-[#D97757]">effortlessly.</span>
+              <span className="text-terracotta">effortlessly.</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-slate-600 font-medium max-w-2xl mx-auto mb-12">

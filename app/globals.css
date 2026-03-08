@@ -5,12 +5,14 @@
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --color-ivory: #FAF9F6;
   --color-charcoal: #1A1A1A;
+  /* emphasis */
   --color-terracotta: var(--theme-accent-color, #D97757);
+  --color-selection: var(--theme-selection-color, var(--color-orange-100));
 }
 
 ::selection {
   color: var(--color-charcoal);
-  background-color: var(--color-orange-100);
+  background-color: var(--color-selection);
 }
 
 @layer base {
