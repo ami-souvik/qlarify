@@ -19,6 +19,7 @@
     "@tiptap/pm": "^3.20.0",
     "@tiptap/react": "^3.20.0",
     "@tiptap/starter-kit": "^3.20.0",
+    "amqplib": "^0.10.9",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "dagre": "^0.8.5",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/amqplib": "^0.10.8",
     "@types/dagre": "^0.7.53",
     "@types/node": "^25.3.5",
     "@types/react": "^19",

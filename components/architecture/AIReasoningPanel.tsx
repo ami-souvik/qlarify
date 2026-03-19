@@ -1,6 +1,5 @@
 "use client";
 
-import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, RefreshCw, BrainCircuit, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { useArchitecture } from '@/context/ArchitectureContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useChatStream } from '@/hooks/useChatStream';
 
 export function AIReasoningPanel() {
     const { state, hydrateProject } = useArchitecture();
@@ -16,6 +16,30 @@ export function AIReasoningPanel() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [status, setStatus] = useState<{ message: string; tool?: string } | null>(null);
     const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([]);
+
+    const [sessionId] = useState(() => `session_${Math.random().toString(36).substring(2, 9)}`);
+    const message = useChatStream(sessionId, async () => {
+        setIsGenerating(false);
+        setStatus(null);
+        if (systemId) {
+            try {
+                const res = await fetch(`/api/systems/${systemId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.system) {
+                        hydrateProject(
+                            data.system.title || null,
+                            data.system.canvas || null,
+                            data.system.messages || [],
+                            data.system.logs || []
+                        );
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to refresh system context:", err);
+            }
+        }
+    });
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Sync messages from context state when it loads
@@ -34,78 +58,28 @@ export function AIReasoningPanel() {
     // Auto-scroll to bottom when messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isGenerating]); // Scroll when sending too (optimistic update)
+    }, [messages, isGenerating, message]); // Scroll when sending too (optimistic update)
 
-    const performReasoningRequest = async (messageBody: string) => {
+    const publishReasoningEvent = async (messageBody: string) => {
         try {
-            const response = await fetch(`/api/reasoning/${systemId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: messageBody
+            await fetch("/api/events", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    event: "idea.submitted",
+                    payload: {
+                        content: messageBody
+                    },
+                    system_id: systemId as string,
+                    session_id: sessionId
+                })
             });
-
-            if (!response.ok || !response.body) {
-                throw new Error(response.statusText);
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let assistantMessage = "";
-            let buffer = "";
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n\n');
-                buffer = lines.pop() || "";
-
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const dataStr = line.replace('data: ', '').trim();
-                        if (dataStr === '[DONE]') break;
-
-                        try {
-                            const data = JSON.parse(dataStr);
-
-                            if (data.type === 'reasoning' || data.type === 'content') {
-                                assistantMessage += data.text || "";
-                                setMessages(prev => {
-                                    const last = prev[prev.length - 1];
-                                    if (last?.role === 'assistant') {
-                                        return [...prev.slice(0, -1), { role: 'assistant', content: assistantMessage }];
-                                    } else {
-                                        return [...prev, { role: 'assistant', content: assistantMessage }];
-                                    }
-                                });
-                            }
-
-                            if (data.error) {
-                                console.error("Stream Error:", data.error);
-                                setStatus({ message: "Error: " + data.error, tool: "error" });
-                            }
-
-                        } catch (e) {
-                            console.error("Error parsing SSE data", e);
-                        }
-                    }
-                }
-            }
-
         } catch (error) {
-            console.error(error);
-            setStatus({ message: "Error processing request", tool: "error" });
-        } finally {
-            setStatus({ message: "Updating canvas...", tool: "refresh" });
-            const res = await axios.get(`/api/systems/${systemId}`);
-            if (res.data.system) {
-                hydrateProject(res.data.system.title, res.data.system.canvas, res.data.system.messages, res.data.system.logs);
-            }
-            setIsGenerating(false);
-            setStatus(null);
+            console.error("Failed to publish event:", error);
         }
-    };
+    }
 
     const initialized = useRef(false);
 
@@ -119,7 +93,8 @@ export function AIReasoningPanel() {
 
             const messageContent = state.title;
 
-            performReasoningRequest(messageContent);
+            // performReasoningRequest(messageContent);
+            publishReasoningEvent(messageContent);
         }
     }, [state.canvas, state.messages.length, state.title, isGenerating]);
 
@@ -133,7 +108,7 @@ export function AIReasoningPanel() {
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setInput("");
 
-        await performReasoningRequest(userMessage);
+        await publishReasoningEvent(userMessage);
     };
 
     return (
@@ -162,6 +137,21 @@ export function AIReasoningPanel() {
                                 </div>
                             </motion.div>
                         ))}
+                        {message && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="flex flex-col items-start"
+                            >
+                                <div className="px-4 py-2 rounded-xl text-sm leading-relaxed bg-white dark:bg-[#252525] border border-[#EEE9E2] dark:border-white/10 text-charcoal dark:text-ivory rounded-bl-none shadow-sm">
+                                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {message}
+                                        </ReactMarkdown>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
                         <div ref={messagesEndRef} />
 
                         {messages.length === 0 && (

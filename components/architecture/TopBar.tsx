@@ -18,23 +18,20 @@ export function TopBar({ onDelete }: { onDelete?: () => void }) {
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
                     <Link href="/app" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <div className="bg-terracotta p-1.5 rounded-xl text-white shadow-lg shadow-orange-900/10 dark:shadow-none">
+                        <div className="bg-terracotta p-1 rounded-lg text-white shadow-lg shadow-orange-900/10 dark:shadow-none">
                             <Box size={18} />
                         </div>
                     </Link>
-                    <div>
-                        <h1 className="text-sm font-bold text-charcoal dark:text-ivory flex items-center gap-2 tracking-tight">
+                    <div className="w-64 flex items-center gap-2">
+                        <h1 className="text-sm font-semibold text-charcoal dark:text-ivory tracking-tight truncate">
                             {state.title || "Untitled Project"}
                         </h1>
-                        <div className="flex items-center gap-2 text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
-                            <span>Last saved 2m ago</span>
-                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Middle: Mode Toggle */}
-            <div className="flex justify-center items-center bg-gray-100/50 dark:bg-black/50 p-1 rounded-xl border border-gray-200 dark:border-white/10">
+            <div className="flex justify-center items-center">
                 {(['PRODUCT_CLARITY', 'ARCHITECTURE'] as const).map((mode) => (
                     <button
                         key={mode}
