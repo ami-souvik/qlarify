@@ -101,6 +101,7 @@ export interface ArchitectureState {
   mode: AppMode;
   title: string;
   canvas: string | null;
+  knowledgeGraph: string | null;
   root: ArchitectureNode | null;
   activeNodeId: string | null;
   breadcrumbs: { id: string; name: string }[];

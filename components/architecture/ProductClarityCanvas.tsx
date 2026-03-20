@@ -55,6 +55,17 @@ export function ProductClarityCanvas() {
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{canvas}</ReactMarkdown>
                     </div>
                 </div>
+
+                {state.knowledgeGraph && (
+                    <div className="overflow-hidden bg-white dark:bg-charcoal mt-8 pt-8 border-t border-slate-200 dark:border-white/10">
+                        <h2 className="text-xl font-black text-charcoal dark:text-ivory mb-6 tracking-tight flex items-center gap-2">
+                            Knowledge Graph
+                        </h2>
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-sm prose-headings:font-bold prose-headings:text-charcoal dark:prose-headings:text-ivory prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-hr:my-6">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{state.knowledgeGraph}</ReactMarkdown>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

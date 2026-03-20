@@ -27,8 +27,9 @@ export default function SystemDetailPage() {
                     const canvas = system.canvas || null;
                     const messages = system.messages || [];
                     const logs = system.logs || [];
+                    const knowledgeGraph = system.knowledge_graph || null;
 
-                    hydrateProject(title, canvas, messages, logs);
+                    hydrateProject(title, canvas, messages, logs, knowledgeGraph);
                 } else {
                     setError("System not found.");
                 }

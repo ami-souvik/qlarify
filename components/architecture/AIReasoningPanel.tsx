@@ -31,7 +31,8 @@ export function AIReasoningPanel() {
                             data.system.title || null,
                             data.system.canvas || null,
                             data.system.messages || [],
-                            data.system.logs || []
+                            data.system.logs || [],
+                            data.system.knowledge_graph || null
                         );
                     }
                 }

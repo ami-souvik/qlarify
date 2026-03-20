@@ -5,7 +5,7 @@ import { ArchitectureNode, ArchitectureState, VisualNode, VisualEdge, ProductCla
 
 interface ArchitectureContextType {
     state: ArchitectureState;
-    hydrateProject: (title: string, canvas: string | null, messages?: any[], logs?: any[]) => void;
+    hydrateProject: (title: string, canvas: string | null, messages?: any[], logs?: any[], knowledgeGraph?: string | null) => void;
     setCanvas: (canvas: string) => void;
     setMode: (mode: AppMode) => void;
     zoomInto: (nodeId: string) => void;
@@ -24,6 +24,7 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         mode: 'PRODUCT_CLARITY',
         title: 'Untitled System',
         canvas: null,
+        knowledgeGraph: null,
         root: null,
         activeNodeId: null,
         breadcrumbs: [],
@@ -58,11 +59,12 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
         return null;
     };
 
-    const hydrateProject = useCallback((title: string, canvas: string | null, messages: any[] = [], logs: any[] = []) => {
+    const hydrateProject = useCallback((title: string, canvas: string | null, messages: any[] = [], logs: any[] = [], knowledgeGraph: string | null = null) => {
         setState(prev => ({
             ...prev,
             title,
             canvas,
+            knowledgeGraph,
             messages: messages || [],
             logs: logs || []
         }));
@@ -145,6 +147,7 @@ export function ArchitectureProvider({ children }: { children: ReactNode }) {
             mode: 'PRODUCT_CLARITY',
             title: 'Untitled System',
             canvas: null,
+            knowledgeGraph: null,
             root: null,
             activeNodeId: null,
             breadcrumbs: [],
