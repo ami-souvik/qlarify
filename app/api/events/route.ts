@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/db";
 import { publishEvent } from "@/lib/publishEvent";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
     try {
-        const userEmail = req.headers.get("x-user-email");
+        const session = await getServerSession(authOptions);
+        const userEmail = session?.user?.email;
+        
         if (!userEmail) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
         }
