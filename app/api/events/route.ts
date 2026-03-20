@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { event, payload, system_id, user_id, session_id } = body;
+        const { event, payload, system_id, session_id } = body;
 
         if (!system_id) {
             return new Response(JSON.stringify({ error: "System ID is required" }), { status: 400 });

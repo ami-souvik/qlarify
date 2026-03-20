@@ -180,7 +180,7 @@ export function SettingsDialog() {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="text-slate-500 text-sm">
+                                            <div className="text-slate-500 text-sm my-6">
                                                 Settings for {SIDEBAR_ITEMS.find(i => i.id === activeTab)?.label} will appear here.
                                             </div>
                                         )}

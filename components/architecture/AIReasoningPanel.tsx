@@ -92,8 +92,8 @@ export function AIReasoningPanel() {
             setStatus({ message: "Initializing analysis...", tool: "reasoning" });
 
             const messageContent = state.title;
+            setMessages(prev => [...prev, { role: 'user', content: messageContent }]);
 
-            // performReasoningRequest(messageContent);
             publishReasoningEvent(messageContent);
         }
     }, [state.canvas, state.messages.length, state.title, isGenerating]);
